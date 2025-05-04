@@ -1,0 +1,94 @@
+/// <summary>
+/// Page AperturaDeCaja (ID 90110).
+/// </summary>
+page 91110 "AperturaDeCaja"
+{
+    Caption = 'Apertura De Caja';
+    PageType = List;
+    SourceTable = AperturaDeCaja;
+    UsageCategory = Lists;
+    ApplicationArea = All;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(General)
+            {
+                field(No; Rec.No)
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Especifica el ID de la apertura de caja';
+                    Editable = false;
+                }
+                field(Cajero; Rec.Cajero)
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Especifica el código del cajero';
+                }
+                field(FechaDeApertura; Rec.FechaDeApertura)
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Especifica la fecha de apertura de caja';
+                }
+                field(HoraDeApertura; Rec.HoraDeApertura)
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Especifica la hora de apertura de caja';
+                }
+                field(ImporteDeApertura; Rec.ImporteDeApertura)
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Especifica el importe inicial en la apertura de caja';
+                }
+                field(Estado; Rec.Estado)
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Especifica el estado actual de la apertura de caja';
+                }
+                field(Caja; Rec.Caja)
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Especifica el código de la caja asignada';
+                }
+                field(Turno; Rec.Turno)
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Especifica el turno asignado a esta apertura de caja';
+                }
+            }
+        }
+    }
+
+    actions
+    {
+        area(Processing)
+        {
+            action(AbrirCaja)
+            {
+                ApplicationArea = All;
+                Caption = 'Abrir Caja';
+                ToolTip = 'Abre la caja con el monto inicial especificado';
+                Image = OpenJournal;
+
+                trigger OnAction()
+                begin
+                    // Código para abrir la caja se implementará aquí
+                end;
+            }
+
+            action(CerrarCaja)
+            {
+                ApplicationArea = All;
+                Caption = 'Cerrar Caja';
+                ToolTip = 'Cierra la caja actual';
+                Image = CloseJournal;
+
+                trigger OnAction()
+                begin
+                    // Código para cerrar la caja se implementará aquí
+                end;
+            }
+        }
+    }
+}
