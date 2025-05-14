@@ -96,7 +96,7 @@ Page 91101 SalesHeader
                 field(Transaction_Specification; Rec."Transaction Specification") { ApplicationArea = All; }
                 field(Payment_Method_Code; Rec."Payment Method Code") { ApplicationArea = All; }
                 field(Shipping_Agent_Code; Rec."Shipping Agent Code") { ApplicationArea = All; }
-                field(Package_Tracking_No_; Rec."Package Tracking No.") { ApplicationArea = All; }
+                //field(Package_Tracking_No_; Rec."Package Tracking No.") { ApplicationArea = All; }
                 field(No__Series; Rec."No. Series") { ApplicationArea = All; }
                 field(Posting_No__Series; Rec."Posting No. Series") { ApplicationArea = All; }
                 field(Shipping_No__Series; Rec."Shipping No. Series") { ApplicationArea = All; }

@@ -20,6 +20,11 @@ page 91115 "Turno"
                     ApplicationArea = All;
                     ToolTip = 'Especifica el ID del turno';
                     Editable = false;
+                    trigger OnAssistEdit()
+                    begin
+                        if Rec.AssistEdit(xRec) then
+                            CurrPage.Update();
+                    end;
                 }
                 field(Turno; Rec."Descripcion Turno")
                 {

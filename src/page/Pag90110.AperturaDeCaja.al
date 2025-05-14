@@ -82,7 +82,7 @@ page 91110 "AperturaDeCaja"
                 ApplicationArea = All;
                 Caption = 'Cerrar Caja';
                 ToolTip = 'Cierra la caja actual';
-                Image = CloseJournal;
+                Image = ClosePeriod;
 
                 trigger OnAction()
                 begin

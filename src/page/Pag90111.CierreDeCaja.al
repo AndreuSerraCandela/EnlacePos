@@ -97,9 +97,16 @@ page 91111 "CierreDeCaja"
                 Image = ViewDetails;
 
                 trigger OnAction()
+
+                var
+                    CierreDetalle: Record CierreDeCajaDetalle;
+                    CierreDetallePage: Page CierreDeCajaDetalle;
                 begin
-                    // Código para mostrar el detalle se implementará aquí
+                    CierreDetalle.SetRange(idCierre, Rec.No);
+                    CierreDetallePage.SetTableView(CierreDetalle);
+                    CierreDetallePage.Run();
                 end;
+
             }
         }
     }

@@ -23,6 +23,11 @@ pageextension 91100 SalesSetup extends "Sales & Receivables Setup"
             {
                 ApplicationArea = All;
             }
+            field("Nums. TPV"; Rec."Nums. TPV")
+            {
+                ApplicationArea = All;
+                ToolTip = 'Especifica la serie de números a utilizar para los TPVs';
+            }
         }
     }
 }

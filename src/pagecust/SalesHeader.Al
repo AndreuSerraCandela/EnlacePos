@@ -19,6 +19,24 @@ pageextension 91107 "Sales Invoice Header Ext" extends "Sales Invoice"
                 ApplicationArea = All;
                 ToolTip = 'Especifica el colegio asociado al cliente';
             }
+            field(Caja; Rec.Caja)
+            {
+                Caption = 'Caja';
+                ApplicationArea = All;
+                ToolTip = 'Especifica la caja asociada a la factura';
+            }
+            field(TPV; Rec.TPV)
+            {
+                Caption = 'TPV';
+                ApplicationArea = All;
+                ToolTip = 'Especifica el TPV asociado a la factura';
+            }
+            field(Turno; Rec.Turno)
+            {
+                Caption = 'Turno';
+                ApplicationArea = All;
+                ToolTip = 'Especifica el turno asociado a la factura';
+            }
         }
 
         addafter("Invoice Details")
@@ -54,6 +72,11 @@ pageextension 91108 "Sales Invoices Ext" extends "Sales Invoice List"
             field(Colegio; Rec.Colegio)
             {
                 Caption = 'Colegio';
+                ApplicationArea = All;
+            }
+            field(TPV; Rec.TPV)
+            {
+                Caption = 'TPV';
                 ApplicationArea = All;
             }
         }

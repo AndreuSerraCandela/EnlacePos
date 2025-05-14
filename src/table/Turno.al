@@ -11,6 +11,10 @@ table 91107 Turno
         {
             Caption = 'ID';
             Editable = false;
+            trigger OnValidate()
+            begin
+                TestNoSeries();
+            end;
         }
         field(2; "Descripcion Turno"; Text[50])
         {
@@ -24,6 +28,11 @@ table 91107 Turno
         {
             Caption = 'Horario Fin';
         }
+        field(5; "No. Series"; Code[20])
+        {
+            Caption = 'No. Serie';
+            TableRelation = "No. Series";
+        }
     }
 
     keys
@@ -34,4 +43,40 @@ table 91107 Turno
         }
 
     }
+    trigger OnInsert()
+    begin
+        TestNoSeries();
+    end;
+
+    procedure AssistEdit(OldTurno: Record Turno): Boolean
+    var
+        Turno: Record Turno;
+        SalesSetup: Record "Sales & Receivables Setup";
+        NoSeries: Codeunit "No. Series";
+    begin
+        Turno := Rec;
+        SalesSetup.Get();
+        SalesSetup.TestField("Nums. Turno");
+        if NoSeries.LookupRelatedNoSeries(SalesSetup."Nums. Turno", OldTurno."No. Series", Turno."No. Series") then begin
+            Turno."No" := NoSeries.GetNextNo(Turno."No. Series");
+            Rec := Turno;
+            exit(true);
+        end;
+    end;
+
+    local procedure TestNoSeries()
+    var
+        Turno: Record Turno;
+        SalesSetup: Record "Sales & Receivables Setup";
+        NoSeries: Codeunit "No. Series";
+    begin
+        SalesSetup.Get();
+        if "No" <> xRec."No" then
+            if not Turno.Get(Rec."No") then begin
+                SalesSetup.Get();
+                NoSeries.TestManual(SalesSetup."Nums. Turno");
+                "No. Series" := '';
+            end;
+    end;
+
 }

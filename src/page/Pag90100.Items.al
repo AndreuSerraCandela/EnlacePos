@@ -79,7 +79,7 @@ Page 91100 Items
                 field(Prevent_Negative_Inventory; Rec."Prevent Negative Inventory") { ApplicationArea = All; }
                 field(Cost_of_Open_Production_Orders; Rec."Cost of Open Production Orders") { ApplicationArea = All; }
                 field(Application_Wksh__User_ID; Rec."Application Wksh. User ID") { ApplicationArea = All; }
-                field(Coupled_to_CRM; Rec."Coupled to CRM") { ApplicationArea = All; }
+                //field(Coupled_to_CRM; Rec."Coupled to CRM") { ApplicationArea = All; }
                 field(Assembly_Policy; Rec."Assembly Policy") { ApplicationArea = All; }
                 field(GTIN; Rec."GTIN") { ApplicationArea = All; }
                 field(Default_Deferral_Template_Code; Rec."Default Deferral Template Code") { ApplicationArea = All; }

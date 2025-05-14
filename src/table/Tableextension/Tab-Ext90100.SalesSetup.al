@@ -22,6 +22,11 @@ tableextension 91100 SalesSetup extends "Sales & Receivables Setup"
             Caption = 'Números de Colegio';
             TableRelation = "No. Series";
         }
+        field(90105; "Nums. TPV"; Code[20])
+        {
+            Caption = 'Números de TPV';
+            TableRelation = "No. Series";
+        }
     }
 }
 tableextension 91101 PurchSetup extends 312

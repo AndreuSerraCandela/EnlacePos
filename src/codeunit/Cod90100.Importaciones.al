@@ -346,7 +346,7 @@ codeunit 91100 Importaciones
         RecRef2: RecordRef;
         ResourceRecRef: RecordRef;
         PurchSetup: Record "Resources Setup";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesMgt: Codeunit "No. Series";
         ResourceTempl: Record Resource;
         ResourceFldRef: FieldRef;
         ResRecRef: RecordRef;
@@ -492,7 +492,7 @@ codeunit 91100 Importaciones
         CustomerRecRef: RecordRef;
         SalesSetup: Record "Sales & Receivables Setup";
         CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesMgt: Codeunit "No. Series";
         CustomerTempl: Record "Customer Templ.";
         CustomerFldRef: FieldRef;
         CustRecRef: RecordRef;
@@ -579,19 +579,30 @@ codeunit 91100 Importaciones
             // CustT."Last_Date_Modified":=GetValueAsText(JToken, 'Last_Date_Modified');
             // CustT."Application_Method":=GetValueAsText(JToken, 'Application_Method');
             CustT."Prices Including VAT" := GetValueAsBoolean(JToken, 'Prices_Including_VAT');
+            CustT."POS Discount" := GetValueAsDecimal(JToken, 'POS_Discount');
+            CustT.Address := GetValueAsText(JToken, 'Direcccion');
+            CustT."Address 2" := GetValueAsText(JToken, 'Direccion_2');
+            CustT."City" := GetValueAsText(JToken, 'Poblacion');
+            CustT."Post Code" := GetValueAsText(JToken, 'Cod_Postal');
+            CustT."Country/Region Code" := GetValueAsText(JToken, 'Pais');
+            CustT."Phone No." := GetValueAsText(JToken, 'Telefono');
+            CustT."Mobile Phone No." := GetValueAsText(JToken, 'Mobil');
+            CustT."E-Mail" := GetValueAsText(JToken, 'E_Mail');
+            CustT."Contact" := GetValueAsText(JToken, 'Contacto');
+            CustT."VAT Registration No." := GetValueAsText(JToken, 'Numero_Identificacion_fiscal');
             CustT."Location Code" := GetValueAsText(JToken, 'Location_Code');
             CustT."Fax No." := GetValueAsText(JToken, 'Fax_No_');
             CustT."Telex Answer Back" := GetValueAsText(JToken, 'Telex_Answer_Back');
-            CustT."VAT Registration No." := GetValueAsText(JToken, 'VAT_Registration_No_');
+            //CustT."VAT Registration No." := GetValueAsText(JToken, 'VAT_Registration_No_');
             CustT."Combine Shipments" := GetValueAsBoolean(JToken, 'Combine_Shipments');
             CustT."Gen. Bus. Posting Group" := GetValueAsText(JToken, 'Gen__Bus__Posting_Group');
             CustT."GLN" := GetValueAsText(JToken, 'GLN');
-            CustT."Post Code" := GetValueAsText(JToken, 'Post_Code');
+            //CustT."Post Code" := GetValueAsText(JToken, 'Post_Code');
             CustT."County" := GetValueAsText(JToken, 'County');
             CustT."EORI Number" := GetValueAsText(JToken, 'EORI_Number');
             CustT."Use GLN in Electronic Document" := GetValueAsBoolean(JToken, 'Use_GLN_in_Electronic_Document');
             CustT."E-Mail" := GetValueAsText(JToken, 'E_Mail');
-            CustT."Home Page" := GetValueAsText(JToken, 'Home_Page');
+            //CustT."Home Page" := GetValueAsText(JToken, 'Home_Page');
             CustT."Reminder Terms Code" := GetValueAsText(JToken, 'Reminder_Terms_Code');
             //CustT."No. Series":=GetValueAsText(JToken, 'No__Series');
             //CustT."Tax Area Code":=GetValueAsText(JToken, 'Tax_Area_Code');
@@ -704,7 +715,7 @@ codeunit 91100 Importaciones
         VendorRecRef: RecordRef;
         PurchSetup: Record 312;
         VendorTemplMgt: Codeunit "Vendor Templ. Mgt.";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesMgt: Codeunit "No. Series";
         VendorTempl: Record "Vendor Templ.";
         VendorFldRef: FieldRef;
         VendRecRef: RecordRef;
@@ -777,7 +788,7 @@ codeunit 91100 Importaciones
             VendorT."County" := GetValueAsText(JToken, 'County');
             VendorT."EORI Number" := GetValueAsText(JToken, 'EORI_Number');
             VendorT."E-Mail" := GetValueAsText(JToken, 'E_Mail');
-            VendorT."Home Page" := GetValueAsText(JToken, 'Home_Page');
+            //VendorT."Home Page" := GetValueAsText(JToken, 'Home_Page');
             //VendorT."No. Series":=GetValueAsText(JToken, 'No__Series');
             //VendorT."Tax Area Code":=GetValueAsText(JToken, 'Tax_Area_Code');
             //VendorT."Tax Liable":=GetValueAsText(JToken, 'Tax_Liable');
@@ -874,7 +885,7 @@ codeunit 91100 Importaciones
         VendorRecRef: RecordRef;
         PurchSetup: Record 312;
         VendorTemplMgt: Codeunit "Vendor Templ. Mgt.";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesMgt: Codeunit "No. Series";
         VendorTempl: Record "Vendor Templ.";
         VendorFldRef: FieldRef;
         VendRecRef: RecordRef;
@@ -889,6 +900,7 @@ codeunit 91100 Importaciones
         IdType: Text;
         InvoiceType: Text;
         IdSpecial: Text;
+        Caja: Record Cajas;
     begin
         JPedidoToken.ReadFrom(Data);
         JPedidoObj := JPedidoToken.AsObject();
@@ -908,6 +920,12 @@ codeunit 91100 Importaciones
             SalesHeaderT."Sell-to Customer No." := GetValueAsText(JToken, 'Sell_to_Customer_No_');
             SalesHeaderT."No." := GetValueAsText(JToken, 'No_');
             SalesHeaderT.Colegio := GetValueAsText(JToken, 'Colegio');
+            SalesHeaderT.Caja := GetValueAsText(JToken, 'Caja');
+            if SalesHeaderT.Caja <> '' Then begin
+                Caja.Get(SalesHeaderT.Caja);
+                SalesHeaderT.TPV := Caja.Tpv;
+            end;
+            SalesHeaderT.Turno := GetValueAsText(JToken, 'Turno');
             SalesHeaderT."Bill-to Customer No." := GetValueAsText(JToken, 'Bill_to_Customer_No_');
             SalesHeaderT."Bill-to Name" := GetValueAsText(JToken, 'Bill_to_Name');
             SalesHeaderT."Bill-to Name 2" := GetValueAsText(JToken, 'Bill_to_Name_2');
@@ -1012,7 +1030,7 @@ codeunit 91100 Importaciones
             SalesHeaderT."Transaction Specification" := GetValueAsText(JToken, 'Transaction_Specification');
             SalesHeaderT."Payment Method Code" := GetValueAsText(JToken, 'Payment_Method_Code');
             SalesHeaderT."Shipping Agent Code" := GetValueAsText(JToken, 'Shipping_Agent_Code');
-            SalesHeaderT."Package Tracking No." := GetValueAsText(JToken, 'Package_Tracking_No_');
+            //SalesHeaderT."Package Tracking No." := GetValueAsText(JToken, 'Package_Tracking_No_');
             SalesHeaderT."No. Series" := GetValueAsText(JToken, 'No__Series');
             SalesHeaderT."Posting No. Series" := GetValueAsText(JToken, 'Posting_No__Series');
             SalesHeaderT."Shipping No. Series" := GetValueAsText(JToken, 'Shipping_No__Series');
@@ -1178,6 +1196,10 @@ codeunit 91100 Importaciones
             Pedido.Validate("Sell-to Customer No.");
             If SalesHeaderT.Colegio <> '' then
                 Pedido.Colegio := SalesHeaderT.Colegio;
+            If SalesHeaderT.Caja <> '' then
+                Pedido.Caja := SalesHeaderT.Caja;
+            If SalesHeaderT.Turno <> '' then
+                Pedido.Turno := SalesHeaderT.Turno;
             if SalesHeaderT."Bill-to Customer No." <> '' then
                 Pedido."Bill-to Customer No." := SalesHeaderT."Bill-to Customer No.";
             if SalesHeaderT."Bill-to Name" <> '' then
@@ -1272,6 +1294,8 @@ codeunit 91100 Importaciones
             Pedido."Importe total" := SalesHeaderT."Importe total";
             if SalesHeaderT."Special Scheme Code".AsInteger() <> 0 Then
                 Pedido."Special Scheme Code" := SalesHeaderT."Special Scheme Code";
+            if SalesHeaderT.TPV <> '' then
+                Pedido.TPV := SalesHeaderT.TPV;
             Pedido.Modify();
             SalesHeaderT."No." := Pedido."No.";
 
@@ -1298,7 +1322,7 @@ codeunit 91100 Importaciones
         VendorRecRef: RecordRef;
         PurchSetup: Record 312;
         VendorTemplMgt: Codeunit "Vendor Templ. Mgt.";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesMgt: Codeunit "No. Series";
         VendorTempl: Record "Vendor Templ.";
         VendorFldRef: FieldRef;
         VendRecRef: RecordRef;
@@ -1362,7 +1386,7 @@ codeunit 91100 Importaciones
             SalesLineT."Unit Price" := GetValueAsDecimal(JToken, 'Unit_Price');
             // SalesLineT."Unit Cost (LCY)":=GetValueAsText(JToken, 'Unit_Cost_LCY');
             // SalesLineT."VAT %":=GetValueAsText(JToken, 'VAT__');
-            SalesLineT."Line Discount %" := GetValueAsDecimal(JToken, 'Line_Discount__');
+            SalesLineT."Line Discount %" := GetValueAsDecimal(JToken, 'Line_Discount_');
             SalesLineT."Line Discount Amount" := GetValueAsDecimal(JToken, 'Line_Discount_Amount');
             // SalesLineT."Amount":=GetValueAsText(JToken, 'Amount');
             // SalesLineT."Amount Including VAT":=GetValueAsText(JToken, 'Amount_Including_VAT');
@@ -1430,7 +1454,6 @@ codeunit 91100 Importaciones
             // SalesLineT."Prepayment Amount":=GetValueAsText(JToken, 'Prepayment_Amount');
             // SalesLineT."Prepmt. VAT Base Amt.":=GetValueAsText(JToken, 'Prepmt__VAT_Base_Amt_');
             // SalesLineT."Prepayment VAT %":=GetValueAsText(JToken, 'Prepayment_VAT__');
-            // SalesLineT."Prepmt. VAT Calc. Type":=GetValueAsText(JToken, 'Prepmt__VAT_Calc__Type');
             // SalesLineT."Prepayment VAT Identifier":=GetValueAsText(JToken, 'Prepayment_VAT_Identifier');
             // SalesLineT."Prepayment Tax Area Code":=GetValueAsText(JToken, 'Prepayment_Tax_Area_Code');
             // SalesLineT."Prepayment Tax Liable":=GetValueAsText(JToken, 'Prepayment_Tax_Liable');
@@ -1557,7 +1580,7 @@ codeunit 91100 Importaciones
         VendorRecRef: RecordRef;
         PurchSetup: Record 312;
         VendorTemplMgt: Codeunit "Vendor Templ. Mgt.";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesMgt: Codeunit "No. Series";
         VendorTempl: Record "Vendor Templ.";
         VendorFldRef: FieldRef;
         VendRecRef: RecordRef;
@@ -1774,7 +1797,7 @@ codeunit 91100 Importaciones
         VendorRecRef: RecordRef;
         PurchSetup: Record 312;
         VendorTemplMgt: Codeunit "Vendor Templ. Mgt.";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesMgt: Codeunit "No. Series";
         VendorTempl: Record "Vendor Templ.";
         VendorFldRef: FieldRef;
         VendRecRef: RecordRef;
@@ -2512,6 +2535,7 @@ codeunit 91100 Importaciones
             Clear(RecCajaTmp);
             RecCajaTmp.No := GetValueAsText(JToken, 'No_');
             RecCajaTMP.Nombre := GetValueAsText(JToken, 'Nombre');
+            RecCajaTMP.TPV := GetValueAsText(JToken, 'TPV');
             if RecCajaTMP.Insert() then
                 CajaCount += 1
             else
@@ -2562,7 +2586,7 @@ codeunit 91100 Importaciones
 
         // Preparar mensaje de resultado
         ResultadoText := StrSubstNo('Importación completada. Cajas procesadas: %1, Errores: %2', CajaCount, ErrorCount);
-        exit(ResultadoText);
+        exit(RecCaja.No);
     end;
 
     /// <summary>
@@ -2634,7 +2658,9 @@ codeunit 91100 Importaciones
                 RecAperturaTmp.Estado := RecAperturaTmp.Estado::Abierto;
 
             // Verificar si existe un ID específico
-            if GetValueAsInteger(JToken, 'No') > 0 then
+            if GetValueAsText(JToken, 'No') = 'TEMP' then
+                RecAperturaTmp.No := 0
+            else if GetValueAsInteger(JToken, 'No') > 0 then
                 RecAperturaTmp.No := GetValueAsInteger(JToken, 'No');
 
             if Deleted then begin
@@ -2683,7 +2709,7 @@ codeunit 91100 Importaciones
         end;
 
         // Preparar mensaje de resultado
-        ResultadoText := StrSubstNo('Importación completada. Aperturas procesadas: %1, Errores: %2', AperturaCount, ErrorCount);
+        ResultadoText := StrSubstNo('%1', RecApertura.No);
         exit(ResultadoText);
     end;
 
@@ -2758,8 +2784,12 @@ codeunit 91100 Importaciones
                 RecCierreTmp.Estado := RecCierreTmp.Estado::Abierto;
 
             // Verificar si existe un ID específico
-            if GetValueAsInteger(JToken, 'No') > 0 then
+            // Verificar si existe un ID específico
+            if GetValueAsText(JToken, 'No') = 'TEMP' then
+                RecCierreTmp.No := 0
+            else if GetValueAsInteger(JToken, 'No') > 0 then
                 RecCierreTmp.No := GetValueAsInteger(JToken, 'No');
+
 
             if Deleted then begin
                 // Buscar por ID si se especifica
@@ -2812,7 +2842,7 @@ codeunit 91100 Importaciones
         end;
 
         // Preparar mensaje de resultado
-        ResultadoText := StrSubstNo('Importación completada. Cierres procesados: %1, Errores: %2', CierreCount, ErrorCount);
+        ResultadoText := StrSubstNo('%1', RecCierre.No);
         exit(ResultadoText);
     end;
 
@@ -3193,6 +3223,107 @@ codeunit 91100 Importaciones
         exit('Ok');
     end;
 
+    [ServiceEnabled]
+    procedure insertaTPV(Data: Text): Text
+    var
+        JTPVToken: JsonToken;
+        JTPVObj: JsonObject;
+        JTPVs: JsonArray;
+        JToken: JsonToken;
+        RecTPV: Record TPV;
+        RecTPVTmp: Record TPV temporary;
+        TPVCount: Integer;
+        ErrorCount: Integer;
+        ResultadoText: Text;
+        Deleted: Boolean;
+        TPVRecRef: RecordRef;
+        EmptyTPVRecRef: RecordRef;
+        TTPVRecRef: RecordRef;
+        i: Integer;
+        TPVFldRef: FieldRef;
+        TTPVFldRef: FieldRef;
+        EmptyTPVFldRef: FieldRef;
+        SalesSetup: Record "Sales & Receivables Setup";
+        NoSeriesMgt: Codeunit "No. Series";
+    begin
+        // Verificar que hay datos para importar
+        if Data = '' then
+            exit('No se proporcionaron datos para importar.');
+
+        // Intentar leer el JSON
+        if not JTPVToken.ReadFrom(Data) then
+            exit('Error al leer el formato JSON.');
+
+        // Convertir a objeto JSON
+        JTPVObj := JTPVToken.AsObject();
+
+        // Obtener el array de TPV
+        if not JTPVObj.Get('TPVs', JTPVToken) then
+            exit('No se encontró el array "TPVs" en el JSON.');
+
+        JTPVs := JTPVToken.AsArray();
+
+        // Contadores para el resultado
+        TPVCount := 0;
+        ErrorCount := 0;
+
+        // Procesar cada TPV
+        foreach JToken in JTPVs do begin
+            Clear(RecTPV);
+
+            // Verificar si es una eliminación
+            Deleted := GetValueAsBoolean(JToken, 'Deleted');
+            Clear(RecTPVTmp);
+            RecTPVTmp.No := GetValueAsText(JToken, 'No_');
+            RecTPVTMP.Nombre := GetValueAsText(JToken, 'Nombre');
+            if RecTPVTMP.Insert() then
+                TPVCount += 1
+            else
+                ErrorCount += 1;
+
+            // Verificar que el TPV no esté vacío
+            If (RecTPVTMP.No = 'TEMP') Or (RecTPVTMP.No = '') Then begin
+                RecTPV := RecTPVTmp;
+                SalesSetup.Get();
+                SalesSetup.TestField("Nums. TPV");
+                RecTPV.No := NoSeriesMgt.GetNextNo(SalesSetup."Nums. TPV", Today, true);
+                RecTPV.Insert();
+            end else begin
+                // Actualizar TPV existente o eliminarlo
+                if not Deleted then begin
+                    TPVRecRef.Gettable(RecTPVTmp);
+                    EmptyTPVRecRef.Open(Database::TPV);
+                    EmptyTPVRecRef.Init();
+                    If RecTPV.Get(RecTPVTMP.No) Then begin
+                        TTPVRecRef.GetTable(RecTPV);
+                        for i := 1 to TPVRecRef.FieldCount do begin
+                            TPVFldRef := TPVRecRef.FieldIndex(i);
+                            TTPVFldRef := TTPVRecRef.Field(TPVFldRef.Number);
+                            EmptyTPVFldRef := EmptyTPVRecRef.Field(TPVFldRef.Number);
+                            if (TPVFldRef.Value <> EmptyTPVFldRef.Value)
+                                then
+                                TTPVFldRef.Value := TPVFldRef.Value;
+                        end;
+
+                        TTPVRecRef.Modify();
+                        RecTPVTMP.No := RecTPV.No;
+                        TPVCount += 1;
+                    end else
+                        ErrorCount += 1;
+                end else begin
+                    If RecTPV.Get(RecTPVTmp.No) Then begin
+                        RecTPV.Delete();
+                        TPVCount += 1;
+                    end else
+                        ErrorCount += 1;
+                end;
+            end;
+        end;
+
+        // Preparar mensaje de resultado
+        ResultadoText := StrSubstNo('Importación completada. TPVs procesados: %1, Errores: %2', TPVCount, ErrorCount);
+        exit(RecTPV.No);
+    end;
 
 }
 

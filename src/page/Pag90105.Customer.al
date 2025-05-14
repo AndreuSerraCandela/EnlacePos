@@ -66,7 +66,7 @@ Page 91105 Customer
                 field(EORI_Number; Rec."EORI Number") { ApplicationArea = All; }
                 field(Use_GLN_in_Electronic_Document; Rec."Use GLN in Electronic Document") { ApplicationArea = All; }
                 field(E_Mail; Rec."E-Mail") { ApplicationArea = All; }
-                field(Home_Page; Rec."Home Page") { ApplicationArea = All; }
+                //field(Home_Page; Rec."Home Page") { ApplicationArea = All; }
                 field(Reminder_Terms_Code; Rec."Reminder Terms Code") { ApplicationArea = All; }
                 field(No__Series; Rec."No. Series") { ApplicationArea = All; }
                 field(Tax_Area_Code; Rec."Tax Area Code") { ApplicationArea = All; }
@@ -82,7 +82,7 @@ Page 91105 Customer
                 field(Privacy_Blocked; Rec."Privacy Blocked") { ApplicationArea = All; }
                 field(Disable_Search_by_Name; Rec."Disable Search by Name") { ApplicationArea = All; }
                 field(Preferred_Bank_Account_Code; Rec."Preferred Bank Account Code") { ApplicationArea = All; }
-                field(Coupled_to_CRM; Rec."Coupled to CRM") { ApplicationArea = All; }
+                //field(Coupled_to_CRM; Rec."Coupled to CRM") { ApplicationArea = All; }
                 field(Cash_Flow_Payment_Terms_Code; Rec."Cash Flow Payment Terms Code") { ApplicationArea = All; }
                 field(Primary_Contact_No_; Rec."Primary Contact No.") { ApplicationArea = All; }
                 field(Contact_Type; Rec."Contact Type") { ApplicationArea = All; }
