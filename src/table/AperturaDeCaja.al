@@ -37,6 +37,13 @@ table 91102 AperturaDeCaja
         {
             Caption = 'Caja';
             TableRelation = Cajas.No;
+            trigger OnValidate()
+            var
+                Cajas: Record Cajas;
+            begin
+                if Cajas.Get(Caja) then
+                    TPV := Cajas.TPV;
+            end;
         }
         field(7; Turno; Code[20])
         {
@@ -46,6 +53,11 @@ table 91102 AperturaDeCaja
         field(8; HoraDeApertura; Time)
         {
             Caption = 'Hora De Apertura';
+        }
+        field(9; TPV; Code[20])
+        {
+            Caption = 'TPV';
+            TableRelation = TPV.No;
         }
     }
 

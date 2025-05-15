@@ -176,4 +176,32 @@ table 91100 "TPV Cue"
         SalesHeader.SetFilter("TPV", '<>%1', '');
         Page.Run(Page::"Sales Credit Memos", SalesHeader);
     end;
+
+    procedure CalcTPVStatistics()
+    var
+        SalesInvHeader: Record "Sales Invoice Header";
+        SalesInvLine: Record "Sales Invoice Line";
+        TotalAmount: Decimal;
+        TotalTransactions: Integer;
+    begin
+        // Calculate average transaction value
+        SalesInvHeader.SetRange("Posting Date", WorkDate());
+        SalesInvHeader.SetFilter("TPV", '<>%1', '');
+        TotalTransactions := SalesInvHeader.Count;
+
+        if TotalTransactions > 0 then begin
+            if SalesInvHeader.FindSet() then
+                repeat
+                    SalesInvLine.SetRange("Document No.", SalesInvHeader."No.");
+                    SalesInvLine.CalcSums(Amount);
+                    TotalAmount += SalesInvLine.Amount;
+                until SalesInvHeader.Next() = 0;
+
+            Rec."Average Transaction Value" := TotalAmount / TotalTransactions;
+        end else
+            Rec."Average Transaction Value" := 0;
+
+        Rec."TPV Sales Updated On" := CurrentDateTime;
+        Rec.Modify();
+    end;
 }

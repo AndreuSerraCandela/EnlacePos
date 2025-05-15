@@ -71,6 +71,21 @@ table 91103 CierreDeCaja
         {
             Caption = 'ID Apertura';
             TableRelation = AperturaDeCaja.No;
+            trigger OnValidate()
+            var
+                AperturaDeCaja: Record AperturaDeCaja;
+            begin
+                if AperturaDeCaja.Get(idApertura) then begin
+                    ImporteDeApertura := AperturaDeCaja.ImporteDeApertura;
+                    FechaDeApertura := AperturaDeCaja.FechaDeApertura;
+                    TPV := AperturaDeCaja.TPV;
+                end;
+            end;
+        }
+        field(14; TPV; Code[20])
+        {
+            Caption = 'TPV';
+            TableRelation = TPV.No;
         }
     }
 

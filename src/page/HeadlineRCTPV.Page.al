@@ -93,7 +93,7 @@ page 91157 "Headline RC TPV"
 
     var
         RCHeadlinesPageCommon: Codeunit "RC Headlines Page Common";
-        TPVRCHeadlinesImpl: Codeunit "TPV RC Headlines Impl.";
+        TPVRCHeadlinesImpl: Codeunit Importaciones;
         TPVHeadlineText: Text;
         TPVHeadlineType: Text;
         NoHeadlinesText: Label 'No hay titulares para mostrar en este momento.';

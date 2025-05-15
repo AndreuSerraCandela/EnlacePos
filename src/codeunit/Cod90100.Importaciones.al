@@ -3,6 +3,7 @@
 /// </summary>
 codeunit 91100 Importaciones
 {
+    TableNo = "TPV Cue";
     Permissions = TableData 18 = rimd,
     tabledata 23 = rimd,
     tabledata 27 = rimd,
@@ -12,7 +13,9 @@ codeunit 91100 Importaciones
     tabledata 39 = rimd,
     tabledata 91108 = rimd,
     tabledata 91107 = rimd,
-    tabledata 91150 = rimd;
+    tabledata 91150 = rimd,
+    tabledata 91100 = rimd,
+    tabledata 91120 = rimd;
     /// <summary>
     /// Ping.
     /// </summary>
@@ -22,6 +25,38 @@ codeunit 91100 Importaciones
     begin
         exit('Pong');
     end;
+
+    trigger OnRun()
+    var
+        SalesInvHeader: Record "Sales Invoice Header";
+        SalesInvLine: Record "Sales Invoice Line";
+        TotalAmount: Decimal;
+        TotalTransactions: Integer;
+        AverageTransactionValue: Decimal;
+        TaskParameters: Dictionary of [Text, Text];
+    begin
+        // Calculate average transaction value
+        SalesInvHeader.SetRange("Posting Date", WorkDate());
+        SalesInvHeader.SetFilter("TPV", '<>%1', '');
+        TotalTransactions := SalesInvHeader.Count;
+
+        if TotalTransactions > 0 then begin
+            if SalesInvHeader.FindSet() then
+                repeat
+                    SalesInvLine.SetRange("Document No.", SalesInvHeader."No.");
+                    SalesInvLine.CalcSums(Amount);
+                    TotalAmount += SalesInvLine.Amount;
+                until SalesInvHeader.Next() = 0;
+
+            AverageTransactionValue := TotalAmount / TotalTransactions;
+        end else
+            AverageTransactionValue := 0;
+
+        // Al tener el TableNo = "TPV Cue", directamente actualizamos los valores aquí
+        // Para evitar problemas de permisos, llamamos a nuestro método especial
+        UpdateTPVCueRecord(Rec, AverageTransactionValue, CurrentDateTime);
+    end;
+
     /// <summary>
     /// insertaProductos.
     /// </summary>
@@ -1189,6 +1224,9 @@ codeunit 91100 Importaciones
                 'R5':
                     SalesHeaderT."Invoice Type" := SalesHeaderT."Invoice Type"::"R5 Corrected Invoice in Simplified Invoices";
             End;
+            //Dto e imporrte Dto;
+            SalesHeaderT."Invoice Discount Value" := GetValueAsDecimal(JToken, 'Dto');
+            SalesHeaderT."Invoice Discount Amount" := GetValueAsDecimal(JToken, 'importeDto');
             If SalesHeaderT."No." <> '' Then Error('Falta implementar la mod. de un pedido');
             Pedido := SalesHeaderT;
             Pedido."No." := '';
@@ -1296,6 +1334,10 @@ codeunit 91100 Importaciones
                 Pedido."Special Scheme Code" := SalesHeaderT."Special Scheme Code";
             if SalesHeaderT.TPV <> '' then
                 Pedido.TPV := SalesHeaderT.TPV;
+            if SalesHeaderT."Invoice Discount Value" <> 0 Then
+                Pedido."Invoice Discount Value" := SalesHeaderT."Invoice Discount Value";
+            if SalesHeaderT."Invoice Discount Amount" <> 0 Then
+                Pedido."Invoice Discount Amount" := SalesHeaderT."Invoice Discount Amount";
             Pedido.Modify();
             SalesHeaderT."No." := Pedido."No.";
 
@@ -1335,6 +1377,13 @@ codeunit 91100 Importaciones
         i: Integer;
         FacturasL: Record "Sales Line";
         Linea: Integer;
+        DocumentTotals: Codeunit "Document Totals";
+        AmountWithDiscountAllowed: Decimal;
+        InvoiceDiscountAmount: Decimal;
+        Currency: Record Currency;
+        SalesCalcDiscByType: Codeunit "Sales - Calc Discount By Type";
+        TotalSalesLine: Record "Sales Line";
+        Amount: Decimal;
     begin
         JLPedidoToken.ReadFrom(Data);
         JLPedidoObj := JLPedidoToken.AsObject();
@@ -1547,6 +1596,7 @@ codeunit 91100 Importaciones
             // Hacer aqui las validaciones
             FacturasL := SaleslineT;
             If FacturasL.Insert() Then begin
+
                 FacturasL.Validate("No.", SalesLineT."No.");
                 If SalesLineT."VAT Prod. Posting Group" <> ' ' then
                     FacturasL.Validate("VAT Prod. Posting Group", SalesLineT."VAT Prod. Posting Group");
@@ -1557,6 +1607,26 @@ codeunit 91100 Importaciones
                 FacturasL.Validate("Line Discount %", SalesLineT."Line Discount %");
                 FacturasL.Modify();
             end
+        end;
+        SalesHeader.Get(SalesLineT."Document Type", SalesLineT."Document No.");
+        if SalesHeader."Invoice Discount Value" <> 0 then begin
+            if SalesHeader."Currency Code" <> '' then
+                Currency.Get(SalesHeader."Currency Code");
+            FacturasL.SetRange("Document No.", SalesHeader."No.");
+            FacturasL.SetRange("Document Type", SalesHeader."Document Type");
+            FacturasL.ModifyAll("Allow Invoice Disc.", true);
+            If FacturasL.FindSet() then
+                repeat
+                    Amount += ((FacturasL.Quantity * FacturasL."Unit Price") * (1 - FacturasL."Line Discount %" / 100));
+                until FacturasL.Next() = 0;
+            Commit();
+            InvoiceDiscountAmount := Round(Amount * SalesHeader."Invoice Discount Value" / 100, Currency."Amount Rounding Precision");
+            SalesCalcDiscByType.ApplyInvDiscBasedOnAmt(InvoiceDiscountAmount, SalesHeader);
+            Commit();
+            SalesHeader.Get(SalesLineT."Document Type", SalesLineT."Document No.");
+            //SalesHeader."Invoice Discount Value":=0;
+            //SalesHeader."Posting Description" := 'Calculado' + Format(InvoiceDiscountAmount);
+            //SalesHeader.Modify();
         end;
         exit('Ok');
     end;
@@ -2534,6 +2604,8 @@ codeunit 91100 Importaciones
             Deleted := GetValueAsBoolean(JToken, 'Deleted');
             Clear(RecCajaTmp);
             RecCajaTmp.No := GetValueAsText(JToken, 'No_');
+            if RecCajaTMP.No = '' then
+                RecCajaTMP.No := GetValueAsText(JToken, 'No'); // Compatibilidad con formato anterior
             RecCajaTMP.Nombre := GetValueAsText(JToken, 'Nombre');
             RecCajaTMP.TPV := GetValueAsText(JToken, 'TPV');
             if RecCajaTMP.Insert() then
@@ -2609,6 +2681,7 @@ codeunit 91100 Importaciones
         Deleted: Boolean;
         EstadoTxt: Text;
         Num: Integer;
+        Cajas: Record Cajas;
     begin
         // Verificar que hay datos para importar
         if Data = '' then
@@ -2644,6 +2717,10 @@ codeunit 91100 Importaciones
             RecAperturaTmp.FechaDeApertura := GetValueAsDate(JToken, 'FechaDeApertura');
             RecAperturaTmp.ImporteDeApertura := GetValueAsDecimal(JToken, 'ImporteDeApertura');
             RecAperturaTmp.Caja := GetValueAsText(JToken, 'Caja');
+            If RecAperturaTmp.Caja <> '' then begin
+                if Cajas.Get(RecAperturaTmp.Caja) then
+                    RecAperturaTmp.TPV := Cajas.TPV;
+            end;
             RecAperturaTmp.Turno := GetValueAsText(JToken, 'Turno');
             RecAperturaTmp.HoraDeApertura := GetValueAsTime(JToken, 'HoraDeApertura');
             // Determinar el estado 
@@ -2733,6 +2810,7 @@ codeunit 91100 Importaciones
         Deleted: Boolean;
         EstadoTxt: Text;
         Num: Integer;
+        AperturaDeCaja: Record AperturaDeCaja;
     begin
         // Verificar que hay datos para importar
         if Data = '' then
@@ -2775,7 +2853,10 @@ codeunit 91100 Importaciones
             RecCierreTmp.ArqueoEUR := GetValueAsDecimal(JToken, 'ArqueoEUR');
             RecCierreTmp.FechaDeCierre := GetValueAsDateTime(JToken, 'FechaDeCierre');
             RecCierreTmp.idApertura := GetValueAsInteger(JToken, 'idApertura');
-
+            If RecCierreTmp.idApertura <> 0 then begin
+                if AperturaDeCaja.Get(RecCierreTmp.idApertura) then
+                    RecCierreTmp.TPV := AperturaDeCaja.TPV;
+            end;
             // Determinar el estado
             EstadoTxt := GetValueAsText(JToken, 'Estado');
             if EstadoTxt = 'Cerrado' then
@@ -3030,6 +3111,7 @@ codeunit 91100 Importaciones
                 // Actualizar forma de pago existente o eliminarla
                 if not Deleted then begin
                     RecFormaPagoTMP.Description := GetValueAsText(JToken, 'Description');
+                    RecFormaPagoTMP.Dto := GetValueAsDecimal(JToken, 'Dto');
                     FormaPagoRecRef.Gettable(RecFormaPagoTmp);
                     EmptyFormaPagoRecRef.Open(Database::"Payment Method");
                     EmptyFormaPagoRecRef.Init();
@@ -3274,19 +3356,46 @@ codeunit 91100 Importaciones
             // Verificar si es una eliminación
             Deleted := GetValueAsBoolean(JToken, 'Deleted');
             Clear(RecTPVTmp);
-            RecTPVTmp.No := GetValueAsText(JToken, 'No_');
-            RecTPVTMP.Nombre := GetValueAsText(JToken, 'Nombre');
+
+            // Asignar valores usando la nueva estructura de nombres
+            RecTPVTmp."No" := GetValueAsText(JToken, 'No'); // Compatibilidad con formato anterior
+
+            RecTPVTmp."Nombre" := GetValueAsText(JToken, 'nombre');
+            if RecTPVTmp."Nombre" = '' then
+                RecTPVTmp."Nombre" := GetValueAsText(JToken, 'Nombre'); // Compatibilidad
+
+            RecTPVTmp."Dirección" := GetValueAsText(JToken, 'direccion');
+            RecTPVTmp."Dirección 2" := GetValueAsText(JToken, 'direccion2');
+            RecTPVTmp."Ciudad" := GetValueAsText(JToken, 'ciudad');
+            RecTPVTmp."Código Postal" := GetValueAsText(JToken, 'codigoPostal');
+            RecTPVTmp."Provincia" := GetValueAsText(JToken, 'provincia');
+            RecTPVTmp."País" := GetValueAsText(JToken, 'pais');
+            RecTPVTmp."Teléfono" := GetValueAsText(JToken, 'telefono');
+            RecTPVTmp."Móvil" := GetValueAsText(JToken, 'movil');
+            RecTPVTmp."Email" := GetValueAsText(JToken, 'email');
+            RecTPVTmp."Sitio Web" := GetValueAsText(JToken, 'sitioWeb');
+            RecTPVTmp."NIF/CIF" := GetValueAsText(JToken, 'nifCif');
+            RecTPVTmp."Contacto" := GetValueAsText(JToken, 'contacto');
+            RecTPVTmp."Notas" := GetValueAsText(JToken, 'notas');
+
+            // Convertir fecha si existe
+            if HasValue(JToken, 'fechaAlta') then
+                Evaluate(RecTPVTmp."Fecha Alta", GetValueAsText(JToken, 'fechaAlta'));
+
+            RecTPVTmp."Location Code" := GetValueAsText(JToken, 'locationCode');
+            RecTPVTmp."No. Series" := GetValueAsText(JToken, 'noSeries');
+
             if RecTPVTMP.Insert() then
                 TPVCount += 1
             else
                 ErrorCount += 1;
 
             // Verificar que el TPV no esté vacío
-            If (RecTPVTMP.No = 'TEMP') Or (RecTPVTMP.No = '') Then begin
+            If (RecTPVTMP."No" = 'TEMP') Or (RecTPVTMP."No" = '') Then begin
                 RecTPV := RecTPVTmp;
                 SalesSetup.Get();
                 SalesSetup.TestField("Nums. TPV");
-                RecTPV.No := NoSeriesMgt.GetNextNo(SalesSetup."Nums. TPV", Today, true);
+                RecTPV."No" := NoSeriesMgt.GetNextNo(SalesSetup."Nums. TPV", Today, true);
                 RecTPV.Insert();
             end else begin
                 // Actualizar TPV existente o eliminarlo
@@ -3294,7 +3403,7 @@ codeunit 91100 Importaciones
                     TPVRecRef.Gettable(RecTPVTmp);
                     EmptyTPVRecRef.Open(Database::TPV);
                     EmptyTPVRecRef.Init();
-                    If RecTPV.Get(RecTPVTMP.No) Then begin
+                    If RecTPV.Get(RecTPVTMP."No") Then begin
                         TTPVRecRef.GetTable(RecTPV);
                         for i := 1 to TPVRecRef.FieldCount do begin
                             TPVFldRef := TPVRecRef.FieldIndex(i);
@@ -3306,12 +3415,12 @@ codeunit 91100 Importaciones
                         end;
 
                         TTPVRecRef.Modify();
-                        RecTPVTMP.No := RecTPV.No;
+                        RecTPVTMP."No" := RecTPV."No";
                         TPVCount += 1;
                     end else
                         ErrorCount += 1;
                 end else begin
-                    If RecTPV.Get(RecTPVTmp.No) Then begin
+                    If RecTPV.Get(RecTPVTmp."No") Then begin
                         RecTPV.Delete();
                         TPVCount += 1;
                     end else
@@ -3322,9 +3431,69 @@ codeunit 91100 Importaciones
 
         // Preparar mensaje de resultado
         ResultadoText := StrSubstNo('Importación completada. TPVs procesados: %1, Errores: %2', TPVCount, ErrorCount);
-        exit(RecTPV.No);
+        exit(RecTPV."No");
     end;
 
+    local procedure HasValue(JToken: JsonToken; PropertyName: Text): Boolean
+    var
+        JObject: JsonObject;
+        JPropertyToken: JsonToken;
+    begin
+        JObject := JToken.AsObject();
+        exit(JObject.Get(PropertyName, JPropertyToken));
+    end;
+    #region roles
+
+
+
+
+
+
+    procedure OnDrillDown(HeadlineType: Text)
+    var
+        TPVInvoicePage: Page "Sales List";
+        SalesHeader: Record "Sales Header";
+        PostedSalesInvoicesPage: Page "Posted Sales Invoices";
+        SalesInvHeader: Record "Sales Invoice Header";
+    begin
+        case HeadlineType of
+            'TodaySales':
+                begin
+                    SalesInvHeader.SetRange("Posting Date", WorkDate());
+                    SalesInvHeader.SetFilter("TPV", '<>%1', '');
+                    PostedSalesInvoicesPage.SetTableView(SalesInvHeader);
+                    PostedSalesInvoicesPage.Run();
+                end;
+            'NoSales':
+                begin
+                    SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
+                    SalesHeader.SetRange("Posting Date", WorkDate());
+                    SalesHeader.SetFilter("TPV", '<>%1', '');
+                    TPVInvoicePage.SetTableView(SalesHeader);
+                    TPVInvoicePage.RunModal();
+                end;
+
+        end;
+    end;
+    #endregion roles
+
+    /// <summary>
+    /// UpdateTPVCueRecord actualiza el registro TPV Cue de manera segura.
+    /// </summary>
+    /// <param name="TPVCue">Registro a actualizar</param>
+    /// <param name="AverageTransactionValue">Valor medio de transacción</param>
+    /// <param name="TPVSalesUpdatedOn">Fecha y hora de actualización</param>
+    procedure UpdateTPVCueRecord(var TPVCue: Record "TPV Cue"; AverageTransactionValue: Decimal; TPVSalesUpdatedOn: DateTime)
+    begin
+        if not TPVCue.Get() then
+            exit;
+
+        TPVCue.LockTable();
+        TPVCue."Average Transaction Value" := AverageTransactionValue;
+        TPVCue."TPV Sales Updated On" := TPVSalesUpdatedOn;
+        //if TPVCue.Modify() then;
+        //Commit();
+    end;
 }
 
 

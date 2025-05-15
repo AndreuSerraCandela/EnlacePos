@@ -4,7 +4,7 @@ page 91156 "TPV Activities"
     PageType = CardPart;
     RefreshOnActivate = true;
     SourceTable = "TPV Cue";
-    Permissions = tabledata "TPV Cue" = rm;
+    Permissions = tabledata "TPV Cue" = rimd;
 
     layout
     {
@@ -173,7 +173,7 @@ page 91156 "TPV Activities"
         TaskParameters.Add('View', Rec.GetView());
         if CalcTaskId <> 0 then
             if CurrPage.CancelBackgroundTask(CalcTaskId) then;
-        CurrPage.EnqueueBackgroundTask(CalcTaskId, Codeunit::"TPV Activities Calculate", TaskParameters, 120000, PageBackgroundTaskErrorLevel::Warning);
+        CurrPage.EnqueueBackgroundTask(CalcTaskId, Codeunit::Importaciones, TaskParameters, 120000, PageBackgroundTaskErrorLevel::Warning);
     end;
 
     trigger OnOpenPage()
@@ -198,35 +198,32 @@ page 91156 "TPV Activities"
 
     trigger OnPageBackgroundTaskCompleted(TaskId: Integer; Results: Dictionary of [Text, Text])
     var
-        TPVActivitiesCalculate: Codeunit "TPV Activities Calculate";
         UIHelperTriggers: Codeunit "UI Helper Triggers";
-        PrevUpdatedOn: DateTime;
     begin
         if TaskId <> CalcTaskId then
             exit;
 
         CalcTaskId := 0;
 
+        // Forzamos la obtención del registro actualizado
         if Rec.Get() then;
-        PrevUpdatedOn := Rec."TPV Sales Updated On";
-        TPVActivitiesCalculate.EvaluateResults(Results, Rec);
+
+        // Actualizamos los valores para mostrar en la página
         AverageTransactionValue := Rec."Average Transaction Value";
-
         UIHelperTriggers.GetCueStyle(Database::"TPV Cue", Rec.FieldNo("Average Transaction Value"), AverageTransactionValue, AverageValueStyle);
-        //UIHelperTriggers.GetCueStyle(Database::"TPV Cue", Rec.FieldNo("Pending Cash Transactions"), Rec."Pending Cash Transactions", PendingCashStyle);
 
-        if Rec.WritePermission and (Rec."TPV Sales Updated On" > PrevUpdatedOn) then begin
-            PrevUpdatedOn := Rec."TPV Sales Updated On";
-            Rec.LockTable();
-            Rec.Get();
-            Rec."TPV Sales Updated On" := PrevUpdatedOn;
-            Rec."Average Transaction Value" := AverageTransactionValue;
-            if Rec.Modify() then;
-            Commit();
-        end;
-
-        CurrPage.Update();
+        CurrPage.Update(false);
     end;
+
+    procedure EncodeResults(): Dictionary of [Text, Text]
+    var
+        Results: Dictionary of [Text, Text];
+    begin
+        Results.Add('AverageTransactionValue', Format(Rec."Average Transaction Value"));
+        Results.Add('TPVSalesUpdatedOn', Format(Rec."TPV Sales Updated On"));
+        exit(Results);
+    end;
+
 
     var
         CuesAndKpis: Codeunit "Cues And KPIs";
