@@ -6,7 +6,13 @@ pageextension 91110 EmployeeCardExt extends "Employee Card"
         {
             group(TPV)
             {
+
                 Caption = 'TPV';
+                field("Supervisor"; Rec."Supervisor")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies if this employee is a supervisor.';
+                }
                 field("Usuario TPV"; Rec."Usuario TPV")
                 {
                     ApplicationArea = All;

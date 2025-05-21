@@ -90,6 +90,26 @@ page 91156 "TPV Activities"
 
 
             }
+            cuegroup("Cupones")
+            {
+                Caption = 'Cupones';
+                field("Cupones Pendientes"; Rec."Pending Coupons")
+                {
+                    CaptionML = ENU = 'Pending Coupons',
+                                ESP = 'Cupones Pendientes';
+                    ApplicationArea = Basic, Suite;
+                    DrillDownPageID = "Campaign List";
+                    ToolTip = 'Especifica el número de cupones pendientes.';
+                }
+                field("Cupones Utilizados"; Rec."Used Coupons")
+                {
+                    CaptionML = ENU = 'Used Coupons',
+                                ESP = 'Cupones Utilizados';
+                    ApplicationArea = Basic, Suite;
+                    DrillDownPageID = "Campaign List";
+                    ToolTip = 'Especifica el número de cupones utilizados.';
+                }
+            }
 
             // cuegroup("Pending Transactions")
             // {

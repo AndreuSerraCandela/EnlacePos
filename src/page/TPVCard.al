@@ -103,6 +103,11 @@ page 91171 "TPV Card"
             group(Otros)
             {
                 Caption = 'Otros Datos';
+                field("% Descuento General"; Rec."% Descuento General")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Especifica el porcentaje de descuento general del TPV.';
+                }
                 field("Contacto"; Rec."Contacto")
                 {
                     ApplicationArea = All;
@@ -123,6 +128,26 @@ page 91171 "TPV Card"
                     ApplicationArea = All;
                     ToolTip = 'Especifica la serie de números utilizada para este TPV.';
                     Editable = false;
+                }
+            }
+            group(Numeradores)
+            {
+                Caption = 'Numeradores';
+                field("Numerador facturas"; Rec."Numerador facturas")
+                {
+                    ApplicationArea = All;
+                }
+                field("Numerador abonos"; Rec."Numerador abonos")
+                {
+                    ApplicationArea = All;
+                }
+                field("Numerador facturas registradas"; Rec."Numerador facturas registradas")
+                {
+                    ApplicationArea = All;
+                }
+                field("Numerador abonos registrados"; Rec."Numerador abonos registrados")
+                {
+                    ApplicationArea = All;
                 }
             }
         }

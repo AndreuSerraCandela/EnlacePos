@@ -13,5 +13,10 @@ tableextension 91110 EmployeeExt extends Employee
             DataClassification = CustomerContent;
             ExtendedDatatype = Masked;
         }
+        field(90112; Supervisor; Boolean)
+        {
+            Caption = 'Supervisor';
+            DataClassification = CustomerContent;
+        }
     }
 }

@@ -61,6 +61,35 @@ table 91100 "TPV Cue"
             Editable = false;
             FieldClass = FlowField;
         }
+        field(14; "Pending Coupons"; Integer)
+        {
+            Caption = 'Pending Coupons';
+            Editable = false;
+            FieldClass = FlowField;
+            CalcFormula = Count(Campaign where("Importe Total Descontado" = filter(0)));
+            trigger OnLookup()
+            var
+                Campaign: Record Campaign;
+            begin
+                Campaign.SetRange("Importe Total Descontado", 0);
+                Page.Run(Page::"Campaign List", Campaign);
+            end;
+        }
+        field(15; "Used Coupons"; Integer)
+        {
+            Caption = 'Used Coupons';
+            Editable = false;
+            FieldClass = FlowField;
+            CalcFormula = Count(Campaign where("Importe Total Descontado" = filter(> 0)));
+            trigger OnLookup()
+            var
+                Campaign: Record Campaign;
+            begin
+                Campaign.SetFilter("Importe Total Descontado", '>%1', 0);
+                Page.Run(Page::"Campaign List", Campaign);
+            end;
+        }
+
         // field(14; "TPV Sales Amount - Today"; Decimal)
         // {
         //     CalcFormula = sum("Sales Invoice Line".Amount where("Posting Date" = field("Date Filter"),

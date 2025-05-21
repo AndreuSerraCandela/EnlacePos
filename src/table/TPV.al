@@ -108,6 +108,32 @@ table 91120 TPV
             Editable = false;
             TableRelation = "No. Series";
         }
+        //Numerador borrador facturas, numerador borrador abonos , numerador facturas registradas, numerador abonos registrados
+        field(19; "Numerador facturas"; Code[20])
+        {
+            Caption = 'Numerador facturas';
+            DataClassification = CustomerContent;
+        }
+        field(20; "Numerador abonos"; Code[20])
+        {
+            Caption = 'Numerador abonos';
+            DataClassification = CustomerContent;
+        }
+        field(21; "Numerador facturas registradas"; Code[20])
+        {
+            Caption = 'Numerador facturas registradas';
+            DataClassification = CustomerContent;
+        }
+        field(22; "Numerador abonos registrados"; Code[20])
+        {
+            Caption = 'Numerador abonos registrados';
+            DataClassification = CustomerContent;
+        }
+        field(24; "% Descuento General"; Decimal)
+        {
+            Caption = '% Descuento General';
+            DataClassification = CustomerContent;
+        }
     }
 
     keys
