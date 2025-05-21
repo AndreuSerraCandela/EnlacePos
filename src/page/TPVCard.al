@@ -15,9 +15,12 @@ page 91171 "TPV Card"
             group(General)
             {
                 Caption = 'General';
+
+
                 field("No"; Rec."No")
                 {
                     ApplicationArea = All;
+                    Caption = 'Nº';
                     ToolTip = 'Especifica el identificador único del TPV.';
 
                     trigger OnAssistEdit()
@@ -29,6 +32,7 @@ page 91171 "TPV Card"
                 field("Nombre"; Rec."Nombre")
                 {
                     ApplicationArea = All;
+                    Caption = 'Nombre';
                     ToolTip = 'Especifica el nombre del TPV.';
                 }
                 field("Location Code"; Rec."Location Code")
@@ -97,6 +101,7 @@ page 91171 "TPV Card"
                 field("NIF/CIF"; Rec."NIF/CIF")
                 {
                     ApplicationArea = All;
+                    Caption = '★ NIF/CIF';
                     ToolTip = 'Especifica el NIF/CIF del TPV.';
                 }
             }
@@ -106,6 +111,7 @@ page 91171 "TPV Card"
                 field("% Descuento General"; Rec."% Descuento General")
                 {
                     ApplicationArea = All;
+                    Caption = '★ % Descuento General';
                     ToolTip = 'Especifica el porcentaje de descuento general del TPV.';
                 }
                 field("Contacto"; Rec."Contacto")
@@ -152,4 +158,6 @@ page 91171 "TPV Card"
             }
         }
     }
+    var
+
 }

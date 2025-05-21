@@ -208,8 +208,8 @@ page 91156 "TPV Activities"
         end;
 
         Rec.SetRespCenterFilter();
-        Rec.SetRange("Date Filter", WorkDate());
-        Rec.SetFilter("Date Filter2", '>=%1', WorkDate());
+        Rec.SetRange("Date Filter", Today());
+        Rec.SetFilter("Date Filter2", '>=%1', Today());
         Rec.SetRange("User ID Filter", UserId());
 
         RoleCenterNotificationMgt.ShowNotifications();

@@ -172,7 +172,7 @@ table 91100 "TPV Cue"
     var
         SalesInvHeader: Record "Sales Invoice Header";
     begin
-        SalesInvHeader.SetRange("Posting Date", WorkDate());
+        SalesInvHeader.SetRange("Posting Date", Today());
         SalesInvHeader.SetFilter("TPV", '<>%1', '');
         Page.Run(Page::"Posted Sales Invoices", SalesInvHeader);
     end;
@@ -181,7 +181,7 @@ table 91100 "TPV Cue"
     var
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
     begin
-        SalesCrMemoHeader.SetRange("Posting Date", WorkDate());
+        SalesCrMemoHeader.SetRange("Posting Date", Today());
         SalesCrMemoHeader.SetFilter("TPV", '<>%1', '');
         Page.Run(Page::"Posted Sales Credit Memos", SalesCrMemoHeader);
     end;
@@ -191,7 +191,7 @@ table 91100 "TPV Cue"
         SalesHeader: Record "Sales Header";
     begin
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
-        SalesHeader.SetRange("Posting Date", WorkDate());
+        SalesHeader.SetRange("Posting Date", Today());
         SalesHeader.SetFilter("TPV", '<>%1', '');
         Page.Run(Page::"Sales Invoice List", SalesHeader);
     end;
@@ -201,7 +201,7 @@ table 91100 "TPV Cue"
         SalesHeader: Record "Sales Header";
     begin
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::"Credit Memo");
-        SalesHeader.SetRange("Posting Date", WorkDate());
+        SalesHeader.SetRange("Posting Date", Today());
         SalesHeader.SetFilter("TPV", '<>%1', '');
         Page.Run(Page::"Sales Credit Memos", SalesHeader);
     end;
@@ -214,7 +214,7 @@ table 91100 "TPV Cue"
         TotalTransactions: Integer;
     begin
         // Calculate average transaction value
-        SalesInvHeader.SetRange("Posting Date", WorkDate());
+        SalesInvHeader.SetRange("Posting Date", Today());
         SalesInvHeader.SetFilter("TPV", '<>%1', '');
         TotalTransactions := SalesInvHeader.Count;
 

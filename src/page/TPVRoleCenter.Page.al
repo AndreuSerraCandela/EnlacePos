@@ -131,6 +131,14 @@ page 91155 "TPV Role Center"
                 RunObject = Page "Customer List";
                 ToolTip = 'Ver o editar información detallada de los clientes con los que comercia.';
             }
+            action(Colegios)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Colegios';
+                Image = ContactReference;
+                RunObject = Page Colegios;
+                ToolTip = 'Ver o editar información detallada de los colegios con los que comercia.';
+            }
             action("Cash Receipt Journals")
             {
                 ApplicationArea = Basic, Suite;
