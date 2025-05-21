@@ -199,6 +199,13 @@ page 91155 "TPV Role Center"
                     RunObject = Page "Cash Receipt Journal";
                     ToolTip = 'Ver y gestionar la caja registradora para transacciones TPV.';
                 }
+                action(Usuarios)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Usuarios';
+                    Image = User;
+                    RunObject = Page "Employee List";
+                }
             }
             group("Posted Documents")
             {
