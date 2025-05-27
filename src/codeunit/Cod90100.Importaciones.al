@@ -1,5 +1,7 @@
 /// <summary>
 /// Codeunit Importaciones (ID 90100).
+/// Proporciona funcionalidad para la importación y exportación de datos mediante servicios web.
+/// Gestiona operaciones relacionadas con productos, recursos, clientes, proveedores, facturas, cajas y TPVs.
 /// </summary>
 codeunit 91100 Importaciones
 {
@@ -18,6 +20,7 @@ codeunit 91100 Importaciones
     tabledata 91120 = rimd;
     /// <summary>
     /// Ping.
+    /// Función de verificación de disponibilidad del servicio web.
     /// </summary>
     /// <returns>Return value of type Text.</returns>
     [ServiceEnabled]
@@ -26,6 +29,11 @@ codeunit 91100 Importaciones
         exit('Pong');
     end;
 
+    /// <summary>
+    /// OnRun: Trigger principal que calcula el valor medio de transacción para ventas TPV del día actual.
+    /// Filtra facturas de ventas registradas con TPV para el día de trabajo actual,
+    /// calcula el valor promedio de transacción y actualiza el registro TPV Cue.
+    /// </summary>
     trigger OnRun()
     var
         SalesInvHeader: Record "Sales Invoice Header";
@@ -59,6 +67,10 @@ codeunit 91100 Importaciones
 
     /// <summary>
     /// insertaProductos.
+    /// Importa datos de productos desde un JSON estructurado.
+    /// Permite crear nuevos productos, actualizar existentes o eliminarlos según la estructura JSON proporcionada.
+    /// Si el número de producto es "TEMP" o vacío, crea un nuevo producto con numeración automática.
+    /// Aplica plantillas de producto y gestiona unidades de medida asociadas.
     /// </summary>
     /// <param name="Data">Text</param>
     /// <returns>Return value of type Text.</returns>
@@ -364,6 +376,10 @@ codeunit 91100 Importaciones
     end;
     /// <summary>
     /// insertaRecrusos.
+    /// Importa datos de recursos desde un formato JSON estructurado.
+    /// Permite crear nuevos recursos o actualizar los existentes según la estructura JSON.
+    /// Si el número de recurso es "TEMP" o vacío, crea un nuevo recurso con numeración automática.
+    /// Gestiona todos los atributos y propiedades del recurso.
     /// </summary>
     /// <param name="Data">Text.</param>
     /// <returns>Return value of type Text.</returns>
@@ -509,6 +525,10 @@ codeunit 91100 Importaciones
     end;
     /// <summary>
     /// insertaClientes.
+    /// Importa datos de clientes desde un formato JSON estructurado.
+    /// Permite crear nuevos clientes, actualizar los existentes o eliminarlos según la estructura JSON.
+    /// Si el número de cliente es "TEMP" o vacío, crea un nuevo cliente con numeración automática.
+    /// Aplica plantillas de cliente y gestiona datos de dirección, contacto y configuración comercial.
     /// </summary>
     /// <param name="Data">Text.</param>
     /// <returns>Return value of type Text.</returns>
@@ -731,8 +751,11 @@ codeunit 91100 Importaciones
     end;
     /// <summary>
     /// insertaProveedores.
+    /// Importa datos de proveedores desde un formato JSON estructurado.
+    /// Permite crear nuevos proveedores o actualizar los existentes según la estructura JSON.
+    /// Si el número de proveedor es "TEMP" o vacío, crea un nuevo proveedor con numeración automática.
+    /// Aplica plantillas de proveedor y gestiona datos de dirección, contacto y configuración comercial.
     /// </summary>
-    /// insertaProveedores.
     /// <param name="Data">Text.</param>
     /// <returns>Return value of type Text.</returns>
     [ServiceEnabled]
@@ -902,6 +925,10 @@ codeunit 91100 Importaciones
     end;
     /// <summary>
     /// insertaFacturasVenta.
+    /// Importa facturas de venta desde un formato JSON estructurado.
+    /// Procesa la creación de nuevas facturas de venta a partir de los datos proporcionados.
+    /// Gestiona información como cliente, dirección, condiciones de pago, datos fiscales, esquemas especiales, etc.
+    /// Si la factura ya existe, se lanzará un error pues no está implementada la modificación.
     /// </summary>
     /// <param name="Data">Text.</param>
     /// <returns>Return value of type Text.</returns>
@@ -1740,8 +1767,7 @@ codeunit 91100 Importaciones
             // PurchaseHeaderT."Buy-from Address":=GetValueAsText(JToken, 'Buy_from_Address');
             // PurchaseHeaderT."Buy-from Address 2":=GetValueAsText(JToken, 'Buy_from_Address_2');
             // PurchaseHeaderT."Buy-from City":=GetValueAsText(JToken, 'Buy_from_City');
-            // PurchaseHeaderT."Buy-from Contact":=GetValueAsText(JToken, 'Buy_from_Contact');
-            // PurchaseHeaderT."Pay-to Post Code":=GetValueAsText(JToken, 'Pay_to_Post_Code');
+            // PurchaseHeaderT."Buy-to Post Code":=GetValueAsText(JToken, 'Pay_to_Post_Code');
             // PurchaseHeaderT."Pay-to County":=GetValueAsText(JToken, 'Pay_to_County');
             // PurchaseHeaderT."Pay-to Country/Region Code":=GetValueAsText(JToken, 'Pay_to_Country_Region_Code');
             // PurchaseHeaderT."Buy-from Post Code":=GetValueAsText(JToken, 'Buy_from_Post_Code');
@@ -2174,7 +2200,13 @@ codeunit 91100 Importaciones
             if Strlen(JToken.AsValue().AsText()) > 0 then
                 exit(JToken.AsValue().AsDate());
     end;
-
+    /// <summary>
+    /// GetValueAsBoolean: Extrae un valor booleano de un token JSON.
+    /// Busca en el objeto JSON un parámetro con el nombre especificado y convierte su valor a booleano.
+    /// </summary>
+    /// <param name="JToken">Token JSON del que extraer el valor.</param>
+    /// <param name="ParamString">Nombre del parámetro a extraer.</param>
+    /// <returns>Valor como booleano del parámetro, o falso si no existe, es nulo o no es convertible a booleano.</returns>
     local procedure GetValueAsBoolean(JToken: JsonToken; ParamString: Text): Boolean
     var
         JObject: JsonObject;
@@ -2184,6 +2216,13 @@ codeunit 91100 Importaciones
         exit(SelectJsonTokenBoolena(JObject, ParamString));
     end;
 
+    /// <summary>
+    /// GetValueAsBoolean: Extrae un valor booleano de un token JSON.
+    /// Busca en el objeto JSON un parámetro con el nombre especificado y convierte su valor a booleano.
+    /// </summary>
+    /// <param name="JToken">Token JSON del que extraer el valor.</param>
+    /// <param name="ParamString">Nombre del parámetro a extraer.</param>
+    /// <returns>Valor como decimal del parámetro, o 0 si no existe, es nulo o no es convertible a decimal.</returns>
     local procedure GetValueAsDecimal(JToken: JsonToken; ParamString: Text): Decimal
     var
         JObject: JsonObject;
@@ -2192,7 +2231,13 @@ codeunit 91100 Importaciones
         JObject := JToken.AsObject();
         exit(SelectJsonTokenDecimal(JObject, ParamString));
     end;
-
+    /// <summary>
+    /// GetValueAsInteger: Extrae un valor entero de un token JSON.
+    /// Busca en el objeto JSON un parámetro con el nombre especificado y convierte su valor a entero.
+    /// </summary>
+    /// <param name="JToken">Token JSON del que extraer el valor.</param>
+    /// <param name="ParamString">Nombre del parámetro a extraer.</param>
+    /// <returns>Valor como entero del parámetro, o 0 si no existe, es nulo o no es convertible a entero.</returns>
     local procedure GetValueAsInteger(JToken: JsonToken; ParamString: Text): Integer
     var
         JObject: JsonObject;
@@ -2207,6 +2252,7 @@ codeunit 91100 Importaciones
     /// </summary>
     /// <param name="Data">Text</param>
     /// <returns>Return value of type Text.</returns>
+
     [ServiceEnabled]
     procedure insertaEmpleados(Data: Text): Text
     var
@@ -2309,7 +2355,13 @@ codeunit 91100 Importaciones
         end;
         exit(EmpT."No.");
     end;
-
+    /// <summary>
+    /// GetValueAsDate: Extrae un valor fecha de un token JSON.
+    /// Busca en el objeto JSON un parámetro con el nombre especificado y convierte su valor a fecha.
+    /// </summary>
+    /// <param name="JToken">Token JSON del que extraer el valor.</param>
+    /// <param name="ParamString">Nombre del parámetro a extraer.</param>
+    /// <returns>Valor como fecha del parámetro, o 0D si no existe, es nulo o no es convertible a fecha.</returns>
     local procedure GetValueAsDate(JToken: JsonToken; ParamString: Text): Date
     var
         JObject: JsonObject;
@@ -3479,6 +3531,8 @@ codeunit 91100 Importaciones
 
     /// <summary>
     /// UpdateTPVCueRecord actualiza el registro TPV Cue de manera segura.
+    /// Actualiza el valor promedio de transacción y la fecha/hora de actualización en el registro TPV Cue.
+    /// Utiliza bloqueo de tabla para garantizar la integridad de los datos durante la actualización.
     /// </summary>
     /// <param name="TPVCue">Registro a actualizar</param>
     /// <param name="AverageTransactionValue">Valor medio de transacción</param>
@@ -3494,6 +3548,188 @@ codeunit 91100 Importaciones
         //if TPVCue.Modify() then;
         //Commit();
     end;
+
+    /// <summary>
+    /// GetCurrentSalesPrices.
+    /// </summary>
+    /// <returns>Return value of type Text - JSON con todos los precios de venta vigentes.</returns>
+    [ServiceEnabled]
+    procedure getcurrentsalesprices(): Text
+    var
+        SalesPrice: Record "Sales Price";
+        JObject: JsonObject;
+        JArray: JsonArray;
+        JPrice: JsonObject;
+        TodayDate: Date;
+        JsonText: Text;
+    begin
+        TodayDate := WorkDate();
+
+        // Filtrar precios de venta que estén vigentes hoy
+        SalesPrice.SetFilter("Starting Date", '%1|..%2', 0D, TodayDate);
+        SalesPrice.SetFilter("Ending Date", '%1|>=%2', 0D, TodayDate);
+
+        if SalesPrice.FindSet() then begin
+            repeat
+                Clear(JPrice);
+
+                // Información del precio
+                JPrice.Add('Item_No', SalesPrice."Item No.");
+                JPrice.Add('Sales_Type', Format(SalesPrice."Sales Type"));
+                JPrice.Add('Sales_Code', SalesPrice."Sales Code");
+                JPrice.Add('Starting_Date', Format(SalesPrice."Starting Date"));
+                JPrice.Add('Ending_Date', Format(SalesPrice."Ending Date"));
+                JPrice.Add('Currency_Code', SalesPrice."Currency Code");
+                JPrice.Add('Unit_Price', SalesPrice."Unit Price");
+                JPrice.Add('Minimum_Quantity', SalesPrice."Minimum Quantity");
+                JPrice.Add('Unit_of_Measure_Code', SalesPrice."Unit of Measure Code");
+                JPrice.Add('Variant_Code', SalesPrice."Variant Code");
+                JPrice.Add('Allow_Line_Disc', SalesPrice."Allow Line Disc.");
+                JPrice.Add('Allow_Invoice_Disc', SalesPrice."Allow Invoice Disc.");
+                JPrice.Add('VAT_Bus_Posting_Gr_Price', SalesPrice."VAT Bus. Posting Gr. (Price)");
+
+                JArray.Add(JPrice);
+            until SalesPrice.Next() = 0;
+        end;
+
+        JObject.Add('SalesPrices', JArray);
+        JObject.WriteTo(JsonText);
+
+        exit(JsonText);
+    end;
+
+    /// <summary>
+    /// GetActiveCoupons.
+    /// </summary>
+    /// <returns>Return value of type Text - JSON con todos los cupones activos con sus precios y descuentos.</returns>
+    [ServiceEnabled]
+    procedure getactivecoupons(): Text
+    var
+        Campaign: Record Campaign;
+        SalesPrice: Record "Sales Price";
+        SalesLineDiscount: Record "Sales Line Discount";
+        DetalleCupon: Record "Detalle Cupón";
+        JObject: JsonObject;
+        JArray: JsonArray;
+        JCoupon: JsonObject;
+        JPricesArray: JsonArray;
+        JDiscountsArray: JsonArray;
+        JDetailsArray: JsonArray;
+        JPrice: JsonObject;
+        JDiscount: JsonObject;
+        JDetail: JsonObject;
+        TodayDate: Date;
+        JsonText: Text;
+    begin
+        TodayDate := WorkDate();
+
+        // Filtrar campañas activas (cupones)
+        // Una campaña se considera activa si:
+        // 1. Está marcada como activa (IsActive = true) O
+        // 2. Tiene fechas de inicio y fin válidas para hoy O
+        // 3. No tiene importe total descontado (cupón no utilizado completamente)
+        Campaign.SetRange(Activated, true);
+        Campaign.SetFilter("Starting Date", '%1|..%2', 0D, TodayDate);
+        Campaign.SetFilter("Ending Date", '%1|>=%2', 0D, TodayDate);
+
+        if Campaign.FindSet() then begin
+            repeat
+                Clear(JCoupon);
+                Clear(JPricesArray);
+                Clear(JDiscountsArray);
+                Clear(JDetailsArray);
+
+                // Información básica del cupón
+                JCoupon.Add('No', Campaign."No.");
+                JCoupon.Add('Description', Campaign.Description);
+                JCoupon.Add('Starting_Date', Format(Campaign."Starting Date"));
+                JCoupon.Add('Ending_Date', Format(Campaign."Ending Date"));
+                // si importe total descontado es >= importe descuento, el cupón está utilizado
+                if Campaign."Importe Total Descontado" >= Campaign."Importe Descuento" then
+                    JCoupon.Add('Status', 'Utilizado')
+                else
+                    JCoupon.Add('Status', 'Pendiente');
+                JCoupon.Add('Active', Campaign.Activated);
+
+                // Información de descuentos del cupón (campos personalizados)
+                JCoupon.Add('Discount_Percentage', Campaign."% Descuento");
+                JCoupon.Add('Discount_Amount', Campaign."Importe Descuento");
+                JCoupon.Add('Total_Discounted_Amount', Campaign."Importe Total Descontado");
+
+                // Obtener precios de venta asociados al cupón
+                SalesPrice.SetRange("Sales Type", SalesPrice."Sales Type"::Campaign);
+                SalesPrice.SetRange("Sales Code", Campaign."No.");
+                SalesPrice.SetFilter("Starting Date", '%1|..%2', 0D, TodayDate);
+                SalesPrice.SetFilter("Ending Date", '%1|>=%2', 0D, TodayDate);
+
+                if SalesPrice.FindSet() then begin
+                    repeat
+                        Clear(JPrice);
+                        JPrice.Add('Item_No', SalesPrice."Item No.");
+                        JPrice.Add('Unit_Price', SalesPrice."Unit Price");
+                        JPrice.Add('Currency_Code', SalesPrice."Currency Code");
+                        JPrice.Add('Starting_Date', Format(SalesPrice."Starting Date"));
+                        JPrice.Add('Ending_Date', Format(SalesPrice."Ending Date"));
+                        JPrice.Add('Minimum_Quantity', SalesPrice."Minimum Quantity");
+                        JPrice.Add('Unit_of_Measure_Code', SalesPrice."Unit of Measure Code");
+                        JPrice.Add('Variant_Code', SalesPrice."Variant Code");
+                        JPricesArray.Add(JPrice);
+                    until SalesPrice.Next() = 0;
+                end;
+
+                // Obtener descuentos de línea asociados al cupón
+                SalesLineDiscount.SetRange("Sales Type", SalesLineDiscount."Sales Type"::Campaign);
+                SalesLineDiscount.SetRange("Sales Code", Campaign."No.");
+                SalesLineDiscount.SetFilter("Starting Date", '%1|..%2', 0D, TodayDate);
+                SalesLineDiscount.SetFilter("Ending Date", '%1|>=%2', 0D, TodayDate);
+
+                if SalesLineDiscount.FindSet() then begin
+                    repeat
+                        Clear(JDiscount);
+                        JDiscount.Add('Type', Format(SalesLineDiscount.Type));
+                        JDiscount.Add('Code', SalesLineDiscount.Code);
+                        JDiscount.Add('Line_Discount_Percentage', SalesLineDiscount."Line Discount %");
+                        JDiscount.Add('Currency_Code', SalesLineDiscount."Currency Code");
+                        JDiscount.Add('Starting_Date', Format(SalesLineDiscount."Starting Date"));
+                        JDiscount.Add('Ending_Date', Format(SalesLineDiscount."Ending Date"));
+                        JDiscount.Add('Minimum_Quantity', SalesLineDiscount."Minimum Quantity");
+                        JDiscount.Add('Unit_of_Measure_Code', SalesLineDiscount."Unit of Measure Code");
+                        JDiscount.Add('Variant_Code', SalesLineDiscount."Variant Code");
+                        JDiscountsArray.Add(JDiscount);
+                    until SalesLineDiscount.Next() = 0;
+                end;
+
+                // Obtener detalles del cupón (TPV, Cliente, Grupo Cliente, Colegio)
+                DetalleCupon.SetRange("Código Cupón", Campaign."No.");
+                if DetalleCupon.FindSet() then begin
+                    repeat
+                        Clear(JDetail);
+                        JDetail.Add('Detail_Type', Format(DetalleCupon."Tipo Detalle"));
+                        JDetail.Add('No', DetalleCupon."No.");
+                        JDetail.Add('Discount_Percentage', DetalleCupon."% Descuento");
+                        JDetail.Add('Discount_Amount', DetalleCupon."Importe Descuento");
+                        JDetail.Add('Total_Discounted_Amount', DetalleCupon."Importe Total Descontado");
+                        JDetailsArray.Add(JDetail);
+                    until DetalleCupon.Next() = 0;
+                end;
+
+                // Agregar arrays al objeto cupón
+                JCoupon.Add('Sales_Prices', JPricesArray);
+                JCoupon.Add('Line_Discounts', JDiscountsArray);
+                JCoupon.Add('Coupon_Details', JDetailsArray);
+
+                JArray.Add(JCoupon);
+            until Campaign.Next() = 0;
+        end;
+
+        JObject.Add('Active_Coupons', JArray);
+        JObject.Add('Total_Count', JArray.Count);
+        JObject.Add('Query_Date', Format(TodayDate));
+        JObject.WriteTo(JsonText);
+
+        exit(JsonText);
+    end;
+
 }
 
 

@@ -18,3 +18,10 @@ enum 91116 "Tipo Detalle"
         Caption = 'Colegio';
     }
 }
+enumextension 91117 salesPricetypeext extends "Sales Price Type"
+{
+    value(5; Colegio)
+    {
+        Caption = 'Colegio';
+    }
+}
