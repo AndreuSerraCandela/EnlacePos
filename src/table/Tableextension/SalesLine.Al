@@ -30,6 +30,26 @@ tableextension 91109 SalesHeaderExtension extends "Sales Header"
             Caption = 'TPV';
             TableRelation = TPV."No";
         }
+        field(50106; "Cupon de descuento"; Code[20])
+        {
+            DataClassification = ToBeClassified;
+            Caption = 'Cupon de descuento';
+            TableRelation = Campaign;
+        }
+        field(50107; "Tipo Detalle"; Enum "Tipo Detalle")
+        {
+            DataClassification = ToBeClassified;
+            Caption = 'Tipo Detalle';
+        }
+        field(50108; "No. Detalle"; Code[20])
+        {
+            DataClassification = ToBeClassified;
+            Caption = 'No. Detalle';
+            TableRelation = if ("Tipo Detalle" = const(TPV)) TPV else
+            if ("Tipo Detalle" = const(Cliente)) Customer else
+            if ("Tipo Detalle" = const(GrupoCliente)) "Customer Price Group" else
+            if ("Tipo Detalle" = const(Colegio)) "Colegios";
+        }
     }
 }
 tableextension 91112 SalesInvoiceLineExtension extends "Sales Invoice header"
@@ -63,6 +83,26 @@ tableextension 91112 SalesInvoiceLineExtension extends "Sales Invoice header"
             DataClassification = ToBeClassified;
             Caption = 'TPV';
             TableRelation = TPV."No";
+        }
+        field(50106; "Cupon de descuento"; Code[20])
+        {
+            DataClassification = ToBeClassified;
+            Caption = 'Cupon de descuento';
+            TableRelation = Campaign;
+        }
+        field(50107; "Tipo Detalle"; Enum "Tipo Detalle")
+        {
+            DataClassification = ToBeClassified;
+            Caption = 'Tipo Detalle';
+        }
+        field(50108; "No. Detalle"; Code[20])
+        {
+            DataClassification = ToBeClassified;
+            Caption = 'No. Detalle';
+            TableRelation = if ("Tipo Detalle" = const(TPV)) TPV else
+            if ("Tipo Detalle" = const(Cliente)) Customer else
+            if ("Tipo Detalle" = const(GrupoCliente)) "Customer Price Group" else
+            if ("Tipo Detalle" = const(Colegio)) "Colegios";
         }
     }
 }
@@ -98,6 +138,26 @@ tableextension 91113 SalesCrHdExtension extends "Sales Cr.Memo Header"
             DataClassification = ToBeClassified;
             Caption = 'TPV';
             TableRelation = TPV."No";
+        }
+        field(50106; "Cupon de descuento"; Code[20])
+        {
+            DataClassification = ToBeClassified;
+            Caption = 'Cupon de descuento';
+            TableRelation = Campaign;
+        }
+        field(50107; "Tipo Detalle"; Enum "Tipo Detalle")
+        {
+            DataClassification = ToBeClassified;
+            Caption = 'Tipo Detalle';
+        }
+        field(50108; "No. Detalle"; Code[20])
+        {
+            DataClassification = ToBeClassified;
+            Caption = 'No. Detalle';
+            TableRelation = if ("Tipo Detalle" = const(TPV)) TPV else
+            if ("Tipo Detalle" = const(Cliente)) Customer else
+            if ("Tipo Detalle" = const(GrupoCliente)) "Customer Price Group" else
+            if ("Tipo Detalle" = const(Colegio)) "Colegios";
         }
     }
 

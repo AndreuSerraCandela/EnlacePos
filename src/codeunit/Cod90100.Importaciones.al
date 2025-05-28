@@ -374,155 +374,7 @@ codeunit 91100 Importaciones
         end;
         exit(ItemT."No.");
     end;
-    /// <summary>
-    /// insertaRecrusos.
-    /// Importa datos de recursos desde un formato JSON estructurado.
-    /// Permite crear nuevos recursos o actualizar los existentes según la estructura JSON.
-    /// Si el número de recurso es "TEMP" o vacío, crea un nuevo recurso con numeración automática.
-    /// Gestiona todos los atributos y propiedades del recurso.
-    /// </summary>
-    /// <param name="Data">Text.</param>
-    /// <returns>Return value of type Text.</returns>
-    [ServiceEnabled]
-    procedure insertaRecrusos(Data: Text): Text
-    var
-        JResToken: JsonToken;
-        JResObj: JsonObject;
-        JResources: JsonArray;
-        JRes: JsonObject;
-        ResourceT: Record Resource temporary;
-        JToken: JsonToken;
-        Texto: Text;
-        Res: Record Resource;
-        RecRef2: RecordRef;
-        ResourceRecRef: RecordRef;
-        PurchSetup: Record "Resources Setup";
-        NoSeriesMgt: Codeunit "No. Series";
-        ResourceTempl: Record Resource;
-        ResourceFldRef: FieldRef;
-        ResRecRef: RecordRef;
-        EmptyResourceRecRef: RecordRef;
-        EmptyResourceTemplRecRef: RecordRef;
-        ResFldRef: FieldRef;
-        EmptyResFldRef: FieldRef;
-        ResourceTemplFldRef: FieldRef;
-        EmptyResourceFldRef: FieldRef;
-        i: Integer;
-    begin
-        JResToken.ReadFrom(Data);
-        JResObj := JResToken.AsObject();
 
-
-        JResObj.SelectToken('Resources', JResToken);
-        JResources := JResToken.AsArray();
-        foreach JToken in JResources do begin
-
-            ResourceT."No." := GetValueAsText(JToken, 'No_');
-            Texto := GetValueAsText(JToken, 'Type');
-            Case Texto Of
-                'Machine', 'Maquina':
-                    ResourceT."Type" := "Resource Type"::Machine;
-                'Person', 'Persona':
-                    ResourceT."Type" := "Resource Type"::Person;
-            End;
-
-            ResourceT."Name" := GetValueAsText(JToken, 'Name');
-            ResourceT."Search Name" := GetValueAsText(JToken, 'Search_Name');
-            ResourceT."Name 2" := GetValueAsText(JToken, 'Name_2');
-            ResourceT."Address" := GetValueAsText(JToken, 'Address');
-            ResourceT."Address 2" := GetValueAsText(JToken, 'Address_2');
-            ResourceT."City" := GetValueAsText(JToken, 'City');
-            ResourceT."Social Security No." := GetValueAsText(JToken, 'Social_Security No_');
-            ResourceT."Job Title" := GetValueAsText(JToken, 'Job_Title');
-            ResourceT."Education" := GetValueAsText(JToken, 'Education');
-            ResourceT."Contract Class" := GetValueAsText(JToken, 'Contract_Class');
-            if evaluate(ResourceT."Employment Date", GetValueAsText(JToken, 'Employment_Date')) Then;
-            ResourceT."Resource Group No." := GetValueAsText(JToken, 'Resource_Group_No_');
-            ResourceT."Global Dimension 1 Code" := GetValueAsText(JToken, 'Global_Dimension_1_Code');
-            ResourceT."Global Dimension 2 Code" := GetValueAsText(JToken, 'Global_Dimension_2_Code');
-            ResourceT."Base Unit of Measure" := GetValueAsText(JToken, 'Base_Unit_of_Measure');
-            ResourceT."Direct Unit Cost" := GetValueAsDecimal(JToken, 'Direct_Unit Cost');
-            ResourceT."Indirect Cost %" := GetValueAsdecimal(JToken, 'Indirect_Cost__');
-            ResourceT."Unit Cost" := GetValueAsDecimal(JToken, 'Unit_Cost');
-            ResourceT."Profit %" := GetValueAsDecimal(JToken, 'Profit__');
-            Texto := GetValueAsText(JToken, 'Price_Profit_Calculation');
-            Case Texto Of
-                'No Relationship', 'Sin Relación':
-                    ResourceT."Price/Profit Calculation" := ResourceT."Price/Profit Calculation"::"No Relationship";
-                'Price=Cost+Profit', 'Precio=Coste+Beneficio':
-                    ResourceT."Price/Profit Calculation" := ResourceT."Price/Profit Calculation"::"Price=Cost+Profit";
-                'Profit=Price-Cost', 'Beneficio=Precio-Coste':
-                    ResourceT."Price/Profit Calculation" := ResourceT."Price/Profit Calculation"::"Profit=Price-Cost";
-            End;
-            ResourceT."Unit Price" := GetValueAsDecimal(JToken, 'Unit_Price');
-            ResourceT."Vendor No." := GetValueAsText(JToken, 'Vendor_No_');
-            //ResourceT."Last Date Modified" := GetValueAsText(JToken, 'Last Date Modified');
-            ResourceT."Gen. Prod. Posting Group" := GetValueAsText(JToken, 'Gen__Prod__Posting_Group');
-            ResourceT."Post Code" := GetValueAsText(JToken, 'Post_Code');
-            ResourceT."County" := GetValueAsText(JToken, 'County');
-            ResourceT."Automatic Ext. Texts" := GetValueAsBoolean(JToken, 'Automatic_Ext__Texts');
-            ResourceT."No. Series" := GetValueAsText(JToken, 'No__Series');
-            //ResourceT."Tax Group Code" := GetValueAsText(JToken, 'Tax Group_Code');
-            ResourceT."VAT Prod. Posting Group" := GetValueAsText(JToken, 'VAT_Prod__Posting_Group');
-            ResourceT."Country/Region Code" := GetValueAsText(JToken, 'Country_Region_Code');
-            ResourceT."IC Partner Purch. G/L Acc. No." := GetValueAsText(JToken, 'IC_Partner_Purch__G_L_Acc__No_');
-            // ResourceT."Image" := GetValueAsText(JToken, 'Image');
-            ResourceT."Privacy Blocked" := GetValueAsBoolean(JToken, 'Privacy_Blocked');
-            //ResourceT."Coupled_to_CRM" := GetValueAsText(JToken, 'Coupled to CRM');
-            //ResourceT."Use Time Sheet" := GetValueAsText(JToken, 'Use Time Sheet');
-            ResourceT."Time Sheet Owner User ID" := GetValueAsText(JToken, 'Time_Sheet_Owner_User_ID');
-            ResourceT."Time Sheet Approver User ID" := GetValueAsText(JToken, 'Time_Sheet_Approver_User_ID');
-            ResourceT."Default Deferral Template Code" := GetValueAsText(JToken, 'Default_Deferral_Template_Code');
-            //ResourceT."Service Zone Filter" := GetValueAsText(JToken, 'Service Zone Filter');
-
-            If (ResourceT."No." = 'TEMP') or (ResourceT."No." = '') Then begin
-
-                PurchSetup.Get();
-                Res := ResourceT;
-                Res."No. Series" := PurchSetup."Resource Nos.";
-                Res."No." := NoSeriesMgt.GetNextNo(PurchSetup."Resource Nos.", Today, true);
-                Res.Insert();
-                ResourceTempl.FindFirst();
-                ResourceRecRef.Gettable(ResourceTempl);
-
-                EmptyResourceRecRef.Open(Database::Resource);
-                EmptyResourceRecRef.Init();
-                If Res.Get(ResourceT."No.") Then begin
-                    ResRecRef.GetTable(Res);
-                    for i := 1 to ResourceRecRef.FieldCount do begin
-                        ResourceFldRef := ResourceRecRef.FieldIndex(i);
-                        ResFldRef := ResRecRef.Field(ResourceFldRef.Number);
-                        EmptyResourceFldRef := EmptyResourceRecRef.Field(ResourceFldRef.Number);
-                        if (ResourceFldRef.Value <> EmptyResourceFldRef.Value) and (ResFldRef.Value = EmptyResourceFldRef.Value)
-                            then
-                            ResFldRef.Value := ResourceFldRef.Value;
-                    end;
-                    ResRecRef.Modify();
-                end;
-                ResourceT."No." := Res."No.";
-            end else begin
-                ResourceRecRef.Gettable(ResourceT);
-                EmptyResourceRecRef.Open(Database::Resource);
-                EmptyResourceRecRef.Init();
-                If Res.Get(ResourceT."No.") Then begin
-                    ResRecRef.GetTable(Res);
-                    for i := 1 to ResourceRecRef.FieldCount do begin
-                        ResourceFldRef := ResourceRecRef.FieldIndex(i);
-                        ResFldRef := ResRecRef.Field(ResourceFldRef.Number);
-                        EmptyResourceFldRef := EmptyResourceRecRef.Field(ResourceFldRef.Number);
-                        if (ResourceFldRef.Value <> EmptyResourceFldRef.Value)
-                            then
-                            ResFldRef.Value := ResourceFldRef.Value;
-                    end;
-
-                    ResRecRef.Modify();
-                end;
-
-                ResourceT."No." := Res."No.";
-            end;
-            exit(ResourceT."No.");
-        end;
-    end;
     /// <summary>
     /// insertaClientes.
     /// Importa datos de clientes desde un formato JSON estructurado.
@@ -749,189 +601,7 @@ codeunit 91100 Importaciones
         exit(CustT."No.");
 
     end;
-    /// <summary>
-    /// insertaProveedores.
-    /// Importa datos de proveedores desde un formato JSON estructurado.
-    /// Permite crear nuevos proveedores o actualizar los existentes según la estructura JSON.
-    /// Si el número de proveedor es "TEMP" o vacío, crea un nuevo proveedor con numeración automática.
-    /// Aplica plantillas de proveedor y gestiona datos de dirección, contacto y configuración comercial.
-    /// </summary>
-    /// <param name="Data">Text.</param>
-    /// <returns>Return value of type Text.</returns>
-    [ServiceEnabled]
-    procedure insertaProveedores(Data: Text): Text
-    var
-        JVendorToken: JsonToken;
-        JVendorObj: JsonObject;
-        JVendors: JsonArray;
-        JVendor: JsonObject;
-        VendorT: Record Vendor temporary;
-        JToken: JsonToken;
-        Texto: Text;
-        Vend: Record Vendor;
-        RecRef2: RecordRef;
-        VendorRecRef: RecordRef;
-        PurchSetup: Record 312;
-        VendorTemplMgt: Codeunit "Vendor Templ. Mgt.";
-        NoSeriesMgt: Codeunit "No. Series";
-        VendorTempl: Record "Vendor Templ.";
-        VendorFldRef: FieldRef;
-        VendRecRef: RecordRef;
-        EmptyVendorRecRef: RecordRef;
-        EmptyVendorTemplRecRef: RecordRef;
-        VendFldRef: FieldRef;
-        EmptyVendFldRef: FieldRef;
-        VendorTemplFldRef: FieldRef;
-        EmptyVendorFldRef: FieldRef;
-        i: Integer;
-    begin
-        JVendorToken.ReadFrom(Data);
-        JVendorObj := JVendorToken.AsObject();
 
-
-        JVendorObj.SelectToken('Vendors', JVendorToken);
-        JVendors := JVendorToken.AsArray();
-        foreach JToken in JVendors do begin
-
-
-            VendorT."No." := GetValueAsText(JToken, 'No_');
-            VendorT."Name" := GetValueAsText(JToken, 'Name');
-            VendorT."Search Name" := GetValueAsText(JToken, 'Search_Name');
-            VendorT."Name 2" := GetValueAsText(JToken, 'Name_2');
-            VendorT."Address" := GetValueAsText(JToken, 'Address');
-            VendorT."Address 2" := GetValueAsText(JToken, 'Address_2');
-            VendorT."City" := GetValueAsText(JToken, 'City');
-            VendorT."Contact" := GetValueAsText(JToken, 'Contact');
-            VendorT."Phone No." := GetValueAsText(JToken, 'Phone_No_');
-            VendorT."Telex No." := GetValueAsText(JToken, 'Telex_No_');
-            VendorT."Our Account No." := GetValueAsText(JToken, 'Our_Account_No_');
-            VendorT."Territory Code" := GetValueAsText(JToken, 'Territory_Code');
-            VendorT."Global Dimension 1 Code" := GetValueAsText(JToken, 'Global_Dimension_1_Code');
-            VendorT."Global Dimension 2 Code" := GetValueAsText(JToken, 'Global_Dimension_2_Code');
-            VendorT."Budgeted Amount" := GetValueAsDecimal(JToken, 'Budgeted_Amount');
-            VendorT."Vendor Posting Group" := GetValueAsText(JToken, 'Vendor_Posting_Group');
-            VendorT."Currency Code" := GetValueAsText(JToken, 'Currency_Code');
-            VendorT."Language Code" := GetValueAsText(JToken, 'Language_Code');
-            VendorT."Statistics Group" := GetValueAsInteger(JToken, 'Statistics_Group');
-            VendorT."Payment Terms Code" := GetValueAsText(JToken, 'Payment_Terms_Code');
-            VendorT."Fin. Charge Terms Code" := GetValueAsText(JToken, 'Fin__Charge_Terms_Code');
-            VendorT."Purchaser Code" := GetValueAsText(JToken, 'Purchaser_Code');
-            VendorT."Shipment Method Code" := GetValueAsText(JToken, 'Shipment_Method_Code');
-            VendorT."Shipping Agent Code" := GetValueAsText(JToken, 'Shipping_Agent_Code');
-            VendorT."Invoice Disc. Code" := GetValueAsText(JToken, 'Invoice_Disc__Code');
-            VendorT."Country/Region Code" := GetValueAsText(JToken, 'Country_Region_Code');
-            Texto := GetValueAsText(JToken, 'Blocked');
-            Case Texto Of
-                ' ':
-                    VendorT."Blocked" := "Vendor Blocked"::" ";
-                'All', 'Todos':
-                    VendorT."Blocked" := "Vendor Blocked"::All;
-                'Payment', 'Pago':
-                    VendorT."Blocked" := "Vendor Blocked"::Payment;
-            End;
-            VendorT."Pay-to Vendor No." := GetValueAsText(JToken, 'Pay_to_Vendor_No_');
-            VendorT."Priority" := GetValueAsInteger(JToken, 'Priority');
-            VendorT."Payment Method Code" := GetValueAsText(JToken, 'Payment_Method_Code');
-            // VendorT."Last Modified Date Time":=GetValueAsText(JToken, 'Last_Modified_Date_Time');
-            // VendorT."Last Date Modified":=GetValueAsText(JToken, 'Last_Dat_ Modified');
-            // VendorT."Application Method":=GetValueAsText(JToken, 'Application_Method');
-            VendorT."Prices Including VAT" := GetValueAsBoolean(JToken, 'Prices_Including_VAT');
-            VendorT."Fax No." := GetValueAsText(JToken, 'Fax_No_');
-            VendorT."Telex Answer Back" := GetValueAsText(JToken, 'Telex_Answer_Back');
-            VendorT."VAT Registration No." := GetValueAsText(JToken, 'VAT_Registration_No_');
-            VendorT."Gen. Bus. Posting Group" := GetValueAsText(JToken, 'Gen__Bus__Posting_Group');
-            // VendorT."Picture;Vendor."Picture"){}
-            VendorT."GLN" := GetValueAsText(JToken, 'GLN');
-            VendorT."Post Code" := GetValueAsText(JToken, 'Post_Code');
-            VendorT."County" := GetValueAsText(JToken, 'County');
-            VendorT."EORI Number" := GetValueAsText(JToken, 'EORI_Number');
-            VendorT."E-Mail" := GetValueAsText(JToken, 'E_Mail');
-            //VendorT."Home Page" := GetValueAsText(JToken, 'Home_Page');
-            //VendorT."No. Series":=GetValueAsText(JToken, 'No__Series');
-            //VendorT."Tax Area Code":=GetValueAsText(JToken, 'Tax_Area_Code');
-            //VendorT."Tax Liable":=GetValueAsText(JToken, 'Tax_Liable');
-            VendorT."VAT Bus. Posting Group" := GetValueAsText(JToken, 'VAT_Bus__Posting_Group');
-            //VendorT."Block_Payment_Tolerance":=GetValueAsText(JToken, 'Block_Payment_Tolerance');
-            VendorT."IC Partner Code" := GetValueAsText(JToken, 'IC_Partner_Code');
-            VendorT."Prepayment %" := GetValueAsInteger(JToken, 'Prepayment__');
-            Texto := GetValueAsText(JToken, 'Partner_Type');
-            Case Texto Of
-                ' ':
-                    VendorT."Partner Type" := "Partner Type"::" ";
-                'Company', 'Empresa':
-                    VendorT."Partner Type" := "Partner Type"::Company;
-                'Person', 'Persona':
-                    VendorT."Partner Type" := "Partner Type"::Person;
-            End;
-            //VendorT."Intrastat Partner Type":=GetValueAsText(JToken, 'Intrastat_Partner_Type');
-            //VendorT."Image":=GetValueAsText(JToken, 'Image');
-            VendorT."Privacy Blocked" := GetValueAsBoolean(JToken, 'Privacy_Blocked');
-            //VendorT."Disable_Search_by_Name":=GetValueAsText(JToken, 'Disable_Search_by_Name');
-            VendorT."Creditor No." := GetValueAsText(JToken, 'Creditor_No_');
-            VendorT."Preferred Bank Account Code" := GetValueAsText(JToken, 'Preferred_Bank_Account_Code');
-            //VendorT."Coupled to CRM":=GetValueAsText(JToken, 'Coupled_to_CRM');
-            VendorT."Cash Flow Payment Terms Code" := GetValueAsText(JToken, 'Cash_Flow_Payment_Terms_Code');
-            VendorT."Primary Contact No." := GetValueAsText(JToken, 'Primary_Contact_No_');
-            VendorT."Mobile Phone No." := GetValueAsText(JToken, 'Mobile_Phone_No_');
-            VendorT."Responsibility Center" := GetValueAsText(JToken, 'Responsibility_Center');
-            VendorT."Location Code" := GetValueAsText(JToken, 'Location_Code');
-            // VendorT."Lead Time Calculation":=GetValueAsText(JToken, 'Lead_Time_Calculation');
-            // VendorT."Price Calculation Method":=GetValueAsText(JToken, 'Price_Calculation_Method');
-            VendorT."Base Calendar Code" := GetValueAsText(JToken, 'Base_Calendar_Code');
-            VendorT."Document Sending Profile" := GetValueAsText(JToken, 'Document_Sending_Profile');
-            VendorT."Validate EU Vat Reg. No." := GetValueAsBoolean(JToken, 'Validate_EU_Vat_Reg__No_');
-            // VendorT."Currency_Id":=GetValueAsText(JToken, 'Currency_Id');
-            // VendorT."Payment_Terms_Id":=GetValueAsText(JToken, 'Payment_Terms_Id');
-            // VendorT."Payment_Method_Id":=GetValueAsText(JToken, 'Payment_Method_Id');
-            VendorT."Over-Receipt Code" := GetValueAsText(JToken, 'Over-Receipt_Code');
-            VendorT."Payment Days Code" := GetValueAsText(JToken, 'Payment_Days_Code');
-            VendorT."Non-Paymt. Periods Code" := GetValueAsText(JToken, 'Non_Paymt__Periods_Code');
-            // VendorT."Self_Employed;Vendor."Self Employed"){}
-
-            If (VendorT."No." = 'TEMP') or (VendorT."No." = '') Then begin
-
-                PurchSetup.Get();
-                PurchSetup.TestField("Vendor Nos.");
-                Vend := VendorT;
-                Vend."No. Series" := PurchSetup."Vendor Nos.";
-                Vend."No." := NoSeriesMgt.GetNextNo(PurchSetup."Vendor Nos.", Today, true);
-                Vend.Insert();
-                PurchSetup.TestField(VendorTemplate);
-                VendorTempl.Get(PurchSetup.VendorTemplate);
-                VendorTemplMgt.ApplyVendorTemplate(Vend, VendorTempl);
-                VendorT."No." := Vend."No.";
-            end else begin
-                VendorRecRef.Gettable(VendorT);
-                EmptyVendorRecRef.Open(Database::Vendor);
-                EmptyVendorRecRef.Init();
-                If Vend.Get(VendorT."No.") Then begin
-                    VendRecRef.GetTable(Vend);
-                    for i := 1 to VendorRecRef.FieldCount do begin
-                        VendorFldRef := VendorRecRef.FieldIndex(i);
-                        VendFldRef := VendRecRef.Field(VendorFldRef.Number);
-                        EmptyVendorFldRef := EmptyVendorRecRef.Field(VendorFldRef.Number);
-                        if (VendorFldRef.Value <> EmptyVendorFldRef.Value)
-                            then
-                            VendFldRef.Value := VendorFldRef.Value;
-                    end;
-
-                    VendRecRef.Modify();
-                end;
-
-                VendorT."No." := Vend."No.";
-            end;
-        end;
-        exit(VendorT."No.");
-    end;
-    /// <summary>
-    /// insertaFacturasVenta.
-    /// Importa facturas de venta desde un formato JSON estructurado.
-    /// Procesa la creación de nuevas facturas de venta a partir de los datos proporcionados.
-    /// Gestiona información como cliente, dirección, condiciones de pago, datos fiscales, esquemas especiales, etc.
-    /// Si la factura ya existe, se lanzará un error pues no está implementada la modificación.
-    /// </summary>
-    /// <param name="Data">Text.</param>
-    /// <returns>Return value of type Text.</returns>
     [ServiceEnabled]
     procedure insertaFacturasVenta(Data: Text): Text
     var
@@ -963,6 +633,7 @@ codeunit 91100 Importaciones
         InvoiceType: Text;
         IdSpecial: Text;
         Caja: Record Cajas;
+        TipoDetalle: Text;
     begin
         JPedidoToken.ReadFrom(Data);
         JPedidoObj := JPedidoToken.AsObject();
@@ -1010,6 +681,19 @@ codeunit 91100 Importaciones
             SalesHeaderT."Ship-to Address 2" := GetValueAsText(JToken, 'Ship_to_Address_2');
             SalesHeaderT."Ship-to City" := GetValueAsText(JToken, 'Ship_to_City');
             SalesHeaderT."Ship-to Contact" := GetValueAsText(JToken, 'Ship_to_Contact');
+            SalesHeaderT."Cupon de descuento" := GetValueAsText(JToken, 'Cupon');
+            TipoDetalle := GetValueAsText(JToken, 'Tipo_Detalle');
+            Case TipoDetalle of
+                'TPV':
+                    SalesHeaderT."Tipo Detalle" := SalesHeaderT."Tipo Detalle"::TPV;
+                'Cliente':
+                    SalesHeaderT."Tipo Detalle" := SalesHeaderT."Tipo Detalle"::Cliente;
+                'GrupoCliente':
+                    SalesHeaderT."Tipo Detalle" := SalesHeaderT."Tipo Detalle"::GrupoCliente;
+                'Colegio':
+                    SalesHeaderT."Tipo Detalle" := SalesHeaderT."Tipo Detalle"::Colegio;
+            end;
+            SalesHeaderT."No. Detalle" := GetValueAsText(JToken, 'No_Detalle');
             If Evaluate(SalesHeaderT."Order Date", GetValueAsText(JToken, 'Order_Date')) Then;
             If Evaluate(SalesHeaderT."Posting Date", GetValueAsText(JToken, 'Posting_Date')) Then;
             If Evaluate(SalesHeaderT."Shipment Date", GetValueAsText(JToken, 'Shipment_Date')) Then;
@@ -1365,6 +1049,11 @@ codeunit 91100 Importaciones
                 Pedido."Invoice Discount Value" := SalesHeaderT."Invoice Discount Value";
             if SalesHeaderT."Invoice Discount Amount" <> 0 Then
                 Pedido."Invoice Discount Amount" := SalesHeaderT."Invoice Discount Amount";
+            if SalesHeaderT."Cupon de descuento" <> '' then
+                Pedido."Cupon de descuento" := SalesHeaderT."Cupon de descuento";
+            Pedido."Tipo Detalle" := SalesHeaderT."Tipo Detalle";
+            if SalesHeaderT."No. Detalle" <> '' then
+                Pedido."No. Detalle" := SalesHeaderT."No. Detalle";
             Pedido.Modify();
             SalesHeaderT."No." := Pedido."No.";
 
@@ -1657,472 +1346,7 @@ codeunit 91100 Importaciones
         end;
         exit('Ok');
     end;
-    /// <summary>
-    /// insertaFacturasCompra.
-    /// </summary>
-    /// <param name="Data">Text.</param>
-    /// <returns>Return value of type Text.</returns>
-    [ServiceEnabled]
-    procedure insertaFacturasCompra(Data: Text): Text
-    var
-        JPedidoToken: JsonToken;
-        JPedidoObj: JsonObject;
-        JFacturas: JsonArray;
-        JPedido: JsonObject;
-        PurchaseHeaderT: Record "Purchase Header" temporary;
-        JToken: JsonToken;
-        Texto: Text;
-        Vend: Record Vendor;
-        RecRef2: RecordRef;
-        VendorRecRef: RecordRef;
-        PurchSetup: Record 312;
-        VendorTemplMgt: Codeunit "Vendor Templ. Mgt.";
-        NoSeriesMgt: Codeunit "No. Series";
-        VendorTempl: Record "Vendor Templ.";
-        VendorFldRef: FieldRef;
-        VendRecRef: RecordRef;
-        EmptyVendorRecRef: RecordRef;
-        EmptyVendorTemplRecRef: RecordRef;
-        VendFldRef: FieldRef;
-        EmptyVendFldRef: FieldRef;
-        VendorTemplFldRef: FieldRef;
-        EmptyVendorFldRef: FieldRef;
-        i: Integer;
-        Pedido: Record "Purchase Header";
-    begin
-        JPedidoToken.ReadFrom(Data);
-        JPedidoObj := JPedidoToken.AsObject();
 
-
-        JPedidoObj.SelectToken('Purchase_Headers', JPedidoToken);
-        JFacturas := JPedidoToken.AsArray();
-        foreach JToken in JFacturas do begin
-            PurchaseHeaderT."Document Type" := PurchaseHeaderT."Document Type"::Invoice;//GetValueAsText(JToken, 'Document_Type');
-            PurchaseHeaderT."Buy-from Vendor No." := GetValueAsText(JToken, 'Buy_from_Vendor_No_');
-            PurchaseHeaderT."No." := GetValueAsText(JToken, 'No_');
-            PurchaseHeaderT."Pay-to Vendor No." := GetValueAsText(JToken, 'Pay_to_Vendor_No_');
-            PurchaseHeaderT."Pay-to Name" := GetValueAsText(JToken, 'Pay_to_Name');
-            PurchaseHeaderT."Pay-to Name 2" := GetValueAsText(JToken, 'Pay_to_Name_2');
-            PurchaseHeaderT."Pay-to Address" := GetValueAsText(JToken, 'Pay_to_Address');
-            PurchaseHeaderT."Pay-to Address 2" := GetValueAsText(JToken, 'Pay_to_Address_2');
-            PurchaseHeaderT."Pay-to City" := GetValueAsText(JToken, 'Pay_to_City');
-            PurchaseHeaderT."Pay-to Contact" := GetValueAsText(JToken, 'Pay_to_Contact');
-            PurchaseHeaderT."Your Reference" := GetValueAsText(JToken, 'Your_Reference');
-            PurchaseHeaderT."Ship-to Code" := GetValueAsText(JToken, 'Ship_to_Code');
-            PurchaseHeaderT."Ship-to Name" := GetValueAsText(JToken, 'Ship_to_Name');
-            PurchaseHeaderT."Ship-to Name 2" := GetValueAsText(JToken, 'Ship_to_Name_2');
-            PurchaseHeaderT."Ship-to Address" := GetValueAsText(JToken, 'Ship_to_Address');
-            PurchaseHeaderT."Ship-to Address 2" := GetValueAsText(JToken, 'Ship_to_Address_2');
-            PurchaseHeaderT."Ship-to City" := GetValueAsText(JToken, 'Ship_to_City');
-            PurchaseHeaderT."Ship-to Contact" := GetValueAsText(JToken, 'Ship_to_Contact');
-            If Evaluate(PurchaseHeaderT."Order Date", GetValueAsText(JToken, 'Order_Date')) Then;
-            If Evaluate(PurchaseHeaderT."Posting Date", GetValueAsText(JToken, 'Posting_Date')) Then;
-            If Evaluate(PurchaseHeaderT."Expected Receipt Date", GetValueAsText(JToken, 'Expected_Receipt_Date')) Then;
-            PurchaseHeaderT."Posting Description" := GetValueAsText(JToken, 'Posting_Description');
-            PurchaseHeaderT."Payment Terms Code" := GetValueAsText(JToken, 'Payment_Terms_Code');
-            If Evaluate(PurchaseHeaderT."Due Date", GetValueAsText(JToken, 'Due_Date')) Then;
-            // PurchaseHeaderT."Payment Discount %":=GetValueAsText(JToken, 'Payment_Discount__');
-            // PurchaseHeaderT."Pmt. Discount Date":=GetValueAsText(JToken, 'Pmt__Discount_Date');
-            PurchaseHeaderT."Shipment Method Code" := GetValueAsText(JToken, 'Shipment_Method_Code');
-            PurchaseHeaderT."Location Code" := GetValueAsText(JToken, 'Location_Code');
-            PurchaseHeaderT."Shortcut Dimension 1 Code" := GetValueAsText(JToken, 'Shortcut_Dimension_1_Code');
-            PurchaseHeaderT."Shortcut Dimension 2 Code" := GetValueAsText(JToken, 'Shortcut_Dimension_2_Code');
-            PurchaseHeaderT."Vendor Posting Group" := GetValueAsText(JToken, 'Vendor_Posting_Group');
-            PurchaseHeaderT."Currency Code" := GetValueAsText(JToken, 'Currency_Code');
-            PurchaseHeaderT."Currency Factor" := GetValueAsdecimal(JToken, 'Currency_Factor');
-            // PurchaseHeaderT."Prices Including VAT":=GetValueAsText(JToken, 'Prices_Including_VAT');
-            // PurchaseHeaderT."Invoice Disc. Code":=GetValueAsText(JToken, 'Invoice_Disc__Code');
-            // PurchaseHeaderT."Language Code":=GetValueAsText(JToken, 'Language_Code');
-            // PurchaseHeaderT."Purchaser Code":=GetValueAsText(JToken, 'Purchaser_Code');
-            // PurchaseHeaderT."Order Class":=GetValueAsText(JToken, 'Order_Class');
-            // PurchaseHeaderT."Comment":=GetValueAsText(JToken, 'Comment');
-            // PurchaseHeaderT."No. Printed":=GetValueAsText(JToken, 'No__Printed');
-            PurchaseHeaderT."On Hold" := GetValueAsText(JToken, 'On_Hold');
-            // PurchaseHeaderT."Applies-to Doc. Type":=GetValueAsText(JToken, 'Applies_to_Doc__Type');
-            PurchaseHeaderT."Applies-to Doc. No." := GetValueAsText(JToken, 'Applies_to_Doc__No_');
-            // PurchaseHeaderT."Bal. Account No.":=GetValueAsText(JToken, 'Bal__Account_No_');
-            // PurchaseHeaderT."Recalculate Invoice Disc.":=GetValueAsText(JToken, 'Recalculate_Invoice_Disc_');
-            // PurchaseHeaderT."Receive":=GetValueAsText(JToken, 'Receive');
-            // PurchaseHeaderT."Invoice":=GetValueAsText(JToken, 'Invoice');
-            // PurchaseHeaderT."Print Posted Documents":=GetValueAsText(JToken, 'Print_Posted_Documents');
-            // PurchaseHeaderT."Amount":=GetValueAsText(JToken, 'Amount');
-            // PurchaseHeaderT."Amount Including VAT":=GetValueAsText(JToken, 'Amount_Including_VAT');
-            // PurchaseHeaderT."Receiving No.":=GetValueAsText(JToken, 'Receiving_No_');
-            // PurchaseHeaderT."Posting No.":=GetValueAsText(JToken, 'Posting_No_');
-            // PurchaseHeaderT."Last Receiving No.":=GetValueAsText(JToken, 'Last_Receiving_No_');
-            // PurchaseHeaderT."Last Posting No.":=GetValueAsText(JToken, 'Last_Posting_No_');
-            PurchaseHeaderT."Vendor Order No." := GetValueAsText(JToken, 'Vendor_Order_No_');
-            PurchaseHeaderT."Vendor Shipment No." := GetValueAsText(JToken, 'Vendor_Shipment_No_');
-            PurchaseHeaderT."Vendor Invoice No." := GetValueAsText(JToken, 'Vendor_Invoice_No_');
-            PurchaseHeaderT."Vendor Cr. Memo No." := GetValueAsText(JToken, 'Vendor_Cr__Memo_No_');
-            PurchaseHeaderT."VAT Registration No." := GetValueAsText(JToken, 'VAT_Registration_No_');
-            // PurchaseHeaderT."Sell-to Customer No.":=GetValueAsText(JToken, 'Sell_to_Customer_No_');
-            // PurchaseHeaderT."Reason Code":=GetValueAsText(JToken, 'Reason_Code');
-            // PurchaseHeaderT."Gen. Bus. Posting Group":=GetValueAsText(JToken, 'Gen__Bus__Posting_Group');
-            // PurchaseHeaderT."Transaction Type":=GetValueAsText(JToken, 'Transaction_Type');
-            // PurchaseHeaderT."Transport Method":=GetValueAsText(JToken, 'Transport_Method');
-            // PurchaseHeaderT."VAT Country/Region Code":=GetValueAsText(JToken, 'VAT_Country_Region_Code');
-            // PurchaseHeaderT."Buy-from Vendor Name":=GetValueAsText(JToken, 'Buy_from_Vendor_Name');
-            // PurchaseHeaderT."Buy-from Vendor Name 2":=GetValueAsText(JToken, 'Buy_from_Vendor_Name_2');
-            // PurchaseHeaderT."Buy-from Address":=GetValueAsText(JToken, 'Buy_from_Address');
-            // PurchaseHeaderT."Buy-from Address 2":=GetValueAsText(JToken, 'Buy_from_Address_2');
-            // PurchaseHeaderT."Buy-from City":=GetValueAsText(JToken, 'Buy_from_City');
-            // PurchaseHeaderT."Buy-to Post Code":=GetValueAsText(JToken, 'Pay_to_Post_Code');
-            // PurchaseHeaderT."Pay-to County":=GetValueAsText(JToken, 'Pay_to_County');
-            // PurchaseHeaderT."Pay-to Country/Region Code":=GetValueAsText(JToken, 'Pay_to_Country_Region_Code');
-            // PurchaseHeaderT."Buy-from Post Code":=GetValueAsText(JToken, 'Buy_from_Post_Code');
-            // PurchaseHeaderT."Buy-from County":=GetValueAsText(JToken, 'Buy_from_County');
-            // PurchaseHeaderT."Buy-from Country/Region Code":=GetValueAsText(JToken, 'Buy_from_Country_Region_Code');
-            // PurchaseHeaderT."Ship-to Post Code":=GetValueAsText(JToken, 'Ship_to_Post_Code');
-            // PurchaseHeaderT."Ship-to County":=GetValueAsText(JToken, 'Ship_to_County');
-            // PurchaseHeaderT."Ship-to Country/Region Code":=GetValueAsText(JToken, 'Ship_to_Country_Region_Code');
-            // PurchaseHeaderT."Bal. Account Type":=GetValueAsText(JToken, 'Bal__Account_Type');
-            // PurchaseHeaderT."Order Address Code":=GetValueAsText(JToken, 'Order_Address_Code');
-            // PurchaseHeaderT."Entry Point":=GetValueAsText(JToken, 'Entry_Point');
-            // PurchaseHeaderT."Correction":=GetValueAsText(JToken, 'Correction');
-            // PurchaseHeaderT."Document Date":=GetValueAsText(JToken, 'Document_Date');
-            // PurchaseHeaderT."Area":=GetValueAsText(JToken, 'PurchaseHeaderArea');
-            // PurchaseHeaderT."Transaction Specification":=GetValueAsText(JToken, 'Transaction_Specification');
-            // PurchaseHeaderT."Payment Method Code":=GetValueAsText(JToken, 'Payment_Method_Code');
-            // PurchaseHeaderT."No. Series":=GetValueAsText(JToken, 'No__Series');
-            // PurchaseHeaderT."Posting No. Series":=GetValueAsText(JToken, 'Posting_No__Series');
-            // PurchaseHeaderT."Receiving No. Series":=GetValueAsText(JToken, 'Receiving_No__Series');
-            // PurchaseHeaderT."Tax Area Code":=GetValueAsText(JToken, 'Tax_Area_Code');
-            // PurchaseHeaderT."Tax Liable":=GetValueAsText(JToken, 'Tax_Liable');
-            // PurchaseHeaderT."VAT Bus. Posting Group":=GetValueAsText(JToken, 'VAT_Bus__Posting_Group');
-            // PurchaseHeaderT."Applies-to ID":=GetValueAsText(JToken, 'Applies_to_ID');
-            // PurchaseHeaderT."VAT Base Discount %":=GetValueAsText(JToken, 'VAT_Base_Discount__');
-            // PurchaseHeaderT."Status":=GetValueAsText(JToken, 'Status');
-            // PurchaseHeaderT."Invoice Discount Calculation":=GetValueAsText(JToken, 'Invoice_Discount_Calculation');
-            // PurchaseHeaderT."Invoice Discount Value":=GetValueAsText(JToken, 'Invoice_Discount_Value');
-            // PurchaseHeaderT."Send IC Document":=GetValueAsText(JToken, 'Send_IC_Document');
-            // PurchaseHeaderT."IC Status":=GetValueAsText(JToken, 'IC_Status');
-            // PurchaseHeaderT."Buy-from IC Partner Code":=GetValueAsText(JToken, 'Buy_from_IC_Partner_Code');
-            // PurchaseHeaderT."Pay-to IC Partner Code":=GetValueAsText(JToken, 'Pay_to_IC_Partner_Code');
-            // PurchaseHeaderT."IC Direction":=GetValueAsText(JToken, 'IC_Direction');
-            // PurchaseHeaderT."Prepayment No.":=GetValueAsText(JToken, 'Prepayment_No_');
-            // PurchaseHeaderT."Last Prepayment No.":=GetValueAsText(JToken, 'Last_Prepayment_No_');
-            // PurchaseHeaderT."Prepmt. Cr. Memo No.":=GetValueAsText(JToken, 'Prepmt__Cr__Memo_No_');
-            // PurchaseHeaderT."Last Prepmt. Cr. Memo No.":=GetValueAsText(JToken, 'Last_Prepmt__Cr__Memo_No_');
-            // PurchaseHeaderT."Prepayment %":=GetValueAsText(JToken, 'Prepayment__');
-            // PurchaseHeaderT."Prepayment No. Series":=GetValueAsText(JToken, 'Prepayment_No__Series');
-            // PurchaseHeaderT."Compress Prepayment":=GetValueAsText(JToken, 'Compress_Prepayment');
-            // PurchaseHeaderT."Prepayment Due Date":=GetValueAsText(JToken, 'Prepayment_Due_Date');
-            // PurchaseHeaderT."Prepmt. Cr. Memo No. Series":=GetValueAsText(JToken, 'Prepmt__Cr__Memo_No__Series');
-            // PurchaseHeaderT."Prepmt. Posting Description":=GetValueAsText(JToken, 'Prepmt__Posting_Description');
-            // PurchaseHeaderT."Prepmt. Pmt. Discount Date":=GetValueAsText(JToken, 'Prepmt__Pmt__Discount_Date');
-            // PurchaseHeaderT."Prepmt. Payment Terms Code":=GetValueAsText(JToken, 'Prepmt__Payment_Terms_Code');
-            // PurchaseHeaderT."Prepmt. Payment Discount %":=GetValueAsText(JToken, 'Prepmt__Payment_Discount__');
-            // PurchaseHeaderT."Quote No.":=GetValueAsText(JToken, 'Quote_No_');
-            // PurchaseHeaderT."Job Queue Status":=GetValueAsText(JToken, 'Job_Queue_Status');
-            // PurchaseHeaderT."Job Queue Entry ID":=GetValueAsText(JToken, 'Job_Queue_Entry_ID');
-            // PurchaseHeaderT."Incoming Document Entry No.":=GetValueAsText(JToken, 'Incoming_Document_Entry_No_');
-            // PurchaseHeaderT."Creditor No.":=GetValueAsText(JToken, 'Creditor_No_');
-            // PurchaseHeaderT."Payment Reference":=GetValueAsText(JToken, 'Payment_Reference');
-            // PurchaseHeaderT."Journal Templ. Name":=GetValueAsText(JToken, 'Journal_Templ__Name');
-            // PurchaseHeaderT."Dimension Set ID":=GetValueAsText(JToken, 'Dimension_Set_ID');
-            // PurchaseHeaderT."Invoice Discount Amount":=GetValueAsText(JToken, 'Invoice_Discount_Amount');
-            // PurchaseHeaderT."No. of Archived Versions":=GetValueAsText(JToken, 'No__of_Archived_Versions');
-            // PurchaseHeaderT."Doc. No. Occurrence":=GetValueAsText(JToken, 'Doc__No__Occurrence');
-            // PurchaseHeaderT."Campaign No.":=GetValueAsText(JToken, 'Campaign_No_');
-            // PurchaseHeaderT."Buy-from Contact No.":=GetValueAsText(JToken, 'Buy_from_Contact_No_');
-            // PurchaseHeaderT."Pay-to Contact No.":=GetValueAsText(JToken, 'Pay_to_Contact_No_');
-            // PurchaseHeaderT."Responsibility Center":=GetValueAsText(JToken, 'Responsibility_Center');
-            // PurchaseHeaderT."Partially Invoiced":=GetValueAsText(JToken, 'Partially_Invoiced');
-            // PurchaseHeaderT."Completely Received":=GetValueAsText(JToken, 'Completely_Received');
-            // PurchaseHeaderT."Posting from Whse. Ref.":=GetValueAsText(JToken, 'Posting_from_Whse__Ref_');
-            // PurchaseHeaderT."Location Filter":=GetValueAsText(JToken, 'Location_Filter');
-            // PurchaseHeaderT."Requested Receipt Date":=GetValueAsText(JToken, 'Requested_Receipt_Date');
-            // PurchaseHeaderT."Promised Receipt Date":=GetValueAsText(JToken, 'Promised_Receipt_Date');
-            // PurchaseHeaderT."Lead Time Calculation":=GetValueAsText(JToken, 'Lead_Time_Calculation');
-            // PurchaseHeaderT."Inbound Whse. Handling Time":=GetValueAsText(JToken, 'Inbound_Whse__Handling_Time');
-            // PurchaseHeaderT."Date Filter":=GetValueAsText(JToken, 'Date_Filter');
-            // PurchaseHeaderT."Vendor Authorization No.":=GetValueAsText(JToken, 'Vendor_Authorization_No_');
-            // PurchaseHeaderT."Return Shipment No.":=GetValueAsText(JToken, 'Return_Shipment_No_');
-            // PurchaseHeaderT."Return Shipment No. Series":=GetValueAsText(JToken, 'Return_Shipment_No__Series');
-            // PurchaseHeaderT."Ship":=GetValueAsText(JToken, 'Ship');
-            // PurchaseHeaderT."Last Return Shipment No.":=GetValueAsText(JToken, 'Last_Return_Shipment_No_');
-            // PurchaseHeaderT."Price Calculation Method":=GetValueAsText(JToken, 'Price_Calculation_Method');
-            //PurchaseHeaderT."Id":=eAsText(JToken, '                //fieldattribute(Id');
-            // PurchaseHeaderT."Assigned User ID":=GetValueAsText(JToken, 'Assigned_User_ID');
-            // PurchaseHeaderT."Pending Approvals":=GetValueAsText(JToken, 'Pending_Approvals');
-            // PurchaseHeaderT."Generate Autoinvoices":=GetValueAsText(JToken, 'Generate_Autoinvoices');
-            // PurchaseHeaderT."Generate Autocredit Memo":=GetValueAsText(JToken, 'Generate_Autocredit_Memo');
-            // PurchaseHeaderT."Corrected Invoice No.":=GetValueAsText(JToken, 'Corrected_Invoice_No_');
-            // PurchaseHeaderT."Due Date Modified":=GetValueAsText(JToken, 'Due_Date_Modified');
-            // PurchaseHeaderT."Invoice Type":=GetValueAsText(JToken, 'Invoice_Type');
-            // PurchaseHeaderT."Cr. Memo Type":=GetValueAsText(JToken, 'Cr__Memo_Type');
-            // PurchaseHeaderT."Special Scheme Code":=GetValueAsText(JToken, 'Special_Scheme_Code');
-            // PurchaseHeaderT."Operation Description":=GetValueAsText(JToken, 'Operation_Description');
-            // PurchaseHeaderT."Correction Type":=GetValueAsText(JToken, 'Correction_Type');
-            // PurchaseHeaderT."Operation Description 2":=GetValueAsText(JToken, 'Operation_Description_2');
-            // PurchaseHeaderT."Succeeded Company Name":=GetValueAsText(JToken, 'Succeeded_Company_Name');
-            // PurchaseHeaderT."Succeeded VAT Registration No.":=GetValueAsText(JToken, 'Succeeded_VAT_Registration_No_');
-            // PurchaseHeaderT."ID Type":=GetValueAsText(JToken, 'ID_Type');
-            // PurchaseHeaderT."Do Not Send To SII":=GetValueAsText(JToken, 'Do_Not_Send_To_SII');
-            // PurchaseHeaderT."Applies-to Bill No.":=GetValueAsText(JToken, 'Applies_to_Bill_No_');
-            PurchaseHeaderT."Vendor Bank Acc. Code" := GetValueAsText(JToken, 'Vendor_Bank_Acc__Code');
-            If PurchaseHeaderT."No." <> '' Then Error('Falta implementar la mod. de un pedido');
-            Pedido := PurchaseHeaderT;
-            Pedido."No." := '';
-            Pedido.Insert(true);
-            Pedido.Validate("Buy-from Vendor No.");
-            Pedido.Modify();
-            PurchaseHeaderT."No." := Pedido."No.";
-
-        end;
-        Exit(PurchaseHeaderT."No.")
-
-    end;
-    /// <summary>
-    /// insertaLineasFacturasCompra.
-    /// </summary>
-    /// <param name="Data">Text.</param>
-    /// <returns>Return value of type Text.</returns>
-    [ServiceEnabled]
-    procedure insertaLineasFacturasCompra(Data: Text): Text
-    var
-        JLPedidoToken: JsonToken;
-        JLPedidoObj: JsonObject;
-        JLFacturas: JsonArray;
-        JLPedido: JsonObject;
-        PurchaseLineT: Record "Purchase Line" temporary;
-        JToken: JsonToken;
-        Texto: Text;
-        RecRef2: RecordRef;
-        VendorRecRef: RecordRef;
-        PurchSetup: Record 312;
-        VendorTemplMgt: Codeunit "Vendor Templ. Mgt.";
-        NoSeriesMgt: Codeunit "No. Series";
-        VendorTempl: Record "Vendor Templ.";
-        VendorFldRef: FieldRef;
-        VendRecRef: RecordRef;
-        EmptyVendorRecRef: RecordRef;
-        EmptyVendorTemplRecRef: RecordRef;
-        VendFldRef: FieldRef;
-        EmptyVendFldRef: FieldRef;
-        VendorTemplFldRef: FieldRef;
-        EmptyVendorFldRef: FieldRef;
-        i: Integer;
-        FacturasL: Record "Purchase Line";
-    begin
-        JLPedidoToken.ReadFrom(Data);
-        JLPedidoObj := JLPedidoToken.AsObject();
-
-
-        JLPedidoObj.SelectToken('Purchase_Lines', JLPedidoToken);
-        JLFacturas := JLPedidoToken.AsArray();
-        foreach JToken in JLFacturas do begin
-            PurchaseLineT."Document Type" := PurchaseLineT."Document Type"::Invoice;//GetValueAsText(JToken, 'Document_Type');
-            PurchaseLineT."Buy-from Vendor No." := GetValueAsText(JToken, 'Buy_from_Vendor_No_');
-            PurchaseLineT."Document No." := GetValueAsText(JToken, 'Document_No_');
-            PurchaseLineT."Line No." := GetValueAsInteger(JToken, 'Line_No_');
-            Texto := GetValueAsText(JToken, 'Type');
-            Case Texto Of
-                ' ':
-                    PurchaseLineT."Type" := "Purchase Line Type"::" ";
-                'Charge (Item)', 'Cargo':
-                    PurchaseLineT."Type" := "Purchase Line Type"::"Charge (Item)";
-                'Fixed Asset', 'Activo Fijo':
-                    PurchaseLineT."Type" := "pURCHASE Line Type"::"Fixed Asset";
-                'G/L Account', 'Cuenta':
-                    PurchaseLineT."Type" := "Purchase Line Type"::"G/L Account";
-                'Item', 'Producto', 'Artículo':
-                    PurchaseLineT."Type" := "Purchase Line Type"::Item;
-                'Resource', 'Recurso':
-                    PurchaseLineT."Type" := "Purchase Line Type"::Resource;
-            End;
-            PurchaseLineT."No." := GetValueAsText(JToken, 'No_');
-            PurchaseLineT."Location Code" := GetValueAsText(JToken, 'Location_Code');
-            PurchaseLineT."Posting Group" := GetValueAsText(JToken, 'Posting_Group');
-            //PurchaseLineT."Expected Receipt Date":=GetValueAsText(JToken, 'Expected_Receipt_Date');
-            PurchaseLineT."Description" := GetValueAsText(JToken, 'Description');
-            PurchaseLineT."Description 2" := GetValueAsText(JToken, 'Description_2');
-            PurchaseLineT."Unit of Measure" := GetValueAsText(JToken, 'Unit_of_Measure');
-            PurchaseLineT."Quantity" := GetValueAsDecimal(JToken, 'Quantity');
-            //PurchaseLineT."Outstanding Quantity":=GetValueAsText(JToken, 'Outstanding_Quantity');
-            PurchaseLineT."Qty. to Invoice" := GetValueAsDecimal(JToken, 'Qty__to_Invoice');
-            PurchaseLineT."Qty. to Receive" := GetValueAsDecimal(JToken, 'Qty__to_Receive');
-            PurchaseLineT."Direct Unit Cost" := GetValueAsDecimal(JToken, 'Direct_Unit_Cost');
-            PurchaseLineT."VAT %" := GetValueAsDecimal(JToken, 'VAT__');
-            PurchaseLineT."Line Discount %" := GetValueAsDecimal(JToken, 'Line_Discount__');
-            PurchaseLineT."Line Discount Amount" := GetValueAsDecimal(JToken, 'Line_Discount_Amount');
-            // PurchaseLineT."Amount":=GetValueAsText(JToken, 'Amount');
-            // PurchaseLineT."Amount Including VAT":=GetValueAsText(JToken, 'Amount_Including_VAT');
-            // PurchaseLineT."Allow Invoice Disc.":=GetValueAsText(JToken, 'Allow_Invoice_Disc_');
-            // PurchaseLineT."Gross Weight":=GetValueAsText(JToken, 'Gross_Weight');
-            // PurchaseLineT."Net Weight":=GetValueAsText(JToken, 'Net_Weight');
-            // PurchaseLineT."Units per Parcel":=GetValueAsText(JToken, 'Units_per_Parcel');
-            // PurchaseLineT."Unit Volume":=GetValueAsText(JToken, 'Unit_Volume');
-            // PurchaseLineT."Appl.-to Item Entry":=GetValueAsText(JToken, 'Appl__to_Item_Entry');
-            // PurchaseLineT."Shortcut Dimension 1 Code":=GetValueAsText(JToken, 'Shortcut_Dimension_1_Code');
-            // PurchaseLineT."Shortcut Dimension 2 Code":=GetValueAsText(JToken, 'Shortcut_Dimension_2_Code');
-            // PurchaseLineT."Job No.":=GetValueAsText(JToken, 'Job_No_');
-            // PurchaseLineT."Indirect Cost %":=GetValueAsText(JToken, 'Indirect_Cost__');
-            // PurchaseLineT."Recalculate Invoice Disc.":=GetValueAsText(JToken, 'Recalculate_Invoice_Disc_');
-            // PurchaseLineT."Outstanding Amount":=GetValueAsText(JToken, 'Outstanding_Amount');
-            // PurchaseLineT."Qty. Rcd. Not Invoiced":=GetValueAsText(JToken, 'Qty__Rcd__Not_Invoiced');
-            // PurchaseLineT."Amt. Rcd. Not Invoiced":=GetValueAsText(JToken, 'Amt__Rcd__Not_Invoiced');
-            // PurchaseLineT."Quantity Received":=GetValueAsText(JToken, 'Quantity_Received');
-            // PurchaseLineT."Quantity Invoiced":=GetValueAsText(JToken, 'Quantity_Invoiced');
-            // PurchaseLineT."Receipt No.":=GetValueAsText(JToken, 'Receipt_No_');
-            // PurchaseLineT."Receipt Line No.":=GetValueAsText(JToken, 'Receipt_Line_No_');
-            // PurchaseLineT."Order No.":=GetValueAsText(JToken, 'Order_No_');
-            // PurchaseLineT."Order Line No.":=GetValueAsText(JToken, 'Order_Line_No_');
-            // PurchaseLineT."Profit %":=GetValueAsText(JToken, 'Profit__');
-            // PurchaseLineT."Pay-to Vendor No.":=GetValueAsText(JToken, 'Pay_to_Vendor_No_');
-            // PurchaseLineT."Inv. Discount Amount":=GetValueAsText(JToken, 'Inv__Discount_Amount');
-            // PurchaseLineT."Vendor Item No.":=GetValueAsText(JToken, 'Vendor_Item_No_');
-            // PurchaseLineT."Sales Order No.":=GetValueAsText(JToken, 'Sales_Order_No_');
-            // PurchaseLineT."Sales Order Line No.":=GetValueAsText(JToken, 'Sales_Order_Line_No_');
-            // PurchaseLineT."Drop Shipment":=GetValueAsText(JToken, 'Drop_Shipment');
-            // PurchaseLineT."Gen. Bus. Posting Group":=GetValueAsText(JToken, 'Gen__Bus__Posting_Group');
-            // PurchaseLineT."Gen. Prod. Posting Group":=GetValueAsText(JToken, 'Gen__Prod__Posting_Group');
-            // PurchaseLineT."VAT Calculation Type":=GetValueAsText(JToken, 'VAT_Calculation_Type');
-            // PurchaseLineT."Transaction Type":=GetValueAsText(JToken, 'Transaction_Type');
-            // PurchaseLineT."Transport Method":=GetValueAsText(JToken, 'Transport_Method');
-            // PurchaseLineT."Attached to Line No.":=GetValueAsText(JToken, 'Attached_to_Line_No_');
-            // PurchaseLineT."Entry Point":=GetValueAsText(JToken, 'Entry_Point');
-            // PurchaseLineT."Area":=GetValueAsText(JToken, 'PurchaseLineArea');
-            // PurchaseLineT."Transaction Specification":=GetValueAsText(JToken, 'Transaction_Specification');
-            // PurchaseLineT."Tax Area Code":=GetValueAsText(JToken, 'Tax_Area_Code');
-            // PurchaseLineT."Tax Liable":=GetValueAsText(JToken, 'Tax_Liable');
-            // PurchaseLineT."Tax Group Code":=GetValueAsText(JToken, 'Tax_Group_Code');
-            // PurchaseLineT."Use Tax":=GetValueAsText(JToken, 'Use_Tax');
-            // PurchaseLineT."VAT Bus. Posting Group":=GetValueAsText(JToken, 'VAT_Bus__Posting_Group');
-            // PurchaseLineT."VAT Prod. Posting Group":=GetValueAsText(JToken, 'VAT_Prod__Posting_Group');
-            // PurchaseLineT."Currency Code":=GetValueAsText(JToken, 'Currency_Code');
-            // PurchaseLineT."Blanket Order No.":=GetValueAsText(JToken, 'Blanket_Order_No_');
-            // PurchaseLineT."Blanket Order Line No.":=GetValueAsText(JToken, 'Blanket_Order_Line_No_');
-            // PurchaseLineT."VAT Base Amount":=GetValueAsText(JToken, 'VAT_Base_Amount');
-            // PurchaseLineT."Unit Cost":=GetValueAsText(JToken, 'Unit_Cost');
-            // PurchaseLineT."System-Created Entry":=GetValueAsText(JToken, 'System_Created_Entry');
-            // PurchaseLineT."Line Amount":=GetValueAsText(JToken, 'Line_Amount');
-            // PurchaseLineT."VAT Difference":=GetValueAsText(JToken, 'VAT_Difference');
-            // PurchaseLineT."Inv. Disc. Amount to Invoice":=GetValueAsText(JToken, 'Inv__Disc__Amount_to_Invoice');
-            // PurchaseLineT."VAT Identifier":=GetValueAsText(JToken, 'VAT_Identifier');
-            // PurchaseLineT."IC Partner Ref. Type":=GetValueAsText(JToken, 'IC_Partner_Ref__Type');
-            // PurchaseLineT."IC Partner Reference":=GetValueAsText(JToken, 'IC_Partner_Reference');
-            // PurchaseLineT."Prepayment %":=GetValueAsText(JToken, 'Prepayment__');
-            // PurchaseLineT."Prepmt. Line Amount":=GetValueAsText(JToken, 'Prepmt__Line_Amount');
-            // PurchaseLineT."Prepmt. Amt. Inv.":=GetValueAsText(JToken, 'Prepmt__Amt__Inv_');
-            // PurchaseLineT."Prepmt. Amt. Incl. VAT":=GetValueAsText(JToken, 'Prepmt__Amt__Incl__VAT');
-            // PurchaseLineT."Prepayment Amount":=GetValueAsText(JToken, 'Prepayment_Amount');
-            // PurchaseLineT."Prepmt. VAT Base Amt.":=GetValueAsText(JToken, 'Prepmt__VAT_Base_Amt_');
-            // PurchaseLineT."Prepayment VAT %":=GetValueAsText(JToken, 'Prepayment_VAT__');
-            // PurchaseLineT."Prepmt. VAT Calc. Type":=GetValueAsText(JToken, 'Prepmt__VAT_Calc__Type');
-            // PurchaseLineT."Prepayment VAT Identifier":=GetValueAsText(JToken, 'Prepayment_VAT_Identifier');
-            // PurchaseLineT."Prepayment Tax Area Code":=GetValueAsText(JToken, 'Prepayment_Tax_Area_Code');
-            // PurchaseLineT."Prepayment Tax Liable":=GetValueAsText(JToken, 'Prepayment_Tax_Liable');
-            // PurchaseLineT."Prepayment Tax Group Code":=GetValueAsText(JToken, 'Prepayment_Tax_Group_Code');
-            // PurchaseLineT."Prepmt Amt to Deduct":=GetValueAsText(JToken, 'Prepmt_Amt_to_Deduct');
-            // PurchaseLineT."Prepmt Amt Deducted":=GetValueAsText(JToken, 'Prepmt_Amt_Deducted');
-            // PurchaseLineT."Prepayment Line":=GetValueAsText(JToken, 'Prepayment_Line');
-            // PurchaseLineT."Prepmt. Amount Inv. Incl. VAT":=GetValueAsText(JToken, 'Prepmt__Amount_Inv__Incl__VAT');
-            // PurchaseLineT."IC Partner Code":=GetValueAsText(JToken, 'IC_Partner_Code');
-            // PurchaseLineT."Prepayment VAT Difference":=GetValueAsText(JToken, 'Prepayment_VAT_Difference');
-            // PurchaseLineT."Prepmt VAT Diff. to Deduct":=GetValueAsText(JToken, 'Prepmt_VAT_Diff__to_Deduct');
-            // PurchaseLineT."Prepmt VAT Diff. Deducted":=GetValueAsText(JToken, 'Prepmt_VAT_Diff__Deducted');
-            // PurchaseLineT."IC Item Reference No.":=GetValueAsText(JToken, 'IC_Item_Reference_No_');
-            // PurchaseLineT."Pmt. Discount Amount":=GetValueAsText(JToken, 'Pmt__Discount_Amount');
-            // PurchaseLineT."Prepmt. Pmt. Discount Amount":=GetValueAsText(JToken, 'Prepmt__Pmt__Discount_Amount');
-            // PurchaseLineT."Dimension Set ID":=GetValueAsText(JToken, 'Dimension_Set_ID');
-            // PurchaseLineT."Job Task No.":=GetValueAsText(JToken, 'Job_Task_No_');
-            // PurchaseLineT."Job Line Type":=GetValueAsText(JToken, 'Job_Line_Type');
-            // PurchaseLineT."Job Unit Price":=GetValueAsText(JToken, 'Job_Unit_Price');
-            // PurchaseLineT."Job Total Price":=GetValueAsText(JToken, 'Job_Total_Price');
-            // PurchaseLineT."Job Line Amount":=GetValueAsText(JToken, 'Job_Line_Amount');
-            // PurchaseLineT."Job Line Discount Amount":=GetValueAsText(JToken, 'Job_Line_Discount_Amount');
-            // PurchaseLineT."Job Line Discount %":=GetValueAsText(JToken, 'Job_Line_Discount__');
-            // PurchaseLineT."Job Currency Factor":=GetValueAsText(JToken, 'Job_Currency_Factor');
-            // PurchaseLineT."Job Currency Code":=GetValueAsText(JToken, 'Job_Currency_Code');
-            // PurchaseLineT."Job Planning Line No.":=GetValueAsText(JToken, 'Job_Planning_Line_No_');
-            // PurchaseLineT."Job Remaining Qty.":=GetValueAsText(JToken, 'Job_Remaining_Qty_');
-            // PurchaseLineT."Deferral Code":=GetValueAsText(JToken, 'Deferral_Code');
-            // PurchaseLineT."Returns Deferral Start Date":=GetValueAsText(JToken, 'Returns_Deferral_Start_Date');
-            // PurchaseLineT."Prod. Order No.":=GetValueAsText(JToken, 'Prod__Order_No_');
-            // PurchaseLineT."Variant Code":=GetValueAsText(JToken, 'Variant_Code');
-            // PurchaseLineT."Bin Code":=GetValueAsText(JToken, 'Bin_Code');
-            // PurchaseLineT."Qty. per Unit of Measure":=GetValueAsText(JToken, 'Qty__per_Unit_of_Measure');
-            // PurchaseLineT."Qty. Rounding Precision":=GetValueAsText(JToken, 'Qty__Rounding_Precision');
-            // PurchaseLineT."Unit of Measure Code":=GetValueAsText(JToken, 'Unit_of_Measure_Code');
-            // PurchaseLineT."FA Posting Date":=GetValueAsText(JToken, 'FA_Posting_Date');
-            // PurchaseLineT."FA Posting Type":=GetValueAsText(JToken, 'FA_Posting_Type');
-            // PurchaseLineT."Depreciation Book Code":=GetValueAsText(JToken, 'Depreciation_Book_Code');
-            // PurchaseLineT."Salvage Value":=GetValueAsText(JToken, 'Salvage_Value');
-            // PurchaseLineT."Depr. until FA Posting Date":=GetValueAsText(JToken, 'Depr__until_FA_Posting_Date');
-            // PurchaseLineT."Depr. Acquisition Cost":=GetValueAsText(JToken, 'Depr__Acquisition_Cost');
-            // PurchaseLineT."Maintenance Code":=GetValueAsText(JToken, 'Maintenance_Code');
-            // PurchaseLineT."Insurance No.":=GetValueAsText(JToken, 'Insurance_No_');
-            // PurchaseLineT."Budgeted FA No.":=GetValueAsText(JToken, 'Budgeted_FA_No_');
-            // PurchaseLineT."Duplicate in Depreciation Book":=GetValueAsText(JToken, 'Duplicate_in_Depreciation_Book');
-            // PurchaseLineT."Use Duplication List":=GetValueAsText(JToken, 'Use_Duplication_List');
-            // PurchaseLineT."Responsibility Center":=GetValueAsText(JToken, 'Responsibility_Center');
-            // PurchaseLineT."Item Category Code":=GetValueAsText(JToken, 'Item_Category_Code');
-            // PurchaseLineT."Nonstock":=GetValueAsText(JToken, 'Nonstock');
-            // PurchaseLineT."Purchasing Code":=GetValueAsText(JToken, 'Purchasing_Code');
-            // PurchaseLineT."Special Order":=GetValueAsText(JToken, 'Special_Order');
-            // PurchaseLineT."Special Order Sales No.":=GetValueAsText(JToken, 'Special_Order_Sales_No_');
-            // PurchaseLineT."Special Order Sales Line No.":=GetValueAsText(JToken, 'Special_Order_Sales_Line_No_');
-            // PurchaseLineT."Item Reference No.":=GetValueAsText(JToken, 'Item_Reference_No_');
-            // PurchaseLineT."Item Reference Unit of Measure":=GetValueAsText(JToken, 'Item_Reference_Unit_of_Measure');
-            // PurchaseLineT."Item Reference Type":=GetValueAsText(JToken, 'Item_Reference_Type');
-            // PurchaseLineT."Item Reference Type No.":=GetValueAsText(JToken, 'Item_Reference_Type_No_');
-            // PurchaseLineT."Completely Received":=GetValueAsText(JToken, 'Completely_Received');
-            // PurchaseLineT."Requested Receipt Date":=GetValueAsText(JToken, 'Requested_Receipt_Date');
-            // PurchaseLineT."Promised Receipt Date":=GetValueAsText(JToken, 'Promised_Receipt_Date');
-            // PurchaseLineT."Lead Time Calculation":=GetValueAsText(JToken, 'Lead_Time_Calculation');
-            // PurchaseLineT."Inbound Whse. Handling Time":=GetValueAsText(JToken, 'Inbound_Whse__Handling_Time');
-            // PurchaseLineT."Planned Receipt Date":=GetValueAsText(JToken, 'Planned_Receipt_Date');
-            // PurchaseLineT."Order Date":=GetValueAsText(JToken, 'Order_Date');
-            // PurchaseLineT."Allow Item Charge Assignment":=GetValueAsText(JToken, 'Allow_Item_Charge_Assignment');
-            // PurchaseLineT."Return Qty. to Ship":=GetValueAsText(JToken, 'Return_Qty__to_Ship');
-            // PurchaseLineT."Return Qty. Shipped Not Invd.":=GetValueAsText(JToken, 'Return_Qty__Shipped_Not_Invd_');
-            // PurchaseLineT."Return Shpd. Not Invd.":=GetValueAsText(JToken, 'Return_Shpd__Not_Invd_');
-            // PurchaseLineT."Return Qty. Shipped":=GetValueAsText(JToken, 'Return_Qty__Shipped');
-            // PurchaseLineT."Return Shipment No.":=GetValueAsText(JToken, 'Return_Shipment_No_');
-            // PurchaseLineT."Return Shipment Line No.":=GetValueAsText(JToken, 'Return_Shipment_Line_No_');
-            // PurchaseLineT."Return Reason Code":=GetValueAsText(JToken, 'Return_Reason_Code');
-            // PurchaseLineT."Subtype":=GetValueAsText(JToken, 'Subtype');
-            // PurchaseLineT."Copied From Posted Doc.":=GetValueAsText(JToken, 'Copied_From_Posted_Doc_');
-            // PurchaseLineT."Price Calculation Method":=GetValueAsText(JToken, 'Price_Calculation_Method');
-            // PurchaseLineT."Over-Receipt Quantity":=GetValueAsText(JToken, 'Over_Receipt_Quantity');
-            // PurchaseLineT."Over-Receipt Code":=GetValueAsText(JToken, 'Over_Receipt_Code');
-            // PurchaseLineT."Over-Receipt Approval Status":=GetValueAsText(JToken, 'Over_Receipt_Approval_Status');
-            // PurchaseLineT."EC %":=GetValueAsText(JToken, 'EC__');
-            // PurchaseLineT."EC Difference":=GetValueAsText(JToken, 'EC_Difference');
-            // PurchaseLineT."Prepayment EC %":=GetValueAsText(JToken, 'Prepayment_EC__');
-            // PurchaseLineT."Routing No.":=GetValueAsText(JToken, 'Routing_No_');
-            // PurchaseLineT."Operation No.":=GetValueAsText(JToken, 'Operation_No_');
-            // PurchaseLineT."Work Center No.":=GetValueAsText(JToken, 'Work_Center_No_');
-            // PurchaseLineT."Finished":=GetValueAsText(JToken, 'Finished');
-            // PurchaseLineT."Prod. Order Line No.":=GetValueAsText(JToken, 'Prod__Order_Line_No_');
-            // PurchaseLineT."Overhead Rate":=GetValueAsText(JToken, 'Overhead_Rate');
-            // PurchaseLineT."MPS Order":=GetValueAsText(JToken, 'MPS_Order');
-            // PurchaseLineT."Planning Flexibility":=GetValueAsText(JToken, 'Planning_Flexibility');
-            // PurchaseLineT."Safety Lead Time":=GetValueAsText(JToken, 'Safety_Lead_Time');
-            // PurchaseLineT."Routing Reference No.":=GetValueAsText(JToken, 'Routing_Reference_No_');
-
-            FacturasL := PurchaseLineT;
-            If FacturasL.Insert() Then begin
-                FacturasL.Validate("No.", PurchaseLineT."No.");
-                FacturasL.Description := PurchaseLineT.Description;
-                FacturasL."Description 2" := PurchaseLineT."Description 2";
-                FacturasL.Validate(Quantity, PurchaseLineT.Quantity);
-                FacturasL.Validate("Direct Unit Cost", PurchaseLineT."Direct Unit Cost");
-                FacturasL.Validate("Line Discount %", PurchaseLineT."Line Discount %");
-                FacturasL.Modify();
-            end;
-        end;
-        exit('Ok');
-    end;
-
-    /// <summary>
-    /// GetValueAsText.
-    /// </summary>
-    /// <param name="JToken">JsonToken.</param>
-    /// <param name="ParamString">Text.</param>
-    /// <returns>Return value of type Text.</returns>
     procedure GetValueAsText(JToken: JsonToken; ParamString: Text): Text
     var
         JObject: JsonObject;
@@ -2248,7 +1472,7 @@ codeunit 91100 Importaciones
     end;
 
     /// <summary>
-    /// insertaEmpleados.
+    /// insertaEmpleados. Usuarios del Tpv
     /// </summary>
     /// <param name="Data">Text</param>
     /// <returns>Return value of type Text.</returns>
@@ -3628,7 +2852,7 @@ codeunit 91100 Importaciones
         // 1. Está marcada como activa (IsActive = true) O
         // 2. Tiene fechas de inicio y fin válidas para hoy O
         // 3. No tiene importe total descontado (cupón no utilizado completamente)
-        Campaign.SetRange(Activated, true);
+        //Campaign.SetRange(Activated, true);
         Campaign.SetFilter("Starting Date", '%1|..%2', 0D, TodayDate);
         Campaign.SetFilter("Ending Date", '%1|>=%2', 0D, TodayDate);
 
@@ -3649,7 +2873,7 @@ codeunit 91100 Importaciones
                     JCoupon.Add('Status', 'Utilizado')
                 else
                     JCoupon.Add('Status', 'Pendiente');
-                JCoupon.Add('Active', Campaign.Activated);
+                JCoupon.Add('Active', true);
 
                 // Información de descuentos del cupón (campos personalizados)
                 JCoupon.Add('Discount_Percentage', Campaign."% Descuento");
@@ -3673,6 +2897,7 @@ codeunit 91100 Importaciones
                         JPrice.Add('Minimum_Quantity', SalesPrice."Minimum Quantity");
                         JPrice.Add('Unit_of_Measure_Code', SalesPrice."Unit of Measure Code");
                         JPrice.Add('Variant_Code', SalesPrice."Variant Code");
+
                         JPricesArray.Add(JPrice);
                     until SalesPrice.Next() = 0;
                 end;
@@ -3709,6 +2934,10 @@ codeunit 91100 Importaciones
                         JDetail.Add('Discount_Percentage', DetalleCupon."% Descuento");
                         JDetail.Add('Discount_Amount', DetalleCupon."Importe Descuento");
                         JDetail.Add('Total_Discounted_Amount', DetalleCupon."Importe Total Descontado");
+                        if DetalleCupon."Importe Descuento" >= DetalleCupon."Importe Total Descontado" then
+                            JDetail.Add('Status', 'Utilizado')
+                        else
+                            JDetail.Add('Status', 'Pendiente');
                         JDetailsArray.Add(JDetail);
                     until DetalleCupon.Next() = 0;
                 end;
@@ -3727,6 +2956,149 @@ codeunit 91100 Importaciones
         JObject.Add('Query_Date', Format(TodayDate));
         JObject.WriteTo(JsonText);
 
+        exit(JsonText);
+    end;
+
+    /// <summary>
+    /// GetProductStock.
+    /// Devuelve el stock de productos por almacén en formato JSON.
+    /// Si el producto está en blanco, devuelve todos los productos.
+    /// Si el almacén está en blanco, devuelve todos los almacenes.
+    /// </summary>
+    /// <param name="ItemNo">Code[20] - Número del producto (opcional)</param>
+    /// <param name="LocationCode">Code[10] - Código del almacén (opcional)</param>
+    /// <returns>Return value of type Text - JSON con el stock de productos por almacén.</returns>
+    [ServiceEnabled]
+    procedure getproductostock(ItemNo: Code[20]; LocationCode: Code[10]): Text
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        TempItemLedgerEntry: Record "Item Ledger Entry";
+        Item: Record Item;
+        Location: Record Location;
+        JObject: JsonObject;
+        JArray: JsonArray;
+        JStock: JsonObject;
+        JsonText: Text;
+        CurrentItemNo: Code[20];
+        CurrentLocationCode: Code[10];
+        StockQuantity: Decimal;
+        ProcessedCombinations: Dictionary of [Text, Boolean];
+        CombinationKey: Text;
+    begin
+        // Validar si el producto existe (si se especifica)
+        if ItemNo <> '' then begin
+            if not Item.Get(ItemNo) then begin
+                JObject.Add('Error', 'El producto ' + ItemNo + ' no existe');
+                JObject.WriteTo(JsonText);
+                exit(JsonText);
+            end;
+        end;
+
+        // Validar si el almacén existe (si se especifica)
+        if LocationCode <> '' then begin
+            if not Location.Get(LocationCode) then begin
+                JObject.Add('Error', 'El almacén ' + LocationCode + ' no existe');
+                JObject.WriteTo(JsonText);
+                exit(JsonText);
+            end;
+        end;
+
+        // Configurar filtros en Item Ledger Entry
+        ItemLedgerEntry.SetCurrentKey("Item No.", "Location Code");
+
+        if ItemNo <> '' then
+            ItemLedgerEntry.SetRange("Item No.", ItemNo);
+
+        if LocationCode <> '' then
+            ItemLedgerEntry.SetRange("Location Code", LocationCode);
+
+        // Procesar entradas y calcular stock por producto y almacén
+        if ItemLedgerEntry.FindSet() then begin
+            repeat
+                CurrentItemNo := ItemLedgerEntry."Item No.";
+                CurrentLocationCode := ItemLedgerEntry."Location Code";
+                CombinationKey := CurrentItemNo + '|' + CurrentLocationCode;
+
+                // Verificar si ya procesamos esta combinación
+                if not ProcessedCombinations.ContainsKey(CombinationKey) then begin
+                    ProcessedCombinations.Add(CombinationKey, true);
+
+                    // Calcular stock total para esta combinación producto-almacén
+                    TempItemLedgerEntry.Copy(ItemLedgerEntry);
+                    TempItemLedgerEntry.SetRange("Item No.", CurrentItemNo);
+                    TempItemLedgerEntry.SetRange("Location Code", CurrentLocationCode);
+                    TempItemLedgerEntry.CalcSums("Quantity");
+                    StockQuantity := TempItemLedgerEntry."Quantity";
+
+
+                    // Solo agregar si hay stock o si se solicita específicamente
+                    if (StockQuantity <> 0) or (ItemNo <> '') or (LocationCode <> '') then begin
+                        Clear(JStock);
+
+                        // Información del producto
+                        JStock.Add('Item_No', CurrentItemNo);
+                        if Item.Get(CurrentItemNo) then begin
+                            JStock.Add('Item_Description', Item.Description);
+                            JStock.Add('Item_Description_2', Item."Description 2");
+                            JStock.Add('Base_Unit_of_Measure', Item."Base Unit of Measure");
+                            JStock.Add('Item_Category_Code', Item."Item Category Code");
+                            JStock.Add('Type', Format(Item.Type));
+                            JStock.Add('Blocked', Item.Blocked);
+
+
+                        end else begin
+                            JStock.Add('Item_Description', '');
+                            JStock.Add('Item_Description_2', '');
+                            JStock.Add('Base_Unit_of_Measure', '');
+                            JStock.Add('Item_Category_Code', '');
+                            JStock.Add('Type', '');
+                            JStock.Add('Blocked', false);
+
+                        end;
+
+                        // Información del almacén
+                        JStock.Add('Location_Code', CurrentLocationCode);
+                        if Location.Get(CurrentLocationCode) then begin
+                            JStock.Add('Location_Name', Location.Name);
+                            JStock.Add('Location_Address', Location.Address);
+                            JStock.Add('Location_City', Location.City);
+                            JStock.Add('Location_Contact', Location.Contact);
+                        end else begin
+                            JStock.Add('Location_Name', '');
+                            JStock.Add('Location_Address', '');
+                            JStock.Add('Location_City', '');
+                            JStock.Add('Location_Contact', '');
+                        end;
+
+                        // Información del stock
+                        JStock.Add('Stock_Quantity', StockQuantity);
+                        JStock.Add('Last_Update_Date', Format(WorkDate()));
+
+
+
+                        JArray.Add(JStock);
+                    end;
+                end;
+
+            until ItemLedgerEntry.Next() = 0;
+        end;
+
+        // Construir respuesta JSON
+        JObject.Add('Product_Stock', JArray);
+        JObject.Add('Total_Records', JArray.Count);
+        JObject.Add('Query_Date', Format(WorkDate()));
+
+        if ItemNo <> '' then
+            JObject.Add('Filtered_Item', ItemNo)
+        else
+            JObject.Add('Filtered_Item', 'ALL');
+
+        if LocationCode <> '' then
+            JObject.Add('Filtered_Location', LocationCode)
+        else
+            JObject.Add('Filtered_Location', 'ALL');
+
+        JObject.WriteTo(JsonText);
         exit(JsonText);
     end;
 

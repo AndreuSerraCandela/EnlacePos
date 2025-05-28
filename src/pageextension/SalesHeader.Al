@@ -13,29 +13,50 @@ pageextension 91107 "Sales Invoice Header Ext" extends "Sales Invoice"
                     Rec."Sell-to Customer Name" := Nombre;
                 end;
             }
-            field(Colegio; Rec.Colegio)
+            group(Pos)
             {
-                Caption = 'Colegio';
-                ApplicationArea = All;
-                ToolTip = 'Especifica el colegio asociado al cliente';
-            }
-            field(Caja; Rec.Caja)
-            {
-                Caption = 'Caja';
-                ApplicationArea = All;
-                ToolTip = 'Especifica la caja asociada a la factura';
-            }
-            field(TPV; Rec.TPV)
-            {
-                Caption = 'TPV';
-                ApplicationArea = All;
-                ToolTip = 'Especifica el TPV asociado a la factura';
-            }
-            field(Turno; Rec.Turno)
-            {
-                Caption = 'Turno';
-                ApplicationArea = All;
-                ToolTip = 'Especifica el turno asociado a la factura';
+                field(Colegio; Rec.Colegio)
+                {
+                    Caption = 'Colegio';
+                    ApplicationArea = All;
+                    ToolTip = 'Especifica el colegio asociado al cliente';
+                }
+                field(Caja; Rec.Caja)
+                {
+                    Caption = 'Caja';
+                    ApplicationArea = All;
+                    ToolTip = 'Especifica la caja asociada a la factura';
+                }
+                field(TPV; Rec.TPV)
+                {
+                    Caption = 'TPV';
+                    ApplicationArea = All;
+                    ToolTip = 'Especifica el TPV asociado a la factura';
+                }
+                field(Turno; Rec.Turno)
+                {
+                    Caption = 'Turno';
+                    ApplicationArea = All;
+                    ToolTip = 'Especifica el turno asociado a la factura';
+                }
+                field(Cupon; Rec."Cupon de descuento")
+                {
+                    Caption = 'Cupón';
+                    ApplicationArea = All;
+                    ToolTip = 'Especifica los cupones asociados a la factura';
+                }
+                field("Tipo Detalle"; Rec."Tipo Detalle")
+                {
+                    Caption = 'Tipo Detalle';
+                    ApplicationArea = All;
+                    ToolTip = 'Especifica el tipo de detalle asociado a la factura';
+                }
+                field("No. Detalle"; Rec."No. Detalle")
+                {
+                    Caption = 'No. Detalle';
+                    ApplicationArea = All;
+                    ToolTip = 'Especifica el número de detalle asociado a la factura';
+                }
             }
         }
 
