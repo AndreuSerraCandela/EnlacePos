@@ -282,7 +282,7 @@ page 91155 "TPV Role Center"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Informe de Ventas Mensuales';
                     Image = "Report";
-                    // RunObject = Report "TPV Monthly Sales";
+                    //RunObject = Report "TPV Monthly Sales";
                     ToolTip = 'Ver un resumen de las ventas TPV de un mes específico.';
                 }
             }

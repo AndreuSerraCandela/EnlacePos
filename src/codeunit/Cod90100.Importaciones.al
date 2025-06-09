@@ -658,7 +658,7 @@ codeunit 91100 Importaciones
                 Caja.Get(SalesHeaderT.Caja);
                 SalesHeaderT.TPV := Caja.Tpv;
             end;
-            SalesHeaderT.Turno := GetValueAsText(JToken, 'Turno');
+            SalesHeaderT.Turno := GetValueAsInteger(JToken, 'Turno');
             SalesHeaderT."Bill-to Customer No." := GetValueAsText(JToken, 'Bill_to_Customer_No_');
             SalesHeaderT."Bill-to Name" := GetValueAsText(JToken, 'Bill_to_Name');
             SalesHeaderT."Bill-to Name 2" := GetValueAsText(JToken, 'Bill_to_Name_2');
@@ -947,7 +947,7 @@ codeunit 91100 Importaciones
                 Pedido.Colegio := SalesHeaderT.Colegio;
             If SalesHeaderT.Caja <> '' then
                 Pedido.Caja := SalesHeaderT.Caja;
-            If SalesHeaderT.Turno <> '' then
+            If SalesHeaderT.Turno <> 0 then
                 Pedido.Turno := SalesHeaderT.Turno;
             if SalesHeaderT."Bill-to Customer No." <> '' then
                 Pedido."Bill-to Customer No." := SalesHeaderT."Bill-to Customer No.";
@@ -1100,6 +1100,8 @@ codeunit 91100 Importaciones
         SalesCalcDiscByType: Codeunit "Sales - Calc Discount By Type";
         TotalSalesLine: Record "Sales Line";
         Amount: Decimal;
+        ConfIva: Record "VAT Posting Setup";
+        base: Decimal;
     begin
         JLPedidoToken.ReadFrom(Data);
         JLPedidoObj := JLPedidoToken.AsObject();
@@ -1322,6 +1324,7 @@ codeunit 91100 Importaciones
                 FacturasL.Validate("Unit Price", SalesLineT."Unit Price");
                 FacturasL.Validate("Line Discount %", SalesLineT."Line Discount %");
                 FacturasL.Modify();
+
             end
         end;
         SalesHeader.Get(SalesLineT."Document Type", SalesLineT."Document No.");
@@ -1717,6 +1720,7 @@ codeunit 91100 Importaciones
         JTurnos: JsonArray;
         JToken: JsonToken;
         RecTurno: Record Turno;
+        RecTurnoOld: Record Turno;
         RecTurnoTmp: Record Turno temporary;
         RecRef: RecordRef;
         TurnoCount: Integer;
@@ -1732,6 +1736,7 @@ codeunit 91100 Importaciones
         EmptyTurnoFldRef: FieldRef;
         SalesSetup: Record "Sales & Receivables Setup";
         NoSeriesMgt: Codeunit "No. Series";
+        T: Text;
     begin
         // Verificar que hay datos para importar
         if Data = '' then
@@ -1761,7 +1766,13 @@ codeunit 91100 Importaciones
             // Buscar si ya existe un turno con ese código
             Deleted := GetValueAsBoolean(JToken, 'Deleted');
             Clear(RecTurnoTmp);
-            RecTurnoTmp.No := GetValueAsText(JToken, 'No');
+            T := GetValueAsText(JToken, 'No');
+            if T = '' then
+                RecTurnoTmp.No := 0;
+            If T = 'TEMP' then
+                RecTurnoTmp.No := 0;
+            If Evaluate(RecTurnoTmp.No, T) then;
+            //RecTurnoTmp.No := GetValueAsInteger(JToken, 'No');
             // Verificar que el turno no esté vacío
 
 
@@ -1772,11 +1783,14 @@ codeunit 91100 Importaciones
                 TurnoCount += 1
             else
                 ErrorCount += 1;
-            If (RecTurnoTMP."No" = 'TEMP') Or (RecTurnoTMP."No" = '') Then begin
+            If (RecTurnoTMP."No" = 0) Then begin
                 RecTurno := RecTurnoTmp;
                 SalesSetup.Get();
                 SalesSetup.TestField("Nums. Turno");
-                RecTurno."No" := NoSeriesMgt.GetNextNo(SalesSetup."Nums. Turno", Today, true);
+                If RecTurnoOld.FindLast() then
+                    RecTurno."No" := RecTurnoOld."No" + 1
+                else
+                    RecTurno."No" := 1;
                 RecTurno.Insert();
             end else begin
                 // Actualizar turno existente

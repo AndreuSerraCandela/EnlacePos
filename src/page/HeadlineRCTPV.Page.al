@@ -70,7 +70,7 @@ page 91157 "Headline RC TPV"
     begin
         // Create a simple headline with total sales for the day
         SalesInvHeader.SetRange("Posting Date", WorkDate());
-        SalesInvHeader.SetFilter("TPV", '<>%1', '');
+        //SalesInvHeader.SetFilter("TPV", '<>%1', '');
         TodayTransactions := SalesInvHeader.Count;
 
         if TodayTransactions > 0 then begin

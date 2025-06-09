@@ -18,18 +18,18 @@ tableextension 91109 SalesHeaderExtension extends "Sales Header"
             Caption = 'Caja';
             TableRelation = Cajas.No;
         }
-        field(50104; Turno; Code[20])
-        {
-            DataClassification = ToBeClassified;
-            Caption = 'Turno';
-            TableRelation = Turno.No;
-        }
-        field(50105; TPV; Code[20])
-        {
-            DataClassification = ToBeClassified;
-            Caption = 'TPV';
-            TableRelation = TPV."No";
-        }
+        // field(50104; Turno; Code[20])
+        // {
+        //     DataClassification = ToBeClassified;
+        //     Caption = 'Turno';
+        //     TableRelation = Turno.No;
+        // }
+        // field(50105; TPV; Code[20])
+        // {
+        //     DataClassification = ToBeClassified;
+        //     Caption = 'TPV';
+        //     TableRelation = TPV."No";
+        // }
         field(50106; "Cupon de descuento"; Code[20])
         {
             DataClassification = ToBeClassified;
@@ -72,18 +72,25 @@ tableextension 91112 SalesInvoiceLineExtension extends "Sales Invoice header"
             Caption = 'Caja';
             TableRelation = Cajas.No;
         }
-        field(50104; Turno; Code[20])
-        {
-            DataClassification = ToBeClassified;
-            Caption = 'Turno';
-            TableRelation = Turno.No;
-        }
-        field(50105; TPV; Code[20])
-        {
-            DataClassification = ToBeClassified;
-            Caption = 'TPV';
-            TableRelation = TPV."No";
-        }
+        // field(50104; Turno; Code[20])
+        // {
+        //     DataClassification = ToBeClassified;
+        //     Caption = 'Turno';
+        //     TableRelation = Turno.No;
+        // }
+        // field(76021; Turno; Integer)
+        // {
+        //     Caption = 'Turno';
+        //     DataClassification = ToBeClassified;
+        //     Description = 'DsPOS Standard';
+        // }
+        // field(76016; TPV; Code[20])
+        // {
+        //     Caption = 'POS';
+        //     DataClassification = ToBeClassified;
+        //     Description = 'DsPOS Standard';
+        //     // TableRelation = "Configuracion TPV"."Id TPV" WHERE(Tienda = FIELD(Tienda));
+        // }
         field(50106; "Cupon de descuento"; Code[20])
         {
             DataClassification = ToBeClassified;
@@ -127,18 +134,25 @@ tableextension 91113 SalesCrHdExtension extends "Sales Cr.Memo Header"
             Caption = 'Caja';
             TableRelation = Cajas.No;
         }
-        field(50104; Turno; Code[20])
-        {
-            DataClassification = ToBeClassified;
-            Caption = 'Turno';
-            TableRelation = Turno.No;
-        }
-        field(50105; TPV; Code[20])
-        {
-            DataClassification = ToBeClassified;
-            Caption = 'TPV';
-            TableRelation = TPV."No";
-        }
+        // field(50104; Turno; Code[20])
+        // {
+        //     DataClassification = ToBeClassified;
+        //     Caption = 'Turno';
+        //     TableRelation = Turno.No;
+        // }
+        // field(76021; Turno; Integer)
+        // {
+        //     Caption = 'Turno';
+        //     DataClassification = ToBeClassified;
+        //     Description = 'DsPOS Standard';
+        // }
+        // field(76016; TPV; Code[20])
+        // {
+        //     Caption = 'POS';
+        //     DataClassification = ToBeClassified;
+        //     Description = 'DsPOS Standard';
+        //     // TableRelation = "Configuracion TPV"."Id TPV" WHERE(Tienda = FIELD(Tienda));
+        // }
         field(50106; "Cupon de descuento"; Code[20])
         {
             DataClassification = ToBeClassified;

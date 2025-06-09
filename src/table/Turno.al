@@ -7,7 +7,7 @@ table 91107 Turno
 
     fields
     {
-        field(1; No; Code[20])
+        field(1; No; Integer)
         {
             Caption = 'ID';
             Editable = false;
@@ -52,16 +52,17 @@ table 91107 Turno
     var
         Turno: Record Turno;
         SalesSetup: Record "Sales & Receivables Setup";
-        NoSeries: Codeunit "No. Series";
+        Self: Record Turno;
     begin
         Turno := Rec;
-        SalesSetup.Get();
-        SalesSetup.TestField("Nums. Turno");
-        if NoSeries.LookupRelatedNoSeries(SalesSetup."Nums. Turno", OldTurno."No. Series", Turno."No. Series") then begin
-            Turno."No" := NoSeries.GetNextNo(Turno."No. Series");
-            Rec := Turno;
-            exit(true);
-        end;
+        //SalesSetup.Get();
+        //SalesSetup.TestField("Nums. Turno");
+        if Self.FindLast() then
+            Turno."No" := Self."No" + 1
+        else
+            Turno."No" := 1;
+        Rec := Turno;
+        exit(true);
     end;
 
     local procedure TestNoSeries()
