@@ -38,11 +38,11 @@ pageextension 91113 CustomerListExt extends "Customer List"
                 ApplicationArea = All;
                 ToolTip = 'Specifies the customer''s mobile phone number';
             }
-            field("E-Mail"; Rec."E-Mail")
-            {
-                ApplicationArea = All;
-                ToolTip = 'Specifies the customer''s email address';
-            }
+            // field("E-Mail"; Rec."E-Mail")
+            // {
+            //     ApplicationArea = All;
+            //     ToolTip = 'Specifies the customer''s email address';
+            // }
             field("Contacto"; Rec."Contact")
             {
                 ApplicationArea = All;
