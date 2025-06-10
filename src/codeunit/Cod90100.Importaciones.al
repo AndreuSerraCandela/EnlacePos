@@ -3628,10 +3628,9 @@ codeunit 91100 Importaciones
         // 1. Está marcada como activa (IsActive = true) O
         // 2. Tiene fechas de inicio y fin válidas para hoy O
         // 3. No tiene importe total descontado (cupón no utilizado completamente)
-        Campaign.SetRange(Activated, true);
+        //Campaign.SetRange(Activated, true);
         Campaign.SetFilter("Starting Date", '%1|..%2', 0D, TodayDate);
         Campaign.SetFilter("Ending Date", '%1|>=%2', 0D, TodayDate);
-
         if Campaign.FindSet() then begin
             repeat
                 Clear(JCoupon);
@@ -3649,7 +3648,7 @@ codeunit 91100 Importaciones
                     JCoupon.Add('Status', 'Utilizado')
                 else
                     JCoupon.Add('Status', 'Pendiente');
-                JCoupon.Add('Active', Campaign.Activated);
+                JCoupon.Add('Active', true);
 
                 // Información de descuentos del cupón (campos personalizados)
                 JCoupon.Add('Discount_Percentage', Campaign."% Descuento");
@@ -3709,6 +3708,10 @@ codeunit 91100 Importaciones
                         JDetail.Add('Discount_Percentage', DetalleCupon."% Descuento");
                         JDetail.Add('Discount_Amount', DetalleCupon."Importe Descuento");
                         JDetail.Add('Total_Discounted_Amount', DetalleCupon."Importe Total Descontado");
+                        if DetalleCupon."Importe Total Descontado" >= DetalleCupon."Importe Descuento" then
+                            JDetail.Add('Status', 'Utilizado')
+                        else
+                            JDetail.Add('Status', 'Pendiente');
                         JDetailsArray.Add(JDetail);
                     until DetalleCupon.Next() = 0;
                 end;

@@ -3,7 +3,7 @@ page 91119 "Detalle Cupón Subform"
     Caption = 'Detalle Cupón';
     PageType = ListPart;
     SourceTable = "Detalle Cupón";
-    AutoSplitKey = true;
+
 
     layout
     {
