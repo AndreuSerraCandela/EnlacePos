@@ -5,7 +5,7 @@ page 91171 "TPV Card"
 {
     Caption = 'Ficha de TPV';
     PageType = Card;
-    SourceTable = TPV;
+    SourceTable = Tiendas;
     UsageCategory = None;
 
     layout
@@ -17,7 +17,7 @@ page 91171 "TPV Card"
                 Caption = 'General';
 
 
-                field("No"; Rec."No")
+                field("No"; Rec."Cod. Tienda")
                 {
                     ApplicationArea = All;
                     Caption = 'Nº';
@@ -29,13 +29,13 @@ page 91171 "TPV Card"
                             CurrPage.Update();
                     end;
                 }
-                field("Nombre"; Rec."Nombre")
+                field("Nombre"; Rec.Descripcion)
                 {
                     ApplicationArea = All;
                     Caption = 'Nombre';
                     ToolTip = 'Especifica el nombre del TPV.';
                 }
-                field("Location Code"; Rec."Location Code")
+                field("Location Code"; Rec."Cod. Almacen")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Especifica la localización asociada al TPV.';
@@ -44,17 +44,17 @@ page 91171 "TPV Card"
             group(Comunicación)
             {
                 Caption = 'Comunicación';
-                field("Dirección"; Rec."Dirección")
+                field("Dirección"; Rec."Direccion")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Especifica la dirección del TPV.';
                 }
-                field("Dirección 2"; Rec."Dirección 2")
+                field("Dirección 2"; Rec."Direccion 2")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Especifica información adicional de la dirección del TPV.';
                 }
-                field("Código Postal"; Rec."Código Postal")
+                field("Código Postal"; Rec."Codigo Postal")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Especifica el código postal del TPV.';
@@ -64,32 +64,32 @@ page 91171 "TPV Card"
                     ApplicationArea = All;
                     ToolTip = 'Especifica la ciudad donde se encuentra el TPV.';
                 }
-                field("Provincia"; Rec."Provincia")
-                {
-                    ApplicationArea = All;
-                    ToolTip = 'Especifica la provincia donde se encuentra el TPV.';
-                }
-                field("País"; Rec."País")
+                // field("Provincia"; Rec."Provincia")
+                // {
+                //     ApplicationArea = All;
+                //     ToolTip = 'Especifica la provincia donde se encuentra el TPV.';
+                // }
+                field("País"; Rec."Cod. Pais")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Especifica el país donde se encuentra el TPV.';
                 }
-                field("Teléfono"; Rec."Teléfono")
+                field("Teléfono"; Rec.Telefono)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Especifica el número de teléfono del TPV.';
                 }
-                field("Móvil"; Rec."Móvil")
+                field("Móvil"; Rec."Telefono 2")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Especifica el número de móvil del TPV.';
                 }
-                field("Email"; Rec."Email")
+                field("Email"; Rec."e-mail")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Especifica la dirección de correo electrónico del TPV.';
                 }
-                field("Sitio Web"; Rec."Sitio Web")
+                field("Sitio Web"; Rec."Pagina web")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Especifica la dirección web del TPV.';
@@ -98,7 +98,7 @@ page 91171 "TPV Card"
             group(Fiscal)
             {
                 Caption = 'Información Fiscal';
-                field("NIF/CIF"; Rec."NIF/CIF")
+                field("NIF/CIF"; Rec."No. Identificacion Fiscal")
                 {
                     ApplicationArea = All;
                     Caption = '★ NIF/CIF';
@@ -136,26 +136,7 @@ page 91171 "TPV Card"
                     Editable = false;
                 }
             }
-            group(Numeradores)
-            {
-                Caption = 'Numeradores';
-                field("Numerador facturas"; Rec."Numerador facturas")
-                {
-                    ApplicationArea = All;
-                }
-                field("Numerador abonos"; Rec."Numerador abonos")
-                {
-                    ApplicationArea = All;
-                }
-                field("Numerador facturas registradas"; Rec."Numerador facturas registradas")
-                {
-                    ApplicationArea = All;
-                }
-                field("Numerador abonos registrados"; Rec."Numerador abonos registrados")
-                {
-                    ApplicationArea = All;
-                }
-            }
+
         }
     }
     var

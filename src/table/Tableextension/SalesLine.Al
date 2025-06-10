@@ -12,12 +12,12 @@ tableextension 91109 SalesHeaderExtension extends "Sales Header"
             DataClassification = ToBeClassified;
             TableRelation = Colegios;
         }
-        field(50103; Caja; Code[20])
-        {
-            DataClassification = ToBeClassified;
-            Caption = 'Caja';
-            TableRelation = Cajas.No;
-        }
+        // field(50103; Tienda; Code[20])
+        // {
+        //     DataClassification = ToBeClassified;
+        //     Caption = 'Caja';
+        //     TableRelation = "Configuracion TPV"."Id TPV" where("No. Tienda" = field("No. Tienda"));
+        // }
         // field(50104; Turno; Code[20])
         // {
         //     DataClassification = ToBeClassified;
@@ -45,7 +45,7 @@ tableextension 91109 SalesHeaderExtension extends "Sales Header"
         {
             DataClassification = ToBeClassified;
             Caption = 'No. Detalle';
-            TableRelation = if ("Tipo Detalle" = const(TPV)) TPV else
+            TableRelation = if ("Tipo Detalle" = const(TPV)) Tiendas else
             if ("Tipo Detalle" = const(Cliente)) Customer else
             if ("Tipo Detalle" = const(GrupoCliente)) "Customer Price Group" else
             if ("Tipo Detalle" = const(Colegio)) "Colegios";
@@ -66,12 +66,12 @@ tableextension 91112 SalesInvoiceLineExtension extends "Sales Invoice header"
             DataClassification = ToBeClassified;
             TableRelation = Colegios;
         }
-        field(50103; Caja; Code[20])
-        {
-            DataClassification = ToBeClassified;
-            Caption = 'Caja';
-            TableRelation = Cajas.No;
-        }
+        // field(50103; Caja; Code[20])
+        // {
+        //     DataClassification = ToBeClassified;
+        //     Caption = 'Caja';
+        //     TableRelation = Cajas.No;
+        // }
         // field(50104; Turno; Code[20])
         // {
         //     DataClassification = ToBeClassified;
@@ -106,7 +106,7 @@ tableextension 91112 SalesInvoiceLineExtension extends "Sales Invoice header"
         {
             DataClassification = ToBeClassified;
             Caption = 'No. Detalle';
-            TableRelation = if ("Tipo Detalle" = const(TPV)) TPV else
+            TableRelation = if ("Tipo Detalle" = const(TPV)) Tiendas else
             if ("Tipo Detalle" = const(Cliente)) Customer else
             if ("Tipo Detalle" = const(GrupoCliente)) "Customer Price Group" else
             if ("Tipo Detalle" = const(Colegio)) "Colegios";
@@ -128,12 +128,12 @@ tableextension 91113 SalesCrHdExtension extends "Sales Cr.Memo Header"
             DataClassification = ToBeClassified;
             TableRelation = Colegios;
         }
-        field(50103; Caja; Code[20])
-        {
-            DataClassification = ToBeClassified;
-            Caption = 'Caja';
-            TableRelation = Cajas.No;
-        }
+        // field(50103; Caja; Code[20])
+        // {
+        //     DataClassification = ToBeClassified;
+        //     Caption = 'Caja';
+        //     TableRelation = Cajas.No;
+        // }
         // field(50104; Turno; Code[20])
         // {
         //     DataClassification = ToBeClassified;
@@ -168,7 +168,7 @@ tableextension 91113 SalesCrHdExtension extends "Sales Cr.Memo Header"
         {
             DataClassification = ToBeClassified;
             Caption = 'No. Detalle';
-            TableRelation = if ("Tipo Detalle" = const(TPV)) TPV else
+            TableRelation = if ("Tipo Detalle" = const(TPV)) Tiendas else
             if ("Tipo Detalle" = const(Cliente)) Customer else
             if ("Tipo Detalle" = const(GrupoCliente)) "Customer Price Group" else
             if ("Tipo Detalle" = const(Colegio)) "Colegios";

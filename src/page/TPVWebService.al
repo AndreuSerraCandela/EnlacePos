@@ -10,9 +10,9 @@ page 91172 "TPV Web Service"
     APIVersion = 'v1.0';
     EntityName = 'tpv';
     EntitySetName = 'tpvs';
-    SourceTable = TPV;
+    SourceTable = Tiendas;
     DelayedInsert = true;
-    ODataKeyFields = "No";
+    ODataKeyFields = "Cod. Tienda";
 
     layout
     {
@@ -20,22 +20,22 @@ page 91172 "TPV Web Service"
         {
             repeater(General)
             {
-                field(No; Rec."No")
+                field(No; Rec."Cod. Tienda")
                 {
                     Caption = 'No';
                     ApplicationArea = All;
                 }
-                field(nombre; Rec."Nombre")
+                field(nombre; Rec.Descripcion)
                 {
                     Caption = 'nombre';
                     ApplicationArea = All;
                 }
-                field(direccion; Rec."Dirección")
+                field(direccion; Rec."Direccion")
                 {
                     Caption = 'direccion';
                     ApplicationArea = All;
                 }
-                field(direccion2; Rec."Dirección 2")
+                field(direccion2; Rec."Direccion 2")
                 {
                     Caption = 'direccion2';
                     ApplicationArea = All;
@@ -45,42 +45,42 @@ page 91172 "TPV Web Service"
                     Caption = 'ciudad';
                     ApplicationArea = All;
                 }
-                field(codigoPostal; Rec."Código Postal")
+                field(codigoPostal; Rec."Codigo Postal")
                 {
                     Caption = 'codigoPostal';
                     ApplicationArea = All;
                 }
-                field(provincia; Rec."Provincia")
+                field(provincia; '')
                 {
                     Caption = 'provincia';
                     ApplicationArea = All;
                 }
-                field(pais; Rec."País")
+                field(pais; Rec."Cod. Pais")
                 {
                     Caption = 'pais';
                     ApplicationArea = All;
                 }
-                field(telefono; Rec."Teléfono")
+                field(telefono; Rec.Telefono)
                 {
                     Caption = 'telefono';
                     ApplicationArea = All;
                 }
-                field(movil; Rec."Móvil")
+                field(movil; Rec."Telefono 2")
                 {
                     Caption = 'movil';
                     ApplicationArea = All;
                 }
-                field(email; Rec."Email")
+                field(email; Rec."e-mail")
                 {
                     Caption = 'email';
                     ApplicationArea = All;
                 }
-                field(sitioWeb; Rec."Sitio Web")
+                field(sitioWeb; Rec."Pagina web")
                 {
                     Caption = 'sitioWeb';
                     ApplicationArea = All;
                 }
-                field(nifCif; Rec."NIF/CIF")
+                field(nifCif; Rec."No. Identificacion Fiscal")
                 {
                     Caption = 'nifCif';
                     ApplicationArea = All;
@@ -100,7 +100,7 @@ page 91172 "TPV Web Service"
                     Caption = 'fechaAlta';
                     ApplicationArea = All;
                 }
-                field(locationCode; Rec."Location Code")
+                field(locationCode; Rec."Cod. Almacen")
                 {
                     Caption = 'locationCode';
                     ApplicationArea = All;

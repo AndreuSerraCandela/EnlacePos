@@ -13,15 +13,15 @@ table 91104 CierreDeCajaDetalle
             AutoIncrement = true;
             Editable = false;
         }
-        field(2; idCierre; Integer)
+        field(2; idCierre; Code[20])
         {
             Caption = 'ID Cierre';
-            TableRelation = CierreDeCaja.No;
+            TableRelation = "Control de TPV"."Id Replicacion";
         }
-        field(3; idApertura; Integer)
+        field(3; idApertura; Code[20])
         {
             Caption = 'ID Apertura';
-            TableRelation = AperturaDeCaja.No;
+            TableRelation = "Control de TPV"."Id Replicacion";
         }
         field(4; idFormaPago; Code[20])
         {

@@ -5,7 +5,7 @@ page 91111 "CierreDeCaja"
 {
     Caption = 'Cierre De Caja';
     PageType = List;
-    SourceTable = CierreDeCaja;
+    SourceTable = "Control de TPV";
     UsageCategory = Lists;
     ApplicationArea = All;
 
@@ -15,13 +15,13 @@ page 91111 "CierreDeCaja"
         {
             repeater(General)
             {
-                field(No; Rec.No)
+                field(No; Rec."Id Replicacion")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Especifica el ID del cierre de caja';
                     Editable = false;
                 }
-                field(Cajero; Rec.Cajero)
+                field(Cajero; Rec."Usuario cierre")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Especifica el código del cajero';
@@ -31,7 +31,7 @@ page 91111 "CierreDeCaja"
                     ApplicationArea = All;
                     ToolTip = 'Especifica el importe inicial en la apertura de caja';
                 }
-                field(FechaDeApertura; Rec.FechaDeApertura)
+                field(FechaDeApertura; Rec.Fecha)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Especifica la fecha de apertura de caja';
@@ -76,7 +76,7 @@ page 91111 "CierreDeCaja"
                     ApplicationArea = All;
                     ToolTip = 'Especifica el estado actual del cierre de caja';
                 }
-                field(idApertura; Rec.idApertura)
+                field(idApertura; Rec."Id Replicacion")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Especifica el ID de la apertura relacionada';
@@ -102,7 +102,7 @@ page 91111 "CierreDeCaja"
                     CierreDetalle: Record CierreDeCajaDetalle;
                     CierreDetallePage: Page CierreDeCajaDetalle;
                 begin
-                    CierreDetalle.SetRange(idCierre, Rec.No);
+                    CierreDetalle.SetRange(idCierre, Rec."Id Replicacion");
                     CierreDetallePage.SetTableView(CierreDetalle);
                     CierreDetallePage.Run();
                 end;

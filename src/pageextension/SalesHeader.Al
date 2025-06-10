@@ -21,15 +21,15 @@ pageextension 91107 "Sales Invoice Header Ext" extends "Sales Invoice"
                     ApplicationArea = All;
                     ToolTip = 'Especifica el colegio asociado al cliente';
                 }
-                field(Caja; Rec.Caja)
+                field(Caja; Rec.TPV)
                 {
-                    Caption = 'Caja';
+                    Caption = 'Caja/Tpv';
                     ApplicationArea = All;
                     ToolTip = 'Especifica la caja asociada a la factura';
                 }
-                field(TPV; Rec.TPV)
+                field(Tienda; Rec.Tienda)
                 {
-                    Caption = 'TPV';
+                    Caption = 'Tienda';
                     ApplicationArea = All;
                     ToolTip = 'Especifica el TPV asociado a la factura';
                 }

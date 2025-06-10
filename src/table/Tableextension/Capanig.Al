@@ -43,7 +43,7 @@ table 91116 "Detalle Cupón"
         }
         field(3; "No."; Code[20])
         {
-            TableRelation = if ("Tipo Detalle" = const(TPV)) TPV else
+            TableRelation = if ("Tipo Detalle" = const(TPV)) Tiendas else
             if ("Tipo Detalle" = const(Cliente)) Customer else
             if ("Tipo Detalle" = const(GrupoCliente)) "Customer Price Group" else
             if ("Tipo Detalle" = const(Colegio)) "Colegios";

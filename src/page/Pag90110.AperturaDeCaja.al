@@ -5,7 +5,7 @@ page 91110 "AperturaDeCaja"
 {
     Caption = 'Apertura De Caja';
     PageType = List;
-    SourceTable = AperturaDeCaja;
+    SourceTable = "Control de TPV";
     UsageCategory = Lists;
     ApplicationArea = All;
 
@@ -15,23 +15,23 @@ page 91110 "AperturaDeCaja"
         {
             repeater(General)
             {
-                field(No; Rec.No)
+                field(No; Rec."Id Replicacion")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Especifica el ID de la apertura de caja';
                     Editable = false;
                 }
-                field(Cajero; Rec.Cajero)
+                field(Cajero; Rec."Usuario apertura")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Especifica el código del cajero';
                 }
-                field(FechaDeApertura; Rec.FechaDeApertura)
+                field(FechaDeApertura; Rec.Fecha)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Especifica la fecha de apertura de caja';
                 }
-                field(HoraDeApertura; Rec.HoraDeApertura)
+                field(HoraDeApertura; Rec."Hora apertura")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Especifica la hora de apertura de caja';
@@ -46,10 +46,15 @@ page 91110 "AperturaDeCaja"
                     ApplicationArea = All;
                     ToolTip = 'Especifica el estado actual de la apertura de caja';
                 }
-                field(Caja; Rec.Caja)
+                field(Caja; Rec."No. TPV")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Especifica el código de la caja asignada';
+                }
+                field(Tienda; Rec."No. Tienda")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Especifica el código de la tienda asignada';
                 }
                 field(Turno; Rec.Turno)
                 {

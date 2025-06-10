@@ -5,7 +5,7 @@ page 91170 "TPV List"
 {
     Caption = 'TPV';
     PageType = List;
-    SourceTable = TPV;
+    SourceTable = Tiendas;
     CardPageId = "TPV Card";
     ApplicationArea = All;
     UsageCategory = Lists;
@@ -16,73 +16,85 @@ page 91170 "TPV List"
         {
             repeater(General)
             {
-                field("No"; Rec."No")
+                field("No"; Rec."Cod. Tienda")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Especifica el identificador único del TPV.';
                 }
-                field("Nombre"; Rec."Nombre")
+                field("Nombre"; Rec.Descripcion)
                 {
+                    Caption = 'Nombre';
                     ApplicationArea = All;
                     ToolTip = 'Especifica el nombre del TPV.';
                 }
-                field("Location Code"; Rec."Location Code")
+                field("Location Code"; Rec."Cod. Almacen")
                 {
+                    Caption = 'Código Localización';
                     ApplicationArea = All;
                     ToolTip = 'Especifica la localización asociada al TPV.';
                 }
-                field("Dirección"; Rec."Dirección")
+                field("Dirección"; Rec."Direccion")
                 {
+                    Caption = 'Dirección';
                     ApplicationArea = All;
                     ToolTip = 'Especifica la dirección del TPV.';
                 }
-                field("Dirección 2"; Rec."Dirección 2")
+                field("Dirección 2"; Rec."Direccion 2")
                 {
+                    Caption = 'Dirección 2';
                     ApplicationArea = All;
                     ToolTip = 'Especifica información adicional de la dirección del TPV.';
                 }
                 field("Ciudad"; Rec."Ciudad")
                 {
+                    Caption = 'Ciudad';
                     ApplicationArea = All;
                     ToolTip = 'Especifica la ciudad donde se encuentra el TPV.';
                 }
-                field("Código Postal"; Rec."Código Postal")
+                field("Código Postal"; Rec."Codigo Postal")
                 {
+                    Caption = 'Código Postal';
                     ApplicationArea = All;
                     ToolTip = 'Especifica el código postal del TPV.';
                 }
-                field("Provincia"; Rec."Provincia")
+                // field("Provincia"; Rec."Provincia")
+                // {
+                //     ApplicationArea = All;
+                //     ToolTip = 'Especifica la provincia donde se encuentra el TPV.';
+                // }
+                field("País"; Rec."Cod. Pais")
                 {
-                    ApplicationArea = All;
-                    ToolTip = 'Especifica la provincia donde se encuentra el TPV.';
-                }
-                field("País"; Rec."País")
-                {
+                    Caption = 'País';
                     ApplicationArea = All;
                     ToolTip = 'Especifica el país donde se encuentra el TPV.';
                 }
-                field("Teléfono"; Rec."Teléfono")
+                field("Teléfono"; Rec.Telefono)
                 {
+                    Caption = 'Teléfono';
                     ApplicationArea = All;
                     ToolTip = 'Especifica el número de teléfono del TPV.';
                 }
-                field("Móvil"; Rec."Móvil")
+                field("Móvil"; Rec."Telefono 2")
                 {
+                    Caption = 'Móvil';
                     ApplicationArea = All;
                     ToolTip = 'Especifica el número de móvil del TPV.';
                 }
-                field("Email"; Rec."Email")
+                field("Email"; Rec."e-mail")
                 {
+                    Caption = 'Email';
                     ApplicationArea = All;
                     ToolTip = 'Especifica la dirección de correo electrónico del TPV.';
                 }
-                field("Sitio Web"; Rec."Sitio Web")
+                field("Sitio Web"; Rec."Pagina web")
                 {
+                    Caption = 'Sitio Web';
                     ApplicationArea = All;
                     ToolTip = 'Especifica la dirección web del TPV.';
                 }
-                field("NIF/CIF"; Rec."NIF/CIF")
+                field("NIF/CIF"; Rec."No. Identificacion Fiscal")
                 {
+                    Caption = 'NIF/CIF';
                     ApplicationArea = All;
                     ToolTip = 'Especifica el número de identificación fiscal del TPV.';
                 }

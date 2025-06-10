@@ -17,7 +17,7 @@ codeunit 91100 Importaciones
     tabledata 91107 = rimd,
     tabledata 91150 = rimd,
     tabledata 91100 = rimd,
-    tabledata 91120 = rimd;
+    tabledata 76029 = rimd;
     /// <summary>
     /// Ping.
     /// Función de verificación de disponibilidad del servicio web.
@@ -632,7 +632,7 @@ codeunit 91100 Importaciones
         IdType: Text;
         InvoiceType: Text;
         IdSpecial: Text;
-        Caja: Record Cajas;
+        Caja: Record "Configuracion TPV";
         TipoDetalle: Text;
     begin
         JPedidoToken.ReadFrom(Data);
@@ -653,10 +653,13 @@ codeunit 91100 Importaciones
             SalesHeaderT."Sell-to Customer No." := GetValueAsText(JToken, 'Sell_to_Customer_No_');
             SalesHeaderT."No." := GetValueAsText(JToken, 'No_');
             SalesHeaderT.Colegio := GetValueAsText(JToken, 'Colegio');
-            SalesHeaderT.Caja := GetValueAsText(JToken, 'Caja');
-            if SalesHeaderT.Caja <> '' Then begin
-                Caja.Get(SalesHeaderT.Caja);
-                SalesHeaderT.TPV := Caja.Tpv;
+            SalesHeaderT.TPV := GetValueAsText(JToken, 'Caja');
+            if SalesHeaderT.TPV <> '' Then begin
+                Caja.SetRange("Id TPV", SalesHeaderT.TPV);
+                if Caja.FindFirst() then begin
+                    SalesHeaderT.TPV := Caja."Tienda";
+                    SalesHeaderT."Venta TPV" := true;
+                end;
             end;
             SalesHeaderT.Turno := GetValueAsInteger(JToken, 'Turno');
             SalesHeaderT."Bill-to Customer No." := GetValueAsText(JToken, 'Bill_to_Customer_No_');
@@ -945,8 +948,11 @@ codeunit 91100 Importaciones
             Pedido.Validate("Sell-to Customer No.");
             If SalesHeaderT.Colegio <> '' then
                 Pedido.Colegio := SalesHeaderT.Colegio;
-            If SalesHeaderT.Caja <> '' then
-                Pedido.Caja := SalesHeaderT.Caja;
+            If SalesHeaderT.Tpv <> '' then
+                Pedido.TPV := SalesHeaderT.TPv;
+            if SalesHeaderT.Tienda <> '' then
+                Pedido.Tienda := SalesHeaderT.Tienda;
+            SalesHeaderT."Venta TPV" := true;
             If SalesHeaderT.Turno <> 0 then
                 Pedido.Turno := SalesHeaderT.Turno;
             if SalesHeaderT."Bill-to Customer No." <> '' then
@@ -1848,8 +1854,8 @@ codeunit 91100 Importaciones
         JCajaObj: JsonObject;
         JCajas: JsonArray;
         JToken: JsonToken;
-        RecCaja: Record Cajas;
-        RecCajaTmp: Record Cajas temporary;
+        RecCaja: Record "Configuracion TPV";
+        RecCajaTmp: Record "Configuracion TPV" temporary;
         RecRef: RecordRef;
         CajaCount: Integer;
         ErrorCount: Integer;
@@ -1893,11 +1899,11 @@ codeunit 91100 Importaciones
             // Verificar si es una eliminación
             Deleted := GetValueAsBoolean(JToken, 'Deleted');
             Clear(RecCajaTmp);
-            RecCajaTmp.No := GetValueAsText(JToken, 'No_');
-            if RecCajaTMP.No = '' then
-                RecCajaTMP.No := GetValueAsText(JToken, 'No'); // Compatibilidad con formato anterior
-            RecCajaTMP.Nombre := GetValueAsText(JToken, 'Nombre');
-            RecCajaTMP.TPV := GetValueAsText(JToken, 'TPV');
+            RecCajaTmp."Id TPV" := GetValueAsText(JToken, 'No_');
+            if RecCajaTMP."Id TPV" = '' then
+                RecCajaTMP."Id TPV" := GetValueAsText(JToken, 'No'); // Compatibilidad con formato anterior
+            RecCajaTMP.Descripcion := GetValueAsText(JToken, 'Nombre');
+            RecCajaTMP."Tienda" := GetValueAsText(JToken, 'TPV');
             if RecCajaTMP.Insert() then
                 CajaCount += 1
             else
@@ -1905,22 +1911,22 @@ codeunit 91100 Importaciones
 
 
             // Verificar que la caja no esté vacía
-            If (RecCajaTMP.No = 'TEMP') Or (RecCajaTMP.No = '') Then begin
+            If (RecCajaTMP."Id TPV" = 'TEMP') Or (RecCajaTMP."Id TPV" = '') Then begin
 
 
 
                 RecCaja := RecCajaTmp;
                 SalesSetup.Get();
                 SalesSetup.TestField("Nums. Caja");
-                RecCaja.No := NoSeriesMgt.GetNextNo(SalesSetup."Nums. Caja", Today, true);
+                RecCaja."Id TPV" := NoSeriesMgt.GetNextNo(SalesSetup."Nums. Caja", Today, true);
                 RecCaja.Insert();
             end else begin
                 // Actualizar caja existente o eliminarla
                 if not Deleted then begin
                     CajaRecRef.Gettable(RecCajaTmp);
-                    EmptyCajaRecRef.Open(Database::Cajas);
+                    EmptyCajaRecRef.Open(Database::"Configuracion TPV");
                     EmptyCajaRecRef.Init();
-                    If RecCaja.Get(RecCajaTMP.No) Then begin
+                    If RecCaja.Get(RecCajaTMP."Tienda", RecCajaTMP."Id TPV") Then begin
                         TCajaRecRef.GetTable(RecCaja);
                         for i := 1 to CajaRecRef.FieldCount do begin
                             CajaFldRef := CajaRecRef.FieldIndex(i);
@@ -1932,12 +1938,12 @@ codeunit 91100 Importaciones
                         end;
 
                         TCajaRecRef.Modify();
-                        RecCajaTMP.No := RecCaja.No;
+                        RecCajaTMP."Id TPV" := RecCaja."Id TPV";
                         CajaCount += 1;
                     end else
                         ErrorCount += 1;
                 end else begin
-                    If RecCaja.Get(RecCajaTmp.No) Then begin
+                    If RecCaja.Get(RecCajaTmp."Tienda", RecCajaTmp."Id TPV") Then begin
                         RecCaja.Delete();
                         CajaCount += 1;
                     end else
@@ -1948,7 +1954,7 @@ codeunit 91100 Importaciones
 
         // Preparar mensaje de resultado
         ResultadoText := StrSubstNo('Importación completada. Cajas procesadas: %1, Errores: %2', CajaCount, ErrorCount);
-        exit(RecCaja.No);
+        exit(RecCaja."Id TPV");
     end;
 
     /// <summary>
@@ -1963,15 +1969,15 @@ codeunit 91100 Importaciones
         JAperturaObj: JsonObject;
         JAperturas: JsonArray;
         JToken: JsonToken;
-        RecApertura: Record AperturaDeCaja;
-        RecAperturaTmp: Record AperturaDeCaja temporary;
+        RecApertura: Record "Control de TPV";
+        RecAperturaTmp: Record "Control de TPV" temporary;
         AperturaCount: Integer;
         ErrorCount: Integer;
         ResultadoText: Text;
         Deleted: Boolean;
         EstadoTxt: Text;
         Num: Integer;
-        Cajas: Record Cajas;
+        Cajas: Record "Configuracion TPV";
     begin
         // Verificar que hay datos para importar
         if Data = '' then
@@ -2003,37 +2009,41 @@ codeunit 91100 Importaciones
             Deleted := GetValueAsBoolean(JToken, 'Deleted');
 
             // Asignar valores desde JSON
-            RecAperturaTmp.Cajero := GetValueAsText(JToken, 'Cajero');
-            RecAperturaTmp.FechaDeApertura := GetValueAsDate(JToken, 'FechaDeApertura');
+            RecAperturaTmp."Usuario apertura" := GetValueAsText(JToken, 'Cajero');
+            RecAperturaTmp.Fecha := GetValueAsDate(JToken, 'FechaDeApertura');
             RecAperturaTmp.ImporteDeApertura := GetValueAsDecimal(JToken, 'ImporteDeApertura');
-            RecAperturaTmp.Caja := GetValueAsText(JToken, 'Caja');
-            If RecAperturaTmp.Caja <> '' then begin
-                if Cajas.Get(RecAperturaTmp.Caja) then
-                    RecAperturaTmp.TPV := Cajas.TPV;
+            RecAperturaTmp."No. TPV" := GetValueAsText(JToken, 'Caja');
+            RecAperturaTmp."No. Tienda" := GetValueAsText(JToken, 'Tienda');
+            If RecAperturaTmp."No. TPV" <> '' then begin
+                if RecAperturaTmp."No. Tienda" = '' then begin
+                    Cajas.SetRange("Id TPV", RecAperturaTmp."No. TPV");
+                    if Cajas.FindFirst() then
+                        RecAperturaTmp."No. Tienda" := Cajas."Tienda";
+                end;
             end;
-            RecAperturaTmp.Turno := GetValueAsText(JToken, 'Turno');
-            RecAperturaTmp.HoraDeApertura := GetValueAsTime(JToken, 'HoraDeApertura');
+            RecAperturaTmp.Turno := GetValueAsInteger(JToken, 'Turno');
+            RecAperturaTmp."Hora apertura" := GetValueAsTime(JToken, 'HoraDeApertura');
             // Determinar el estado 
             EstadoTxt := GetValueAsText(JToken, 'Estado');
             if EstadoTxt = 'Cerrado' then
                 RecAperturaTmp.Estado := RecAperturaTmp.Estado::Cerrado
             else if EstadoTxt = 'Abierto' then
-                RecAperturaTmp.Estado := RecAperturaTmp.Estado::Abierto
-            else if EstadoTxt = 'Turno Generado' then
-                RecAperturaTmp.Estado := RecAperturaTmp.Estado::"Turno Generado"
-            else
                 RecAperturaTmp.Estado := RecAperturaTmp.Estado::Abierto;
+            // else if EstadoTxt = 'Turno Generado' then
+            //     RecAperturaTmp.Estado := RecAperturaTmp.Estado::"Turno Generado"
+            // else
+            //     RecAperturaTmp.Estado := RecAperturaTmp.Estado::Abierto;
 
             // Verificar si existe un ID específico
             if GetValueAsText(JToken, 'No') = 'TEMP' then
-                RecAperturaTmp.No := 0
-            else if GetValueAsInteger(JToken, 'No') > 0 then
-                RecAperturaTmp.No := GetValueAsInteger(JToken, 'No');
+                RecAperturaTmp."Id Replicacion" := '';
+
 
             if Deleted then begin
                 // Buscar por ID si se especifica
-                if RecAperturaTmp.No > 0 then begin
-                    if RecApertura.Get(RecAperturaTmp.No) then begin
+                if RecAperturaTmp."Id Replicacion" <> '' then begin
+                    RecApertura.SetRange("Id Replicacion", RecAperturaTmp."Id Replicacion");
+                    if RecApertura.FindFirst() then begin
                         RecApertura.Delete();
                         AperturaCount += 1;
                     end else
@@ -2041,15 +2051,17 @@ codeunit 91100 Importaciones
                 end;
             end else begin
                 // Si se especifica un ID, intentar actualizar
-                if RecAperturaTmp.No > 0 then begin
-                    if RecApertura.Get(RecAperturaTmp.No) then begin
-                        RecApertura.Cajero := RecAperturaTmp.Cajero;
-                        RecApertura.FechaDeApertura := RecAperturaTmp.FechaDeApertura;
-                        RecApertura.HoraDeApertura := RecAperturaTmp.HoraDeApertura;
+                if RecAperturaTmp."No. TPV" <> '' then begin
+                    if RecApertura.Get(RecAperturaTmp."No. Tienda", RecAperturaTmp."No. TPV", RecAperturaTmp.Fecha) then begin
+                        RecApertura."Usuario apertura" := RecAperturaTmp."Usuario apertura";
+                        RecApertura.Fecha := RecAperturaTmp.Fecha;
+                        RecApertura."Hora apertura" := RecAperturaTmp."Hora apertura";
                         RecApertura.ImporteDeApertura := RecAperturaTmp.ImporteDeApertura;
                         RecApertura.Estado := RecAperturaTmp.Estado;
-                        RecApertura.Caja := RecAperturaTmp.Caja;
+                        RecApertura."No. TPV" := RecAperturaTmp."No. TPV";
+                        RecApertura."No. Tienda" := RecAperturaTmp."No. Tienda";
                         RecApertura.Turno := RecAperturaTmp.Turno;
+                        RecApertura."Id Replicacion" := RecApertura."No. tienda" + ';' + RecApertura."No. TPV" + ';' + Format(RecApertura.Fecha);
 
                         if RecApertura.Modify() then
                             AperturaCount += 1
@@ -2059,24 +2071,17 @@ codeunit 91100 Importaciones
                         ErrorCount += 1;
                 end else begin
                     // Insertar nueva apertura
-                    RecApertura.Reset();
-                    If RecApertura.FindLast() then
-                        Num := RecApertura.No + 1
-                    else
-                        Num := 1;
                     RecApertura.Init();
                     RecApertura.TransferFields(RecAperturaTmp);
-                    RecApertura.No := Num;
-                    if RecApertura.Insert() then
-                        AperturaCount += 1
-                    else
-                        ErrorCount += 1;
+                    RecApertura."Id Replicacion" := RecApertura."No. tienda" + ';' + RecApertura."No. TPV" + ';' + Format(RecApertura.Fecha);
+                    if NOT RecApertura.Insert() then
+                        RecApertura.Modify();
                 end;
             end;
         end;
 
         // Preparar mensaje de resultado
-        ResultadoText := StrSubstNo('%1', RecApertura.No);
+        ResultadoText := StrSubstNo('%1', RecApertura."Id Replicacion");
         exit(ResultadoText);
     end;
 
@@ -2092,15 +2097,17 @@ codeunit 91100 Importaciones
         JCierreObj: JsonObject;
         JCierres: JsonArray;
         JToken: JsonToken;
-        RecCierre: Record CierreDeCaja;
-        RecCierreTmp: Record CierreDeCaja temporary;
+        RecCierre: Record "Control de TPV";
+        RecCierreTmp: Record "Control de TPV" temporary;
         CierreCount: Integer;
         ErrorCount: Integer;
         ResultadoText: Text;
         Deleted: Boolean;
         EstadoTxt: Text;
         Num: Integer;
-        AperturaDeCaja: Record AperturaDeCaja;
+        AperturaDeCaja: Record "Control de TPV";
+        Tienda: Text;
+        TPV: Text;
     begin
         // Verificar que hay datos para importar
         if Data = '' then
@@ -2132,9 +2139,9 @@ codeunit 91100 Importaciones
             Deleted := GetValueAsBoolean(JToken, 'Deleted');
 
             // Asignar valores desde JSON
-            RecCierreTmp.Cajero := GetValueAsText(JToken, 'Cajero');
+            RecCierreTmp."Usuario cierre" := GetValueAsText(JToken, 'Cajero');
             RecCierreTmp.ImporteDeApertura := GetValueAsDecimal(JToken, 'ImporteDeApertura');
-            RecCierreTmp.FechaDeApertura := GetValueAsDate(JToken, 'FechaDeApertura');
+            RecCierreTmp.Fecha := GetValueAsDate(JToken, 'FechaDeApertura');
             RecCierreTmp.ImporteDeCierreBS := GetValueAsDecimal(JToken, 'ImporteDeCierreBS');
             RecCierreTmp.ImporteDeCierreUS := GetValueAsDecimal(JToken, 'ImporteDeCierreUS');
             RecCierreTmp.ImporteDeCierreEUR := GetValueAsDecimal(JToken, 'ImporteDeCierreEUR');
@@ -2142,10 +2149,15 @@ codeunit 91100 Importaciones
             RecCierreTmp.ArqueoUS := GetValueAsDecimal(JToken, 'ArqueoUS');
             RecCierreTmp.ArqueoEUR := GetValueAsDecimal(JToken, 'ArqueoEUR');
             RecCierreTmp.FechaDeCierre := GetValueAsDateTime(JToken, 'FechaDeCierre');
-            RecCierreTmp.idApertura := GetValueAsInteger(JToken, 'idApertura');
-            If RecCierreTmp.idApertura <> 0 then begin
-                if AperturaDeCaja.Get(RecCierreTmp.idApertura) then
-                    RecCierreTmp.TPV := AperturaDeCaja.TPV;
+            RecCierreTmp."Id Replicacion" := GetValueAsText(JToken, 'idApertura');
+            If RecCierreTmp."Id Replicacion" <> '' then begin
+                //Tienda;TPV
+                AperturaDeCaja.SetRange("Id Replicacion", RecCierreTmp."Id Replicacion");
+                if AperturaDeCaja.FindFirst() then begin
+                    RecCierreTmp."No. Tienda" := AperturaDeCaja."No. Tienda";
+                    RecCierreTmp."No. TPV" := AperturaDeCaja."No. TPV";
+                    RecCierreTmp.Fecha := AperturaDeCaja.Fecha;
+                end;
             end;
             // Determinar el estado
             EstadoTxt := GetValueAsText(JToken, 'Estado');
@@ -2157,15 +2169,16 @@ codeunit 91100 Importaciones
             // Verificar si existe un ID específico
             // Verificar si existe un ID específico
             if GetValueAsText(JToken, 'No') = 'TEMP' then
-                RecCierreTmp.No := 0
+                RecCierreTmp."Id Replicacion" := ''
             else if GetValueAsInteger(JToken, 'No') > 0 then
-                RecCierreTmp.No := GetValueAsInteger(JToken, 'No');
+                RecCierreTmp."Id Replicacion" := GetValueAsText(JToken, 'No');
 
 
             if Deleted then begin
                 // Buscar por ID si se especifica
-                if RecCierreTmp.No > 0 then begin
-                    if RecCierre.Get(RecCierreTmp.No) then begin
+                if RecCierreTmp."Id Replicacion" <> '' then begin
+                    RecCierre.SetRange("Id Replicacion", RecCierreTmp."Id Replicacion");
+                    if RecCierre.FindFirst() then begin
                         RecCierre.Delete();
                         CierreCount += 1;
                     end else
@@ -2173,11 +2186,11 @@ codeunit 91100 Importaciones
                 end;
             end else begin
                 // Si se especifica un ID, intentar actualizar
-                if RecCierreTmp.No > 0 then begin
-                    if RecCierre.Get(RecCierreTmp.No) then begin
-                        RecCierre.Cajero := RecCierreTmp.Cajero;
+                if RecCierreTmp."Id Replicacion" <> '' then begin
+                    if RecCierre.Get(RecCierreTmp."No. Tienda", RecCierreTmp."No. TPV", RecCierreTmp.Fecha) then begin
+                        RecCierre."Usuario cierre" := RecCierreTmp."Usuario cierre";
                         RecCierre.ImporteDeApertura := RecCierreTmp.ImporteDeApertura;
-                        RecCierre.FechaDeApertura := RecCierreTmp.FechaDeApertura;
+                        RecCierre.Fecha := RecCierreTmp.Fecha;
                         RecCierre.ImporteDeCierreBS := RecCierreTmp.ImporteDeCierreBS;
                         RecCierre.ImporteDeCierreUS := RecCierreTmp.ImporteDeCierreUS;
                         RecCierre.ImporteDeCierreEUR := RecCierreTmp.ImporteDeCierreEUR;
@@ -2186,7 +2199,7 @@ codeunit 91100 Importaciones
                         RecCierre.ArqueoEUR := RecCierreTmp.ArqueoEUR;
                         RecCierre.FechaDeCierre := RecCierreTmp.FechaDeCierre;
                         RecCierre.Estado := RecCierreTmp.Estado;
-                        RecCierre.idApertura := RecCierreTmp.idApertura;
+                        RecCierre."Id Replicacion" := RecCierreTmp."Id Replicacion";
 
                         if RecCierre.Modify() then
                             CierreCount += 1
@@ -2197,13 +2210,9 @@ codeunit 91100 Importaciones
                 end else begin
                     // Insertar nuevo cierre
                     RecCierre.Reset();
-                    If RecCierre.FindLast() then
-                        Num := RecCierre.No + 1
-                    else
-                        Num := 1;
                     RecCierre.Init();
                     RecCierre.TransferFields(RecCierreTmp);
-                    RecCierre.No := Num;
+                    RecCierre."Id Replicacion" := RecCierreTmp."Id Replicacion";
                     if RecCierre.Insert() then
                         CierreCount += 1
                     else
@@ -2213,7 +2222,7 @@ codeunit 91100 Importaciones
         end;
 
         // Preparar mensaje de resultado
-        ResultadoText := StrSubstNo('%1', RecCierre.No);
+        ResultadoText := StrSubstNo('%1', RecCierre."Id Replicacion");
         exit(ResultadoText);
     end;
 
@@ -2288,8 +2297,8 @@ codeunit 91100 Importaciones
             Deleted := GetValueAsBoolean(JToken, 'Deleted');
 
             // Asignar valores desde JSON
-            RecDetalleTmp.idCierre := GetValueAsInteger(JToken, 'idCierre');
-            RecDetalleTmp.idApertura := GetValueAsInteger(JToken, 'idApertura');
+            RecDetalleTmp.idCierre := GetValueAsText(JToken, 'idCierre');
+            RecDetalleTmp.idApertura := GetValueAsText(JToken, 'idApertura');
             RecDetalleTmp.idFormaPago := GetValueAsText(JToken, 'idFormaPago');
             RecDetalleTmp.MontoPago := GetValueAsDecimal(JToken, 'MontoPago');
 
@@ -2602,8 +2611,8 @@ codeunit 91100 Importaciones
         JTPVObj: JsonObject;
         JTPVs: JsonArray;
         JToken: JsonToken;
-        RecTPV: Record TPV;
-        RecTPVTmp: Record TPV temporary;
+        RecTPV: Record Tiendas;
+        RecTPVTmp: Record Tiendas temporary;
         TPVCount: Integer;
         ErrorCount: Integer;
         ResultadoText: Text;
@@ -2648,23 +2657,23 @@ codeunit 91100 Importaciones
             Clear(RecTPVTmp);
 
             // Asignar valores usando la nueva estructura de nombres
-            RecTPVTmp."No" := GetValueAsText(JToken, 'No'); // Compatibilidad con formato anterior
+            RecTPVTmp."Cod. Tienda" := GetValueAsText(JToken, 'No'); // Compatibilidad con formato anterior
 
-            RecTPVTmp."Nombre" := GetValueAsText(JToken, 'nombre');
-            if RecTPVTmp."Nombre" = '' then
-                RecTPVTmp."Nombre" := GetValueAsText(JToken, 'Nombre'); // Compatibilidad
+            RecTPVTmp.Descripcion := GetValueAsText(JToken, 'nombre');
+            if RecTPVTmp.Descripcion = '' then
+                RecTPVTmp.Descripcion := GetValueAsText(JToken, 'Nombre'); // Compatibilidad
 
-            RecTPVTmp."Dirección" := GetValueAsText(JToken, 'direccion');
-            RecTPVTmp."Dirección 2" := GetValueAsText(JToken, 'direccion2');
+            RecTPVTmp."Direccion" := GetValueAsText(JToken, 'direccion');
+            RecTPVTmp."Direccion 2" := GetValueAsText(JToken, 'direccion2');
             RecTPVTmp."Ciudad" := GetValueAsText(JToken, 'ciudad');
-            RecTPVTmp."Código Postal" := GetValueAsText(JToken, 'codigoPostal');
-            RecTPVTmp."Provincia" := GetValueAsText(JToken, 'provincia');
-            RecTPVTmp."País" := GetValueAsText(JToken, 'pais');
-            RecTPVTmp."Teléfono" := GetValueAsText(JToken, 'telefono');
-            RecTPVTmp."Móvil" := GetValueAsText(JToken, 'movil');
-            RecTPVTmp."Email" := GetValueAsText(JToken, 'email');
-            RecTPVTmp."Sitio Web" := GetValueAsText(JToken, 'sitioWeb');
-            RecTPVTmp."NIF/CIF" := GetValueAsText(JToken, 'nifCif');
+            RecTPVTmp."Codigo Postal" := GetValueAsText(JToken, 'codigoPostal');
+            //RecTPVTmp."Provincia" := GetValueAsText(JToken, 'provincia');
+            RecTPVTmp."Cod. Pais" := GetValueAsText(JToken, 'pais');
+            RecTPVTmp.Telefono := GetValueAsText(JToken, 'telefono');
+            RecTPVTmp."Telefono 2" := GetValueAsText(JToken, 'movil');
+            RecTPVTmp."e-mail" := GetValueAsText(JToken, 'email');
+            RecTPVTmp."Pagina web" := GetValueAsText(JToken, 'sitioWeb');
+            RecTPVTmp."No. Identificacion Fiscal" := GetValueAsText(JToken, 'nifCif');
             RecTPVTmp."Contacto" := GetValueAsText(JToken, 'contacto');
             RecTPVTmp."Notas" := GetValueAsText(JToken, 'notas');
 
@@ -2672,7 +2681,7 @@ codeunit 91100 Importaciones
             if HasValue(JToken, 'fechaAlta') then
                 Evaluate(RecTPVTmp."Fecha Alta", GetValueAsText(JToken, 'fechaAlta'));
 
-            RecTPVTmp."Location Code" := GetValueAsText(JToken, 'locationCode');
+            RecTPVTmp."Cod. Almacen" := GetValueAsText(JToken, 'locationCode');
             RecTPVTmp."No. Series" := GetValueAsText(JToken, 'noSeries');
 
             if RecTPVTMP.Insert() then
@@ -2681,19 +2690,19 @@ codeunit 91100 Importaciones
                 ErrorCount += 1;
 
             // Verificar que el TPV no esté vacío
-            If (RecTPVTMP."No" = 'TEMP') Or (RecTPVTMP."No" = '') Then begin
+            If (RecTPVTMP."Cod. Tienda" = 'TEMP') Or (RecTPVTMP."Cod. Tienda" = '') Then begin
                 RecTPV := RecTPVTmp;
                 SalesSetup.Get();
                 SalesSetup.TestField("Nums. TPV");
-                RecTPV."No" := NoSeriesMgt.GetNextNo(SalesSetup."Nums. TPV", Today, true);
+                RecTPV."Cod. Tienda" := NoSeriesMgt.GetNextNo(SalesSetup."Nums. TPV", Today, true);
                 RecTPV.Insert();
             end else begin
                 // Actualizar TPV existente o eliminarlo
                 if not Deleted then begin
                     TPVRecRef.Gettable(RecTPVTmp);
-                    EmptyTPVRecRef.Open(Database::TPV);
+                    EmptyTPVRecRef.Open(Database::Tiendas);
                     EmptyTPVRecRef.Init();
-                    If RecTPV.Get(RecTPVTMP."No") Then begin
+                    If RecTPV.Get(RecTPVTMP."Cod. Tienda") Then begin
                         TTPVRecRef.GetTable(RecTPV);
                         for i := 1 to TPVRecRef.FieldCount do begin
                             TPVFldRef := TPVRecRef.FieldIndex(i);
@@ -2705,12 +2714,12 @@ codeunit 91100 Importaciones
                         end;
 
                         TTPVRecRef.Modify();
-                        RecTPVTMP."No" := RecTPV."No";
+                        RecTPVTMP."Cod. Tienda" := RecTPV."Cod. Tienda";
                         TPVCount += 1;
                     end else
                         ErrorCount += 1;
                 end else begin
-                    If RecTPV.Get(RecTPVTmp."No") Then begin
+                    If RecTPV.Get(RecTPVTmp."Cod. Tienda") Then begin
                         RecTPV.Delete();
                         TPVCount += 1;
                     end else
@@ -2720,8 +2729,8 @@ codeunit 91100 Importaciones
         end;
 
         // Preparar mensaje de resultado
-        ResultadoText := StrSubstNo('Importación completada. TPVs procesados: %1, Errores: %2', TPVCount, ErrorCount);
-        exit(RecTPV."No");
+        ResultadoText := StrSubstNo('Importación completada. Tiendas procesadas: %1, Errores: %2', TPVCount, ErrorCount);
+        exit(RecTPV."Cod. Tienda");
     end;
 
     local procedure HasValue(JToken: JsonToken; PropertyName: Text): Boolean
