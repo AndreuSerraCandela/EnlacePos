@@ -1,4 +1,4 @@
-table 91108 Colegios
+table 75208 Colegios
 {
     Caption = 'Colegios';
     DataClassification = CustomerContent;

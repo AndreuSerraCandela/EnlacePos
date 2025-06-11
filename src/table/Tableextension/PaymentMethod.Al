@@ -1,4 +1,4 @@
-tableextension 91114 PaymentMethodExtension extends "Payment Method"
+tableextension 75214 PaymentMethodExtension extends "Payment Method"
 {
     fields
     {

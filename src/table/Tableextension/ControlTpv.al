@@ -1,4 +1,4 @@
-tableextension 91107 ControlTpvExt extends "Control de TPV"
+tableextension 75207 ControlTpvExt extends "Control de TPV"
 {
     fields
     {

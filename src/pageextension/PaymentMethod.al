@@ -1,4 +1,4 @@
-pageextension 91115 PaymentMethodListExt extends "Payment Methods"
+pageextension 75215 PaymentMethodListExt extends "Payment Methods"
 {
     layout
     {

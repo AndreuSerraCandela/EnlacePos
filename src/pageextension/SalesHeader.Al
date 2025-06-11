@@ -1,4 +1,4 @@
-pageextension 91107 "Sales Invoice Header Ext" extends "Sales Invoice"
+pageextension 75207 "Sales Invoice Header Ext" extends "Sales Invoice"
 {
     layout
     {
@@ -84,7 +84,7 @@ pageextension 91107 "Sales Invoice Header Ext" extends "Sales Invoice"
 
     end;
 }
-pageextension 91108 "Sales Invoices Ext" extends "Sales Invoice List"
+pageextension 75208 "Sales Invoices Ext" extends "Sales Invoice List"
 {
     layout
     {

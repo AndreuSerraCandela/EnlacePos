@@ -1,4 +1,4 @@
-pageextension 91118 "Campaign Card Ext" extends "Campaign Card"
+pageextension 75218 "Campaign Card Ext" extends "Campaign Card"
 {
     CaptionML = ENU = 'Campaign',
                 ESP = 'Campaña';

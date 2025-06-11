@@ -1,4 +1,4 @@
-enum 91116 "Tipo Detalle"
+enum 75216 "Tipo Detalle"
 {
     Extensible = true;
     value(0; TPV)
@@ -18,7 +18,7 @@ enum 91116 "Tipo Detalle"
         Caption = 'Colegio';
     }
 }
-enumextension 91117 salesPricetypeext extends "Sales Price Type"
+enumextension 75217 salesPricetypeext extends "Sales Price Type"
 {
     value(5; Colegio)
     {

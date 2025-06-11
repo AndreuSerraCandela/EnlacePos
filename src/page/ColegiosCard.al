@@ -1,4 +1,4 @@
-page 91109 "Colegios Card"
+page 75209 "Colegios Card"
 {
     Caption = 'Ficha de Colegio';
     PageType = Card;

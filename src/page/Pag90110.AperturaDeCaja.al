@@ -1,7 +1,7 @@
 /// <summary>
 /// Page AperturaDeCaja (ID 90110).
 /// </summary>
-page 91110 "AperturaDeCaja"
+page 75210 "AperturaDeCaja"
 {
     Caption = 'Apertura De Caja';
     PageType = List;

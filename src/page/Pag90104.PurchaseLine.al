@@ -1,4 +1,4 @@
-Page 91104 PurchaseLine
+Page 75204 PurchaseLine
 {
     Caption = 'PurchaseLine';
     SourceTable = "Purchase Line";

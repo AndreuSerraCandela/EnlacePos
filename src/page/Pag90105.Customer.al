@@ -1,4 +1,4 @@
-Page 91105 Customer
+Page 75205 Customer
 {
     Caption = 'Customer';
     SourceTable = Customer;

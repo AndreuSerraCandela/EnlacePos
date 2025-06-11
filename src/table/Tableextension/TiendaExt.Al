@@ -1,4 +1,4 @@
-tableextension 91105 TiendaExt extends Tiendas
+tableextension 75205 TiendaExt extends Tiendas
 {
     fields
     {

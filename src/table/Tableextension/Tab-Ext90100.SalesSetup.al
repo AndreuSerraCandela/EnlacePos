@@ -1,4 +1,4 @@
-tableextension 91100 SalesSetup extends "Sales & Receivables Setup"
+tableextension 75200 SalesSetup extends "Sales & Receivables Setup"
 {
     fields
     {
@@ -29,7 +29,7 @@ tableextension 91100 SalesSetup extends "Sales & Receivables Setup"
         }
     }
 }
-tableextension 91101 PurchSetup extends 312
+tableextension 75201 PurchSetup extends 312
 {
     fields
     {
@@ -41,7 +41,7 @@ tableextension 91101 PurchSetup extends 312
         }
     }
 }
-tableextension 91103 ITemSetup extends 313
+tableextension 75203 ITemSetup extends 313
 {
     fields
     {

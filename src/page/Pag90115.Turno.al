@@ -1,7 +1,7 @@
 /// <summary>
 /// Page Turno (ID 90115).
 /// </summary>
-page 91115 "Turno"
+page 75215 "Turno"
 {
     Caption = 'Turno';
     PageType = List;

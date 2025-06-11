@@ -1,7 +1,7 @@
 /// <summary>
-/// Page TPV Web Service (ID 91172).
+/// Page TPV Web Service (ID 75272).
 /// </summary>
-page 91172 "TPV Web Service"
+page 75272 "TPV Web Service"
 {
     Caption = 'TPV Web Service';
     PageType = API;

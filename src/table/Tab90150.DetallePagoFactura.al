@@ -1,4 +1,4 @@
-table 91150 "Detalle Pago Factura"
+table 75250 "Detalle Pago Factura"
 {
     Caption = 'Detalle Pago Factura';
     DataClassification = CustomerContent;

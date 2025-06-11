@@ -1,13 +1,14 @@
 /// <summary>
 /// Page Cajas (ID 90113).
 /// </summary>
-page 91113 "Cajas"
+page 75213 "Cajas"
 {
     Caption = 'Cajas';
     PageType = List;
     SourceTable = "Configuracion TPV";
     UsageCategory = Lists;
     ApplicationArea = All;
+    CardPageId = "Caja Card";
 
     layout
     {
@@ -17,6 +18,7 @@ page 91113 "Cajas"
             {
                 field(No; Rec."Id TPV")
                 {
+                    Caption = 'No';
                     ApplicationArea = All;
                     ToolTip = 'Especifica el ID de la caja';
                     trigger OnAssistEdit()
@@ -41,9 +43,9 @@ page 91113 "Cajas"
     }
 }
 // Crear Card
-page 91114 "Caja Card"
+page 75214 "Caja Card"
 {
-    Caption = 'Caja';
+    Caption = 'Caja/TPV';
     PageType = Card;
     SourceTable = "Configuracion TPV";
     UsageCategory = None;
@@ -51,10 +53,17 @@ page 91114 "Caja Card"
     {
         area(Content)
         {
-            repeater(General)
+            group(General)
             {
+                field("Tienda"; Rec."Tienda")
+                {
+                    Caption = 'Tienda';
+                    ApplicationArea = All;
+                    ToolTip = 'Especifica el TPV asociado a la caja';
+                }
                 field(No; Rec."Id TPV")
                 {
+                    Caption = 'No';
                     ApplicationArea = All;
                     ToolTip = 'Especifica el ID de la caja';
                 }
@@ -62,11 +71,7 @@ page 91114 "Caja Card"
                 {
                     ApplicationArea = All;
                 }
-                field("TPV"; Rec."Tienda")
-                {
-                    ApplicationArea = All;
-                    ToolTip = 'Especifica el TPV asociado a la caja';
-                }
+
             }
             group(Numeradores)
             {

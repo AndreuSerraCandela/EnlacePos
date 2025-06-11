@@ -1,7 +1,7 @@
 /// <summary>
-/// Page TPV List (ID 91170).
+/// Page TPV List (ID 75270).
 /// </summary>
-page 91170 "TPV List"
+page 75270 "TPV List"
 {
     Caption = 'TPV';
     PageType = List;

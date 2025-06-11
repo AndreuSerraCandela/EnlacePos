@@ -3,7 +3,7 @@
 /// Proporciona funcionalidad para la importación y exportación de datos mediante servicios web.
 /// Gestiona operaciones relacionadas con productos, recursos, clientes, proveedores, facturas, cajas y TPVs.
 /// </summary>
-codeunit 91100 Importaciones
+codeunit 75200 Importaciones
 {
     TableNo = "TPV Cue";
     Permissions = TableData 18 = rimd,
@@ -13,10 +13,10 @@ codeunit 91100 Importaciones
     tabledata 37 = rimd,
     tabledata 38 = rimd,
     tabledata 39 = rimd,
-    tabledata 91108 = rimd,
-    tabledata 91107 = rimd,
-    tabledata 91150 = rimd,
-    tabledata 91100 = rimd,
+    tabledata 75208 = rimd,
+    tabledata 75207 = rimd,
+    tabledata 75250 = rimd,
+    tabledata 75200 = rimd,
     tabledata 76029 = rimd;
     /// <summary>
     /// Ping.
@@ -661,7 +661,8 @@ codeunit 91100 Importaciones
                     SalesHeaderT."Venta TPV" := true;
                 end;
             end;
-            SalesHeaderT.Turno := GetValueAsInteger(JToken, 'Turno');
+
+            If not Evaluate(SalesHeaderT.Turno, GetValueAsText(JToken, 'Turno')) Then SalesHeaderT.Turno := 1;
             SalesHeaderT."Bill-to Customer No." := GetValueAsText(JToken, 'Bill_to_Customer_No_');
             SalesHeaderT."Bill-to Name" := GetValueAsText(JToken, 'Bill_to_Name');
             SalesHeaderT."Bill-to Name 2" := GetValueAsText(JToken, 'Bill_to_Name_2');
@@ -1108,7 +1109,13 @@ codeunit 91100 Importaciones
         Amount: Decimal;
         ConfIva: Record "VAT Posting Setup";
         base: Decimal;
+        rConf: Record "Config. Empresa";
     begin
+        If not rConf.Get then begin
+            rConf.Init();
+            rConf.Insert();
+        end;
+
         JLPedidoToken.ReadFrom(Data);
         JLPedidoObj := JLPedidoToken.AsObject();
 
@@ -1422,7 +1429,8 @@ codeunit 91100 Importaciones
     begin
         if JObject.SelectToken(Path, JToken) then
             if Strlen(JToken.AsValue().AsText()) > 0 then
-                exit(JToken.AsValue().AsInteger());
+                if JToken.AsValue().AsInteger() <> 0 then
+                    exit(JToken.AsValue().AsInteger());
     end;
 
     procedure SelectJsonTokenDate(JObject: JsonObject; Path: Text): Date
@@ -1904,6 +1912,7 @@ codeunit 91100 Importaciones
                 RecCajaTMP."Id TPV" := GetValueAsText(JToken, 'No'); // Compatibilidad con formato anterior
             RecCajaTMP.Descripcion := GetValueAsText(JToken, 'Nombre');
             RecCajaTMP."Tienda" := GetValueAsText(JToken, 'TPV');
+            If RecCajaTMP."Tienda" = '' then exit('');
             if RecCajaTMP.Insert() then
                 CajaCount += 1
             else
@@ -1941,7 +1950,8 @@ codeunit 91100 Importaciones
                         RecCajaTMP."Id TPV" := RecCaja."Id TPV";
                         CajaCount += 1;
                     end else
-                        ErrorCount += 1;
+                        exit('');
+
                 end else begin
                     If RecCaja.Get(RecCajaTmp."Tienda", RecCajaTmp."Id TPV") Then begin
                         RecCaja.Delete();
@@ -2657,7 +2667,9 @@ codeunit 91100 Importaciones
             Clear(RecTPVTmp);
 
             // Asignar valores usando la nueva estructura de nombres
-            RecTPVTmp."Cod. Tienda" := GetValueAsText(JToken, 'No'); // Compatibilidad con formato anterior
+            RecTPVTmp."Cod. Tienda" := GetValueAsText(JToken, 'No.');
+            if RecTPVTmp."Cod. Tienda" = '' then
+                RecTPVTmp."Cod. Tienda" := GetValueAsText(JToken, 'No'); // Compatibilidad con formato anterior
 
             RecTPVTmp.Descripcion := GetValueAsText(JToken, 'nombre');
             if RecTPVTmp.Descripcion = '' then

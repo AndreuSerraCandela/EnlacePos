@@ -1,4 +1,4 @@
-pageextension 91112 CustomerCardExt extends "Customer Card"
+pageextension 75212 CustomerCardExt extends "Customer Card"
 {
     layout
     {

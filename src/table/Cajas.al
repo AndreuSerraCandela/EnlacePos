@@ -1,7 +1,7 @@
 /// <summary>
 /// Table Cajas (ID 90105).
 /// </summary>
-tableextension 91106 CajasExt extends "Configuracion TPV"
+tableextension 75206 CajasExt extends "Configuracion TPV"
 {
 
     fields

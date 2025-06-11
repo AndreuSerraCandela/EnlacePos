@@ -1,4 +1,4 @@
-page 91108 "Colegios"
+page 75208 "Colegios"
 {
     ApplicationArea = All;
     Caption = 'Colegios';

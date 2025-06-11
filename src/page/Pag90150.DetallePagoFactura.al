@@ -1,4 +1,4 @@
-Page 91150 DetallePagoFactura
+Page 75250 DetallePagoFactura
 {
     Caption = 'Detalle Pago Factura';
     SourceTable = "Detalle Pago Factura";
@@ -46,7 +46,7 @@ Page 91150 DetallePagoFactura
         }
     }
 }
-page 91153 DetallePagoFacturaFactBox
+page 75253 DetallePagoFacturaFactBox
 {
     Caption = 'Detalle Pago Factura';
     PageType = ListPart;

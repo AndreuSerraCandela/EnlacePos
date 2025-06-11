@@ -1,4 +1,4 @@
-Page 91106 Vendor
+Page 75206 Vendor
 {
     Caption = 'Vendor';
     SourceTable = Vendor;

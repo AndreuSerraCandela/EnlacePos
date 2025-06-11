@@ -1,7 +1,7 @@
 /// <summary>
 /// Table Turno (ID 90107).
 /// </summary>
-table 91107 Turno
+table 75207 Turno
 {
     DataClassification = CustomerContent;
 

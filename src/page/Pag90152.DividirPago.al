@@ -1,4 +1,4 @@
-page 91152 "Dividir Pago"
+page 75252 "Dividir Pago"
 {
     Caption = 'Dividir Pago';
     PageType = StandardDialog;

@@ -1,4 +1,4 @@
-tableextension 91121 "Sales Price Ext" extends "Sales Price"
+tableextension 75221 "Sales Price Ext" extends "Sales Price"
 {
     fields
     {

@@ -1,4 +1,4 @@
-page 91151 "Detalle Pago Factura Page"
+page 75251 "Detalle Pago Factura Page"
 {
     Caption = 'Detalle Pago Factura';
     PageType = List;

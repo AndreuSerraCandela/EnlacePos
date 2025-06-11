@@ -1,4 +1,4 @@
-pageextension 91120 "Sales Prices Ext" extends "Sales Prices"
+pageextension 75220 "Sales Prices Ext" extends "Sales Prices"
 {
     layout
     {

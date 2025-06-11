@@ -1,4 +1,4 @@
-tableextension 91109 SalesHeaderExtension extends "Sales Header"
+tableextension 75209 SalesHeaderExtension extends "Sales Header"
 {
     fields
     {
@@ -52,7 +52,7 @@ tableextension 91109 SalesHeaderExtension extends "Sales Header"
         }
     }
 }
-tableextension 91112 SalesInvoiceLineExtension extends "Sales Invoice header"
+tableextension 75212 SalesInvoiceLineExtension extends "Sales Invoice header"
 {
     fields
     {
@@ -113,7 +113,7 @@ tableextension 91112 SalesInvoiceLineExtension extends "Sales Invoice header"
         }
     }
 }
-tableextension 91113 SalesCrHdExtension extends "Sales Cr.Memo Header"
+tableextension 75213 SalesCrHdExtension extends "Sales Cr.Memo Header"
 {
 
     fields

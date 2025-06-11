@@ -1,4 +1,4 @@
-page 91119 "Detalle Cupón Subform"
+page 75219 "Detalle Cupón Subform"
 {
     Caption = 'Detalle Cupón';
     PageType = ListPart;

@@ -1,7 +1,7 @@
 /// <summary>
 /// Table CierreDeCajaDetalle (ID 90104).
 /// </summary>
-table 91104 CierreDeCajaDetalle
+table 75204 CierreDeCajaDetalle
 {
     DataClassification = CustomerContent;
 

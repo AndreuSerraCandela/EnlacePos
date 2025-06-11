@@ -1,4 +1,4 @@
-pageextension 91121 "Sales Discounts Ext" extends "Sales Line Discounts"
+pageextension 75221 "Sales Discounts Ext" extends "Sales Line Discounts"
 {
     layout
     {

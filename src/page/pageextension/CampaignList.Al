@@ -1,4 +1,4 @@
-pageextension 91117 "Campaign List Ext" extends "Campaign List"
+pageextension 75217 "Campaign List Ext" extends "Campaign List"
 {
     CaptionML = ENU = 'Coupons',
                 ESP = 'Cupones';

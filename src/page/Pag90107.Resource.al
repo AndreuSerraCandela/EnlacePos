@@ -1,4 +1,4 @@
-Page 91107 Resource
+Page 75207 Resource
 {
     Caption = 'Resource';
     PageType = List;

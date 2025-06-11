@@ -1,4 +1,4 @@
-tableextension 91110 EmployeeExt extends Employee
+tableextension 75210 EmployeeExt extends Employee
 {
     fields
     {

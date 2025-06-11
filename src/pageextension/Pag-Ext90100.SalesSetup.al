@@ -1,7 +1,7 @@
 /// <summary>
 /// PageExtension SalesSetup (ID 90100) extends Record Sales  Receivables Setup.
 /// </summary>
-pageextension 91100 SalesSetup extends "Sales & Receivables Setup"
+pageextension 75200 SalesSetup extends "Sales & Receivables Setup"
 {
     layout
     {
@@ -31,7 +31,7 @@ pageextension 91100 SalesSetup extends "Sales & Receivables Setup"
         }
     }
 }
-pageextension 91101 PurchSetup extends "Purchases & Payables Setup"
+pageextension 75201 PurchSetup extends "Purchases & Payables Setup"
 {
     layout
     {
@@ -44,7 +44,7 @@ pageextension 91101 PurchSetup extends "Purchases & Payables Setup"
         }
     }
 }
-pageextension 91102 InvSetup extends 461
+pageextension 75202 InvSetup extends 461
 {
     layout
     {

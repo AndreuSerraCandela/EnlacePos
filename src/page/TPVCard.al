@@ -1,7 +1,7 @@
 /// <summary>
-/// Page TPV Card (ID 91171).
+/// Page TPV Card (ID 75271).
 /// </summary>
-page 91171 "TPV Card"
+page 75271 "TPV Card"
 {
     Caption = 'Ficha de TPV';
     PageType = Card;

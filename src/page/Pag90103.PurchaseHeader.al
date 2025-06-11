@@ -1,4 +1,4 @@
-Page 91103 PurchaseHeader
+Page 75203 PurchaseHeader
 {
     Caption = 'PurchaseHeader';
     SourceTable = "Purchase Header";

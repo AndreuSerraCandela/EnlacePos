@@ -1,4 +1,4 @@
-page 91156 "TPV Activities"
+page 75256 "TPV Activities"
 {
     Caption = 'Actividades';
     PageType = CardPart;

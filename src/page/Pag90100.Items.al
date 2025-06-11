@@ -1,7 +1,7 @@
 /// <summary>
 /// XmlPort Items (ID 90100).
 /// </summary>
-Page 91100 Items
+Page 75200 Items
 {
     Caption = 'Items';
     SourceTable = Item;

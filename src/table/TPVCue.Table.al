@@ -1,4 +1,4 @@
-table 91100 "TPV Cue"
+table 75200 "TPV Cue"
 {
     Caption = 'TPV Cue';
     DataClassification = CustomerContent;

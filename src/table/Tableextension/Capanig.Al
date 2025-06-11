@@ -1,4 +1,4 @@
-tableextension 91115 Capanig extends Campaign
+tableextension 75215 Capanig extends Campaign
 {
     CaptionML = ENU = 'Coupon',
                 ESP = 'Ficha Cupón';
@@ -25,7 +25,7 @@ tableextension 91115 Capanig extends Campaign
     }
 }
 //Crear una Tabla de Detalle de Cupon Que Tenga un "Tipo Detalle" que Puede ser TPV, Cliente O Grupo de Cliente con los mismos campos que la tabla "Sales Invoice Line"
-table 91116 "Detalle Cupón"
+table 75216 "Detalle Cupón"
 {
     Caption = 'Detalle Cupón';
     fields
