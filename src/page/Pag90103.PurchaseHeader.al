@@ -159,22 +159,6 @@ Page 75203 PurchaseHeader
                 //field(Id;Rec."Id"){ApplicationArea=All;}
                 field(Assigned_User_ID; Rec."Assigned User ID") { ApplicationArea = All; }
                 field(Pending_Approvals; Rec."Pending Approvals") { ApplicationArea = All; }
-                field(Generate_Autoinvoices; Rec."Generate Autoinvoices") { ApplicationArea = All; }
-                field(Generate_Autocredit_Memo; Rec."Generate Autocredit Memo") { ApplicationArea = All; }
-                field(Corrected_Invoice_No_; Rec."Corrected Invoice No.") { ApplicationArea = All; }
-                field(Due_Date_Modified; Rec."Due Date Modified") { ApplicationArea = All; }
-                field(Invoice_Type; Rec."Invoice Type") { ApplicationArea = All; }
-                field(Cr__Memo_Type; Rec."Cr. Memo Type") { ApplicationArea = All; }
-                field(Special_Scheme_Code; Rec."Special Scheme Code") { ApplicationArea = All; }
-                field(Operation_Description; Rec."Operation Description") { ApplicationArea = All; }
-                field(Correction_Type; Rec."Correction Type") { ApplicationArea = All; }
-                field(Operation_Description_2; Rec."Operation Description 2") { ApplicationArea = All; }
-                field(Succeeded_Company_Name; Rec."Succeeded Company Name") { ApplicationArea = All; }
-                field(Succeeded_VAT_Registration_No_; Rec."Succeeded VAT Registration No.") { ApplicationArea = All; }
-                field(ID_Type; Rec."ID Type") { ApplicationArea = All; }
-                field(Do_Not_Send_To_SII; Rec."Do Not Send To SII") { ApplicationArea = All; }
-                field(Applies_to_Bill_No_; Rec."Applies-to Bill No.") { ApplicationArea = All; }
-                field(Vendor_Bank_Acc__Code; Rec."Vendor Bank Acc. Code") { ApplicationArea = All; }
                 // field(Pay_at_Code;Rec."Pay-at Code"){ApplicationArea=All;}
 
             }

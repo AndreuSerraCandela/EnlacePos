@@ -556,9 +556,9 @@ codeunit 75200 Importaciones
             // CustT."Tax_Area_ID":=GetValueAsText(JToken, 'Tax_Area_ID');
             // CustT."Contact_ID":=GetValueAsText(JToken, 'Contact_ID');
             // CustT."Contact_Graph_Id":=GetValueAsText(JToken, 'Contact_Graph_Id');
-            CustT."Payment Days Code" := GetValueAsText(JToken, 'Payment_Days_Code');
-            CustT."Non-Paymt. Periods Code" := GetValueAsText(JToken, 'Non_Paymt__Periods_Code');
-            CustT."Not in AEAT" := GetValueAsBoolean(JToken, 'Not_in_AEAT');
+            // CustT."Payment Days Code" := GetValueAsText(JToken, 'Payment_Days_Code');
+            // CustT."Non-Paymt. Periods Code" := GetValueAsText(JToken, 'Non_Paymt__Periods_Code');
+            // CustT."Not in AEAT" := GetValueAsBoolean(JToken, 'Not_in_AEAT');
 
             If (CustT."No." = 'TEMP') or (CustT."No." = '') Then begin
 
@@ -847,98 +847,14 @@ codeunit 75200 Importaciones
             // SalesHeaderT."Allow Line Disc.":=GetValueAsText(JToken, 'Allow_Line_Disc_');
             // SalesHeaderT."Get Shipment Used":=GetValueAsText(JToken, 'Get_Shipment_Used');
             SalesHeaderT."Assigned User ID" := GetValueAsText(JToken, 'Assigned_User_ID');
-            SalesHeaderT."Corrected Invoice No." := GetValueAsText(JToken, 'Corrected_Invoice_No_');
+            //SalesHeaderT."Corrected Invoice No." := GetValueAsText(JToken, 'Corrected_Invoice_No_');
             //SalesHeaderT."Due Date Modified":=GetValueAsText(JToken, 'Due_Date_Modified');
             // SalesHeaderT."Invoice Type":=GetValueAsText(JToken, 'Invoice_Type');
             // SalesHeaderT."Cr. Memo Type":=GetValueAsText(JToken, 'Cr__Memo_Type');
             IdSpecial := GetValueAsText(JToken, 'Special_Scheme_Code');
-            Case IdSpecial Of
-                '00':
-                    SalesHeaderT."Special Scheme Code" := SalesHeaderT."Special Scheme Code"::"01 General";
-                '01':
-                    SalesHeaderT."Special Scheme Code" := SalesHeaderT."Special Scheme Code"::"02 Export";
-                '03':
-                    SalesHeaderT."Special Scheme Code" := SalesHeaderT."Special Scheme Code"::"03 Special System";
-                '04':
-                    SalesHeaderT."Special Scheme Code" := SalesHeaderT."Special Scheme Code"::"04 Gold";
-                '05':
-                    SalesHeaderT."Special Scheme Code" := SalesHeaderT."Special Scheme Code"::"05 Travel Agencies";
-                '06':
-                    SalesHeaderT."Special Scheme Code" := SalesHeaderT."Special Scheme Code"::"06 Groups of Entities";
-                '07':
-                    SalesHeaderT."Special Scheme Code" := SalesHeaderT."Special Scheme Code"::"07 Special Cash";
-                '08':
-                    SalesHeaderT."Special Scheme Code" := SalesHeaderT."Special Scheme Code"::"08  IPSI / IGIC";
-                '09':
-                    SalesHeaderT."Special Scheme Code" := SalesHeaderT."Special Scheme Code"::"09 Travel Agency Services";
-                '10':
-                    SalesHeaderT."Special Scheme Code" := SalesHeaderT."Special Scheme Code"::"10 Third Party";
-                '11':
-                    SalesHeaderT."Special Scheme Code" := SalesHeaderT."Special Scheme Code"::"11 Business Withholding";
-                '12':
-                    SalesHeaderT."Special Scheme Code" := SalesHeaderT."Special Scheme Code"::"12 Business not Withholding";
-                '13':
-                    SalesHeaderT."Special Scheme Code" := SalesHeaderT."Special Scheme Code"::"13 Business Withholding and not Withholding";
-                '14':
-                    SalesHeaderT."Special Scheme Code" := SalesHeaderT."Special Scheme Code"::"14 Invoice Work Certification";
-                '15':
-                    SalesHeaderT."Special Scheme Code" := SalesHeaderT."Special Scheme Code"::"15 Invoice of Consecutive Nature";
-                '16':
-                    SalesHeaderT."Special Scheme Code" := SalesHeaderT."Special Scheme Code"::"16 First Half 2017";
-                '17':
-                    SalesHeaderT."Special Scheme Code" := SalesHeaderT."Special Scheme Code"::"17 Operations Under The One-Stop-Shop Regime";
-            End;
 
-            SalesHeaderT."Operation Description" := GetValueAsText(JToken, 'Operation_Description');
-            // SalesHeaderT."Correction Type":=GetValueAsText(JToken, 'Correction_Type');
-            SalesHeaderT."Operation Description 2" := GetValueAsText(JToken, 'Operation_Description_2');
-            SalesHeaderT."Succeeded Company Name" := GetValueAsText(JToken, 'Succeeded_Company_Name');
-            SalesHeaderT."Succeeded VAT Registration No." := GetValueAsText(JToken, 'Succeeded_VAT_Registration_No_');
-            // SalesHeaderT."ID Type":=GetValueAsText(JToken, 'ID_Type');
-            // SalesHeaderT."Do Not Send To SII":=GetValueAsText(JToken, 'Do_Not_Send_To_SII');
-            // SalesHeaderT."Issued By Third Party":=GetValueAsText(JToken, 'Issued_By_Third_Party');
-            // SalesHeaderT."SII First Summary Doc. No.":=GetValueAsText(JToken, 'SII_First_Summary_Doc__No_');
-            // SalesHeaderT."SII Last Summary Doc. No.":=GetValueAsText(JToken, 'SII_Last_Summary_Doc__No_');
-            SalesHeaderT."Applies-to Bill No." := GetValueAsText(JToken, 'Applies_to_Bill_No_');
-            SalesHeaderT."Cust. Bank Acc. Code" := GetValueAsText(JToken, 'Cust__Bank_Acc__Code');
             SalesHeaderT."VAT Registration No." := GetValueAsText(JToken, 'VAT_Registration_No_');
             SalesHeaderT."Importe total" := GetValueAsDecimal(JToken, 'importe_total');
-            IdType := GetValueAsText(JToken, 'ID_Type');
-            Case IdType Of
-                '02':
-                    SalesHeaderT."ID Type" := SalesHeaderT."ID Type"::"02-VAT Registration No.";
-                '03':
-                    SalesHeaderT."ID Type" := SalesHeaderT."ID Type"::"03-Passport";
-                '04':
-                    SalesHeaderT."ID Type" := SalesHeaderT."ID Type"::"04-ID Document";
-                '05':
-                    SalesHeaderT."ID Type" := SalesHeaderT."ID Type"::"05-Certificate Of Residence";
-                '06':
-                    SalesHeaderT."ID Type" := SalesHeaderT."ID Type"::"06-Other Probative Document";
-                '07':
-                    SalesHeaderT."ID Type" := SalesHeaderT."ID Type"::"07-Not On The Census";
-            End;
-            InvoiceType := GetValueAsText(JToken, 'Invoice_Type');
-            Case InvoiceType Of
-                'F1':
-                    SalesHeaderT."Invoice Type" := SalesHeaderT."Invoice Type"::"F1 Invoice";
-                'F2':
-                    SalesHeaderT."Invoice Type" := SalesHeaderT."Invoice Type"::"F2 Simplified Invoice";
-                'F3':
-                    SalesHeaderT."Invoice Type" := SalesHeaderT."Invoice Type"::"F3 Invoice issued to replace simplified invoices";
-                'F4':
-                    SalesHeaderT."Invoice Type" := SalesHeaderT."Invoice Type"::"F4 Invoice summary entry";
-                'R1':
-                    SalesHeaderT."Invoice Type" := SalesHeaderT."Invoice Type"::"R1 Corrected Invoice";
-                'R2':
-                    SalesHeaderT."Invoice Type" := SalesHeaderT."Invoice Type"::"R2 Corrected Invoice (Art. 80.3)";
-                'R3':
-                    SalesHeaderT."Invoice Type" := SalesHeaderT."Invoice Type"::"R3 Corrected Invoice (Art. 80.4)";
-                'R4':
-                    SalesHeaderT."Invoice Type" := SalesHeaderT."Invoice Type"::"R4 Corrected Invoice (Other)";
-                'R5':
-                    SalesHeaderT."Invoice Type" := SalesHeaderT."Invoice Type"::"R5 Corrected Invoice in Simplified Invoices";
-            End;
             //Dto e imporrte Dto;
             SalesHeaderT."Invoice Discount Value" := GetValueAsDecimal(JToken, 'Dto');
             SalesHeaderT."Invoice Discount Amount" := GetValueAsDecimal(JToken, 'importeDto');
@@ -1016,12 +932,6 @@ codeunit 75200 Importaciones
                 Pedido.Validate("Bill-to Country/Region Code", SalesHeaderT."Bill-to Country/Region Code");
             if SalesHeaderT."VAT Registration No." <> '' then
                 Pedido."VAT Registration No." := SalesHeaderT."VAT Registration No.";
-            if SalesHeaderT."VAT Registration No." <> '' then
-                Pedido."Succeeded Vat Registration No." := SalesHeaderT."VAT Registration No.";
-            If SalesHeaderT."ID Type".AsInteger() <> 0 Then
-                Pedido."ID Type" := SalesHeaderT."ID Type";
-            if SalesHeaderT."Invoice Type".AsInteger() <> 0 Then
-                Pedido."Invoice Type" := SalesHeaderT."Invoice Type";
             //fechas
             if SalesHeaderT."Due Date" <> 0D Then
                 Pedido."Due Date" := SalesHeaderT."Due Date";
@@ -1048,8 +958,6 @@ codeunit 75200 Importaciones
             if SalesHeaderT."Posting Description" <> '' then
                 Pedido."Posting Description" := SalesHeaderT."Posting Description";
             Pedido."Importe total" := SalesHeaderT."Importe total";
-            if SalesHeaderT."Special Scheme Code".AsInteger() <> 0 Then
-                Pedido."Special Scheme Code" := SalesHeaderT."Special Scheme Code";
             if SalesHeaderT.TPV <> '' then
                 Pedido.TPV := SalesHeaderT.TPV;
             if SalesHeaderT."Invoice Discount Value" <> 0 Then
@@ -1527,9 +1435,9 @@ codeunit 75200 Importaciones
             EmpT."No." := GetValueAsText(JToken, 'No_');
             Deleted := GetValueAsBoolean(JToken, 'Deleted');
             EmpT."First Name" := GetValueAsText(JToken, 'First_Name');
-            EmpT.Name := GetValueAsText(JToken, 'Name');
-            EmpT."Second Family Name" := GetValueAsText(JToken, 'Second_Family_Name');
-            EmpT."First Family Name" := GetValueAsText(JToken, 'First_Family_Name');
+            EmpT."First Name" := GetValueAsText(JToken, 'Name');
+            EmpT."Middle Name" := GetValueAsText(JToken, 'Second_Family_Name');
+            EmpT."Last Name" := GetValueAsText(JToken, 'First_Family_Name');
             EmpT."Middle Name" := GetValueAsText(JToken, 'Middle_Name');
             EmpT."Last Name" := GetValueAsText(JToken, 'Last_Name');
             EmpT."Job Title" := GetValueAsText(JToken, 'Job_Title');

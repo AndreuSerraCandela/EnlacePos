@@ -163,23 +163,6 @@ Page 75201 SalesHeader
                 field(Allow_Line_Disc_; Rec."Allow Line Disc.") { ApplicationArea = All; }
                 field(Get_Shipment_Used; Rec."Get Shipment Used") { ApplicationArea = All; }
                 field(Assigned_User_ID; Rec."Assigned User ID") { ApplicationArea = All; }
-                field(Corrected_Invoice_No_; Rec."Corrected Invoice No.") { ApplicationArea = All; }
-                field(Due_Date_Modified; Rec."Due Date Modified") { ApplicationArea = All; }
-                field(Invoice_Type; Rec."Invoice Type") { ApplicationArea = All; }
-                field(Cr__Memo_Type; Rec."Cr. Memo Type") { ApplicationArea = All; }
-                field(Special_Scheme_Code; Rec."Special Scheme Code") { ApplicationArea = All; }
-                field(Operation_Description; Rec."Operation Description") { ApplicationArea = All; }
-                field(Correction_Type; Rec."Correction Type") { ApplicationArea = All; }
-                field(Operation_Description_2; Rec."Operation Description 2") { ApplicationArea = All; }
-                field(Succeeded_Company_Name; Rec."Succeeded Company Name") { ApplicationArea = All; }
-                field(Succeeded_VAT_Registration_No_; Rec."Succeeded VAT Registration No.") { ApplicationArea = All; }
-                field(ID_Type; Rec."ID Type") { ApplicationArea = All; }
-                field(Do_Not_Send_To_SII; Rec."Do Not Send To SII") { ApplicationArea = All; }
-                field(Issued_By_Third_Party; Rec."Issued By Third Party") { ApplicationArea = All; }
-                field(SII_First_Summary_Doc__No_; Rec."SII First Summary Doc. No.") { ApplicationArea = All; }
-                field(SII_Last_Summary_Doc__No_; Rec."SII Last Summary Doc. No.") { ApplicationArea = All; }
-                field(Applies_to_Bill_No_; Rec."Applies-to Bill No.") { ApplicationArea = All; }
-                field(Cust__Bank_Acc__Code; Rec."Cust. Bank Acc. Code") { ApplicationArea = All; }
 
 
             }

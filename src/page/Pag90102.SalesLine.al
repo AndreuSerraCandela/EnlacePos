@@ -183,9 +183,6 @@ Page 75202 SalesLine
                 field(Customer_Disc__Group; Rec."Customer Disc. Group") { ApplicationArea = All; }
                 field(Subtype; Rec."Subtype") { ApplicationArea = All; }
                 field(Price_description; Rec."Price description") { ApplicationArea = All; }
-                field(EC__; Rec."EC %") { ApplicationArea = All; }
-                field(EC_Difference; Rec."EC Difference") { ApplicationArea = All; }
-                field(Prepayment_EC__; Rec."Prepayment EC %") { ApplicationArea = All; }
 
             }
         }

@@ -53,21 +53,21 @@ page 75216 EmployeeList
                     ToolTip = 'Specifies the full name of the employee.';
                     Visible = false;
                 }
-                field(Name; Rec.Name)
+                field(Name; Rec."First Name")
                 {
                     Caption = 'Nombre';
                     ApplicationArea = BasicHR;
                     NotBlank = true;
                     ToolTip = 'Specifies the employee''s first name.';
                 }
-                field("Second Family Name"; Rec."Second Family Name")
+                field("Second Family Name"; Rec."Middle Name")
                 {
                     Caption = 'Segundo Apellido';
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the employee''s middle name.';
                     Visible = false;
                 }
-                field("First Family Name"; Rec."First Family Name")
+                field("First Family Name"; Rec."Last Name")
                 {
                     Caption = 'Primer Apellido';
                     ApplicationArea = BasicHR;

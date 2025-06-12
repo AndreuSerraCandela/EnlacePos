@@ -170,9 +170,6 @@ Page 75204 PurchaseLine
                 field(Over_Receipt_Quantity; Rec."Over-Receipt Quantity") { ApplicationArea = All; }
                 field(Over_Receipt_Code; Rec."Over-Receipt Code") { ApplicationArea = All; }
                 field(Over_Receipt_Approval_Status; Rec."Over-Receipt Approval Status") { ApplicationArea = All; }
-                field(EC__; Rec."EC %") { ApplicationArea = All; }
-                field(EC_Difference; Rec."EC Difference") { ApplicationArea = All; }
-                field(Prepayment_EC__; Rec."Prepayment EC %") { ApplicationArea = All; }
                 field(Routing_No_; Rec."Routing No.") { ApplicationArea = All; }
                 field(Operation_No_; Rec."Operation No.") { ApplicationArea = All; }
                 field(Work_Center_No_; Rec."Work Center No.") { ApplicationArea = All; }

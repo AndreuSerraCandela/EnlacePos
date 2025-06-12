@@ -104,9 +104,6 @@ Page 75205 Customer
                 field(Tax_Area_ID; Rec."Tax Area ID") { ApplicationArea = All; }
                 field(Contact_ID; Rec."Contact ID") { ApplicationArea = All; }
                 field(Contact_Graph_Id; Rec."Contact Graph Id") { ApplicationArea = All; }
-                field(Payment_Days_Code; Rec."Payment Days Code") { ApplicationArea = All; }
-                field(Non_Paymt__Periods_Code; Rec."Non-Paymt. Periods Code") { ApplicationArea = All; }
-                field(Not_in_AEAT; Rec."Not in AEAT") { ApplicationArea = All; }
 
             }
         }

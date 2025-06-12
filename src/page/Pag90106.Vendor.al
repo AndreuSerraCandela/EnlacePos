@@ -82,8 +82,6 @@ Page 75206 Vendor
                 field(Payment_Terms_Id; Rec."Payment Terms Id") { ApplicationArea = All; }
                 field(Payment_Method_Id; Rec."Payment Method Id") { ApplicationArea = All; }
                 field(Over_Receipt_Code; Rec."Over-Receipt Code") { ApplicationArea = All; }
-                field(Payment_Days_Code; Rec."Payment Days Code") { ApplicationArea = All; }
-                field(Non_Paymt__Periods_Code; Rec."Non-Paymt. Periods Code") { ApplicationArea = All; }
                 // field(Self_Employed;Rec."Self Employed"){ApplicationArea=All;}
 
 

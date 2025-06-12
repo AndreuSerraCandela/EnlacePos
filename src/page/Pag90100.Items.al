@@ -136,7 +136,6 @@ Page 75200 Items
                 field(Inventory_Posting_Group_Id; Rec."Inventory Posting Group Id") { ApplicationArea = All; }
                 field(Gen__Prod__Posting_Group_Id; Rec."Gen. Prod. Posting Group Id") { ApplicationArea = All; }
                 field(Over_Receipt_Code; Rec."Over-Receipt Code") { ApplicationArea = All; }
-                field(Cost_Regulation__; Rec."Cost Regulation %") { ApplicationArea = All; }
                 field(Routing_No_; Rec."Routing No.") { ApplicationArea = All; }
                 field(Production_BOM_No_; Rec."Production BOM No.") { ApplicationArea = All; }
                 field(Single_Level_Material_Cost; Rec."Single-Level Material Cost") { ApplicationArea = All; }
