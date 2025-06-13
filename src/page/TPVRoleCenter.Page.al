@@ -212,7 +212,7 @@ page 75255 "TPV Role Center"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Usuarios';
                     Image = User;
-                    RunObject = Page "Employee List";
+                    RunObject = Page EmployeeList;
                 }
             }
             group("Posted Documents")

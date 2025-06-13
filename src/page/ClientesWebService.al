@@ -73,7 +73,7 @@ page 75218 "Clientes Web Service"
                     ApplicationArea = All;
                     ToolTip = 'Especifica el número de identificación fiscal del cliente.';
                 }
-                field("POS_Discount"; Rec."Invoice Disc. Code")
+                field("POS_Discount"; Rec."POS Discount")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Especifica el código de descuento POS del cliente.';

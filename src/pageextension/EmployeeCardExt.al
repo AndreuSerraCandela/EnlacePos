@@ -31,8 +31,10 @@ pageextension 75210 EmployeeCardExt extends "Employee Card"
 page 75216 EmployeeList
 {
     PageType = List;
+    Caption = 'Usuarios TPV';
     SourceTable = Employee;
-    UsageCategory = None;
+    UsageCategory = Lists;
+    ApplicationArea = All;
     layout
     {
         area(content)

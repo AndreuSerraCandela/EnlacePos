@@ -19,7 +19,7 @@
             "schemaUpdateMode": "ForceSync"
         },
         {
-            "name": "Santillana_Ecuador_test",
+            "name": "Santillana_Ecuador",
             "request": "launch",
             "type": "al",
             "environmentType": "Sandbox",
