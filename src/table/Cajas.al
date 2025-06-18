@@ -6,7 +6,7 @@ tableextension 75206 CajasExt extends "Configuracion TPV"
 
     fields
     {
-        field(4; "No. Series"; Code[20])
+        field(50004; "No. Series"; Code[20])
         {
             Caption = 'No. Serie';
             TableRelation = "No. Series";
