@@ -11,6 +11,20 @@ tableextension 75211 CustomerExt extends Customer
             DecimalPlaces = 2 : 2;
             Description = 'Discount percentage to be applied at POS';
         }
+        field(75212; "Source Counter"; Integer)
+        {
+            Caption = 'Source Counter';
+            DataClassification = CustomerContent;
+        }
 
     }
+    keys
+    {
+        key(PS; "Source Counter")
+        {
+
+        }
+    }
+
+
 }

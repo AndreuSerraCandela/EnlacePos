@@ -1,11 +1,31 @@
 pageextension 75216 Productos extends "Item List"
 {
-    trigger OnOpenPage()
-    begin
-        Rec.SetFilter("Unit Price", '<>%1', 0);
-    end;
-}
-// pageextension 75217 Kits extends "Assembly BOM"
-// {
+    layout
+    {
+        addlast(control1)
+        {
+            field("Source Counter"; Rec."Source Counter2")
+            {
+                Caption = 'Source Counter';
+                Editable = false;
+                ApplicationArea = All;
+            }
+        }
+    }
 
-// }
+}
+pageextension 75219 Kits extends "Assembly BOM"
+{
+    layout
+    {
+        addlast(control1)
+        {
+            field("Source Counter"; Rec."Source Counter")
+            {
+                Caption = 'Source Counter';
+                Editable = false;
+                ApplicationArea = All;
+            }
+        }
+    }
+}

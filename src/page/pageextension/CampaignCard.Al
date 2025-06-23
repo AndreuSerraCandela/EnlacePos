@@ -1,23 +1,17 @@
 pageextension 75218 "Campaign Card Ext" extends "Campaign Card"
 {
     CaptionML = ENU = 'Campaign',
-                ESP = 'Campaña';
+                ESP = 'Cupones y Campañas';
     layout
     {
-        modify("Status Code")
-        {
-            Visible = false;
-        }
-        modify(Activated)
-        {
-            Visible = false;
-        }
-        modify("Salesperson Code")
-        {
-            Visible = false;
-        }
+
         addafter(General)
         {
+            field("Es Cupón"; Rec."Cupon")
+            {
+                ApplicationArea = All;
+                ToolTip = 'Especifica si el cupón es un cupón';
+            }
             group(Descuento)
             {
                 Caption = 'Descuento';

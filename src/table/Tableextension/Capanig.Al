@@ -19,6 +19,11 @@ tableextension 75215 Capanig extends Campaign
             Caption = 'Importe Total';
             DataClassification = ToBeClassified;
         }
+        field(50104; "Cupon"; Boolean)
+        {
+            Caption = 'Cupon';
+            DataClassification = ToBeClassified;
+        }
 
 
 

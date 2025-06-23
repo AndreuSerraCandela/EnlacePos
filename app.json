@@ -2,7 +2,7 @@
   "id": "cc6b81eb-d2ed-4a5f-9c3a-2fe4f6f9d362",
   "name": "Pos BC",
   "publisher": "Excelia",
-  "version": "1.0.0.6",
+  "version": "1.0.0.7",
   "brief": "",
   "description": "",
   "privacyStatement": "",
@@ -15,7 +15,7 @@
       "id": "a605cbfe-fbf4-49fb-a519-95ebb72530c2",
       "name": "ALMigracionEcuador",
       "publisher": "Excelia",
-      "version": "1.0.0.23"
+      "version": "1.0.0.24"
     }
       ],
   "screenshots": [],

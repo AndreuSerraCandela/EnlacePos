@@ -2721,7 +2721,37 @@ codeunit 75200 Importaciones
     /// </summary>
     /// <returns>Return value of type Text - JSON con todos los precios de venta vigentes.</returns>
     [ServiceEnabled]
-    procedure getcurrentsalesprices(): Text
+    procedure ActualizarSourceCounter(): Text
+    var
+        SalesPrice: Record "Sales Price";
+        Customer: Record Customer;
+        Item: Record "Item";
+        BomComponent: Record "BOM Component";
+    begin
+        SalesPrice.SetRange("Source Counter", 0);
+        If SalesPrice.FindSet() then begin
+            SalesPrice."Source Counter" := 1;
+            SalesPrice.Modify();
+        end;
+        Customer.SetRange("Source Counter", 0);
+        If Customer.FindSet() then begin
+            Customer."Source Counter" := 1;
+            Customer.Modify();
+        end;
+        Item.SetRange("Source Counter2", 0);
+        If Item.FindSet() then begin
+            Item."Source Counter2" := 1;
+            Item.Modify();
+        end;
+        BomComponent.SetRange("Source Counter", 0);
+        If BomComponent.FindSet() then begin
+            BomComponent."Source Counter" := 1;
+            BomComponent.Modify();
+        end;
+        exit('Ok');
+    end;
+
+    procedure getcurrentsalesprices(Data: Text): Text
     var
         SalesPrice: Record "Sales Price";
         JObject: JsonObject;
@@ -2729,9 +2759,26 @@ codeunit 75200 Importaciones
         JPrice: JsonObject;
         TodayDate: Date;
         JsonText: Text;
+        JTPVToken: JsonToken;
+        JTPVObj: JsonObject;
+        SourceCounter: Integer;
     begin
         TodayDate := WorkDate();
+        if not JTPVToken.ReadFrom(Data) then
+            exit('Error al leer el formato JSON.');
 
+        // Convertir a objeto JSON
+        JTPVObj := JTPVToken.AsObject();
+
+        if Data <> '' then
+            if not JTPVToken.ReadFrom(Data) then
+                exit('Error al leer el formato JSON.');
+        JTPVObj := JTPVToken.AsObject();
+        if JTPVObj.Get('Source_Counter', JTPVToken) then
+            SourceCounter := JTPVToken.AsValue().AsInteger();
+
+        if SourceCounter <> 0 then
+            SalesPrice.SetFilter("Source Counter", '>%1', SourceCounter);
         // Filtrar precios de venta que estén vigentes hoy
         SalesPrice.SetFilter("Starting Date", '%1|..%2', 0D, TodayDate);
         SalesPrice.SetFilter("Ending Date", '%1|>=%2', 0D, TodayDate);
@@ -2754,6 +2801,7 @@ codeunit 75200 Importaciones
                 JPrice.Add('Allow_Line_Disc', SalesPrice."Allow Line Disc.");
                 JPrice.Add('Allow_Invoice_Disc', SalesPrice."Allow Invoice Disc.");
                 JPrice.Add('VAT_Bus_Posting_Gr_Price', SalesPrice."VAT Bus. Posting Gr. (Price)");
+                JPrice.Add('Source_Counter', SalesPrice."Source Counter");
 
                 JArray.Add(JPrice);
             until SalesPrice.Next() = 0;
@@ -2796,6 +2844,7 @@ codeunit 75200 Importaciones
         // 2. Tiene fechas de inicio y fin válidas para hoy O
         // 3. No tiene importe total descontado (cupón no utilizado completamente)
         //Campaign.SetRange(Activated, true);
+        Campaign.SetRange("Cupon", true);
         Campaign.SetFilter("Starting Date", '%1|..%2', 0D, TodayDate);
         Campaign.SetFilter("Ending Date", '%1|>=%2', 0D, TodayDate);
         if Campaign.FindSet() then begin
@@ -2888,6 +2937,115 @@ codeunit 75200 Importaciones
                 JCoupon.Add('Sales_Prices', JPricesArray);
                 JCoupon.Add('Line_Discounts', JDiscountsArray);
                 JCoupon.Add('Coupon_Details', JDetailsArray);
+
+                JArray.Add(JCoupon);
+            until Campaign.Next() = 0;
+        end;
+
+        JObject.Add('Active_Coupons', JArray);
+        JObject.Add('Total_Count', JArray.Count);
+        JObject.Add('Query_Date', Format(TodayDate));
+        JObject.WriteTo(JsonText);
+
+        exit(JsonText);
+    end;
+
+    /// <summary>
+    /// GetActiveCoupons.
+    /// </summary>
+    /// <returns>Return value of type Text - JSON con todos los cupones activos con sus precios y descuentos.</returns>
+    [ServiceEnabled]
+    procedure getactiveCampaigns(): Text
+    var
+        Campaign: Record Campaign;
+        SalesPrice: Record "Sales Price";
+        SalesLineDiscount: Record "Sales Line Discount";
+        DetalleCupon: Record "Detalle Cupón";
+        JObject: JsonObject;
+        JArray: JsonArray;
+        JCoupon: JsonObject;
+        JPricesArray: JsonArray;
+        JDiscountsArray: JsonArray;
+        JDetailsArray: JsonArray;
+        JPrice: JsonObject;
+        JDiscount: JsonObject;
+        JDetail: JsonObject;
+        TodayDate: Date;
+        JsonText: Text;
+    begin
+        TodayDate := WorkDate();
+
+        // Filtrar campañas activas (cupones)
+        // Una campaña se considera activa si:
+        // 1. Está marcada como activa (IsActive = true) O
+        // 2. Tiene fechas de inicio y fin válidas para hoy O
+        // 3. No tiene importe total descontado (cupón no utilizado completamente)
+        //Campaign.SetRange(Activated, true);
+        Campaign.SetRange("Cupon", false);
+        Campaign.SetFilter("Starting Date", '%1|..%2', 0D, TodayDate);
+        Campaign.SetFilter("Ending Date", '%1|>=%2', 0D, TodayDate);
+        Campaign.SetRange(Activated, true);
+        if Campaign.FindSet() then begin
+            repeat
+                Clear(JCoupon);
+                Clear(JPricesArray);
+                Clear(JDiscountsArray);
+                Clear(JDetailsArray);
+
+                // Información básica del cupón
+                JCoupon.Add('No', Campaign."No.");
+                JCoupon.Add('Description', Campaign.Description);
+                JCoupon.Add('Starting_Date', Format(Campaign."Starting Date"));
+                JCoupon.Add('Ending_Date', Format(Campaign."Ending Date"));
+                // Obtener precios de venta asociados al cupón
+                SalesPrice.SetRange("Sales Type", SalesPrice."Sales Type"::Campaign);
+                SalesPrice.SetRange("Sales Code", Campaign."No.");
+                SalesPrice.SetFilter("Starting Date", '%1|..%2', 0D, TodayDate);
+                SalesPrice.SetFilter("Ending Date", '%1|>=%2', 0D, TodayDate);
+
+                if SalesPrice.FindSet() then begin
+                    repeat
+                        Clear(JPrice);
+                        JPrice.Add('Item_No', SalesPrice."Item No.");
+                        JPrice.Add('Unit_Price', SalesPrice."Unit Price");
+                        JPrice.Add('Currency_Code', SalesPrice."Currency Code");
+                        JPrice.Add('Starting_Date', Format(SalesPrice."Starting Date"));
+                        JPrice.Add('Ending_Date', Format(SalesPrice."Ending Date"));
+                        JPrice.Add('Minimum_Quantity', SalesPrice."Minimum Quantity");
+                        JPrice.Add('Unit_of_Measure_Code', SalesPrice."Unit of Measure Code");
+                        JPrice.Add('Variant_Code', SalesPrice."Variant Code");
+
+                        JPricesArray.Add(JPrice);
+                    until SalesPrice.Next() = 0;
+                end;
+
+                // Obtener descuentos de línea asociados al cupón
+                SalesLineDiscount.SetRange("Sales Type", SalesLineDiscount."Sales Type"::Campaign);
+                SalesLineDiscount.SetRange("Sales Code", Campaign."No.");
+                SalesLineDiscount.SetFilter("Starting Date", '%1|..%2', 0D, TodayDate);
+                SalesLineDiscount.SetFilter("Ending Date", '%1|>=%2', 0D, TodayDate);
+
+                if SalesLineDiscount.FindSet() then begin
+                    repeat
+                        Clear(JDiscount);
+                        JDiscount.Add('Type', Format(SalesLineDiscount.Type));
+                        JDiscount.Add('Code', SalesLineDiscount.Code);
+                        JDiscount.Add('Line_Discount_Percentage', SalesLineDiscount."Line Discount %");
+                        JDiscount.Add('Currency_Code', SalesLineDiscount."Currency Code");
+                        JDiscount.Add('Starting_Date', Format(SalesLineDiscount."Starting Date"));
+                        JDiscount.Add('Ending_Date', Format(SalesLineDiscount."Ending Date"));
+                        JDiscount.Add('Minimum_Quantity', SalesLineDiscount."Minimum Quantity");
+                        JDiscount.Add('Unit_of_Measure_Code', SalesLineDiscount."Unit of Measure Code");
+                        JDiscount.Add('Variant_Code', SalesLineDiscount."Variant Code");
+                        JDiscountsArray.Add(JDiscount);
+                    until SalesLineDiscount.Next() = 0;
+                end;
+
+
+
+                // Agregar arrays al objeto cupón
+                JCoupon.Add('Sales_Prices', JPricesArray);
+                JCoupon.Add('Line_Discounts', JDiscountsArray);
 
                 JArray.Add(JCoupon);
             until Campaign.Next() = 0;
@@ -3044,9 +3202,153 @@ codeunit 75200 Importaciones
         exit(JsonText);
     end;
 
+    [EventSubscriber(ObjectType::Table, Database::"BOM Component", OnAfterDeleteEvent, '', true, true)]
+    local procedure OnAfterDeleteEvent(var Rec: Record "BOM Component"; RunTrigger: Boolean)
+    var
+        RegistroBorrado: Record "Registro Borrado";
+    begin
+        RegistroBorrado.RecordId := Rec.RecordId;
+        RegistroBorrado."Table No." := Database::"BOM Component";
+        RegistroBorrado."Table Caption" := 'BOM Component';
+        RegistroBorrado.FechaHora := CurrentDateTime;
+        RegistroBorrado.Insert();
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"BOM Component", OnAfterInsertEvent, '', true, true)]
+    local procedure OnAfterInsertEvent(var Rec: Record "BOM Component"; RunTrigger: Boolean)
+    var
+        BomComponent: Record "BOM Component";
+    begin
+        BomComponent.SetCurrentKey("Source Counter");
+        if BomComponent.FindLast() then
+            Rec."Source Counter" := BomComponent."Source Counter" + 1
+        else
+            Rec."Source Counter" := 1;
+
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"BOM Component", OnAfterModifyEvent, '', true, true)]
+    local procedure OnAfterModifyEvent(var Rec: Record "BOM Component"; var xRec: Record "BOM Component"; RunTrigger: Boolean)
+    var
+        BomComponent: Record "BOM Component";
+    begin
+        BomComponent.SetCurrentKey("Source Counter");
+        if BomComponent.FindLast() then
+            Rec."Source Counter" := BomComponent."Source Counter" + 1
+        else
+            Rec."Source Counter" := 1;
+
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Item", OnAfterDeleteEvent, '', true, true)]
+    local procedure OnAfterDeleteItemEvent(var Rec: Record "Item"; RunTrigger: Boolean)
+    var
+        RegistroBorrado: Record "Registro Borrado";
+    begin
+        RegistroBorrado.RecordId := Rec.RecordId;
+        RegistroBorrado."Table No." := Database::"Item";
+        RegistroBorrado."Table Caption" := 'Item';
+        RegistroBorrado.FechaHora := CurrentDateTime;
+        RegistroBorrado.Insert();
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Item", OnAfterInsertEvent, '', true, true)]
+    local procedure OnAfterInsertItemEvent(var Rec: Record "Item"; RunTrigger: Boolean)
+    var
+        Item: Record "Item";
+    begin
+        Item.SetCurrentKey("Source Counter2");
+        if Item.FindLast() then
+            Rec."Source Counter2" := Item."Source Counter2" + 1
+        else
+            Rec."Source Counter2" := 1;
+
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Item", OnAfterModifyEvent, '', true, true)]
+    local procedure OnAfterModifyItemEvent(var Rec: Record "Item"; var xRec: Record "Item"; RunTrigger: Boolean)
+    var
+        Item: Record "Item";
+    begin
+        Item.SetCurrentKey("Source Counter2");
+        if Item.FindLast() then
+            Rec."Source Counter2" := Item."Source Counter2" + 1
+        else
+            Rec."Source Counter2" := 1;
+
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Sales Price", OnAfterDeleteEvent, '', true, true)]
+    local procedure OnAfterDeleteSPEvent(var Rec: Record "Sales Price"; RunTrigger: Boolean)
+    var
+        RegistroBorrado: Record "Registro Borrado";
+    begin
+        RegistroBorrado.RecordId := Rec.RecordId;
+        RegistroBorrado."Table No." := Database::"Sales Price";
+        RegistroBorrado."Table Caption" := 'Sales Price';
+        RegistroBorrado.FechaHora := CurrentDateTime;
+        RegistroBorrado.Insert();
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Sales Price", OnAfterInsertEvent, '', true, true)]
+    local procedure OnAfterInsertSPEvent(var Rec: Record "Sales Price"; RunTrigger: Boolean)
+    var
+        SalesPrice: Record "Sales Price";
+    begin
+        SalesPrice.SetCurrentKey("Source Counter");
+        if SalesPrice.FindLast() then
+            Rec."Source Counter" := SalesPrice."Source Counter" + 1
+        else
+            Rec."Source Counter" := 1;
+
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Sales Price", OnAfterModifyEvent, '', true, true)]
+    local procedure OnAfterModifySPEvent(var Rec: Record "Sales Price"; var xRec: Record "Sales Price"; RunTrigger: Boolean)
+    var
+        SalesPrice: Record "Sales Price";
+    begin
+        SalesPrice.SetCurrentKey("Source Counter");
+        if SalesPrice.FindLast() then
+            Rec."Source Counter" := SalesPrice."Source Counter" + 1
+        else
+            Rec."Source Counter" := 1;
+
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::Customer, OnAfterDeleteEvent, '', true, true)]
+    local procedure OnAfterDeleteCustomerEvent(var Rec: Record Customer; RunTrigger: Boolean)
+    var
+        RegistroBorrado: Record "Registro Borrado";
+    begin
+        RegistroBorrado.RecordId := Rec.RecordId;
+        RegistroBorrado."Table No." := Database::Customer;
+        RegistroBorrado."Table Caption" := 'Customer';
+        RegistroBorrado.FechaHora := CurrentDateTime;
+        RegistroBorrado.Insert();
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::Customer, OnAfterInsertEvent, '', true, true)]
+    local procedure OnAfterInsertCustomerEvent(var Rec: Record Customer; RunTrigger: Boolean)
+    var
+        Customer: Record Customer;
+    begin
+        Customer.SetCurrentKey("Source Counter");
+        if Customer.FindLast() then
+            Rec."Source Counter" := Customer."Source Counter" + 1
+        else
+            Rec."Source Counter" := 1;
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::Customer, OnAfterModifyEvent, '', true, true)]
+    local procedure OnAfterModifyCustomerEvent(var Rec: Record Customer; var xRec: Record Customer; RunTrigger: Boolean)
+    var
+        Customer: Record Customer;
+    begin
+        Customer.SetCurrentKey("Source Counter");
+        if Customer.FindLast() then
+            Rec."Source Counter" := Customer."Source Counter" + 1
+        else
+            Rec."Source Counter" := 1;
+    end;
 }
-
-
-
-
-
