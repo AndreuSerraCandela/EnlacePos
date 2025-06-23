@@ -78,6 +78,7 @@ page 75218 "Clientes Web Service"
                     ApplicationArea = All;
                     ToolTip = 'Especifica el código de descuento POS del cliente.';
                 }
+                field("Source Counter"; Rec."Source Counter") { ApplicationArea = All; }
             }
         }
     }

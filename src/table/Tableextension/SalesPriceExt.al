@@ -9,5 +9,19 @@ tableextension 75221 "Sales Price Ext" extends "Sales Price"
             else if ("Sales Type" = const(Campaign)) Campaign
             else if ("Sales Type" = const(Colegio)) Colegios;
         }
+        field(50101; "Source Counter"; Integer)
+        {
+            Caption = 'Source Counter';
+        }
+
     }
+    keys
+    {
+        key(PS; "Source Counter")
+        {
+
+        }
+    }
+
 }
+
