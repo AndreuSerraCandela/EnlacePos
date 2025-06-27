@@ -51,7 +51,7 @@ table 75216 "Detalle Cupón"
             TableRelation = if ("Tipo Detalle" = const(TPV)) Tiendas else
             if ("Tipo Detalle" = const(Cliente)) Customer else
             if ("Tipo Detalle" = const(GrupoCliente)) "Customer Price Group" else
-            if ("Tipo Detalle" = const(Colegio)) "Colegios";
+            if ("Tipo Detalle" = const(Colegio)) Contact;
         }
 
         field(50101; "% Descuento"; Decimal)

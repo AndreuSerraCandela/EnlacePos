@@ -39,6 +39,12 @@ pageextension 75207 "Sales Invoice Header Ext" extends "Sales Invoice"
                     ApplicationArea = All;
                     ToolTip = 'Especifica el turno asociado a la factura';
                 }
+                field(Campana; Rec."Campaign No.")
+                {
+                    Caption = 'Campaña';
+                    ApplicationArea = All;
+                    ToolTip = 'Especifica la campana asociada a la factura';
+                }
                 field(Cupon; Rec."Cupon de descuento")
                 {
                     Caption = 'Cupón';

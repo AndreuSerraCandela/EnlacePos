@@ -11,6 +11,16 @@ tableextension 75206 CajasExt extends "Configuracion TPV"
             Caption = 'No. Serie';
             TableRelation = "No. Series";
         }
+        field(50005; "No. Series NFC Facturas"; Code[20])
+        {
+            Caption = 'No. Serie NFC Facturas';
+            TableRelation = "No. Series";
+        }
+        field(50006; "No. Series NFC Remision"; Code[20])
+        {
+            Caption = 'No. Serie NFC Remision';
+            TableRelation = "No. Series";
+        }
     }
 
 

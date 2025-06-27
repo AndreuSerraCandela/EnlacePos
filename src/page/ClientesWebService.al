@@ -6,6 +6,7 @@ page 75218 "Clientes Web Service"
     SourceTable = Customer;
     UsageCategory = Lists;
     Editable = true;
+    SourceTableView = where("Blocked" = const(" "));
 
     layout
     {

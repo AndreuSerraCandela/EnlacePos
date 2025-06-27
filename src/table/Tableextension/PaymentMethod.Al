@@ -8,5 +8,9 @@ tableextension 75214 PaymentMethodExtension extends "Payment Method"
             Caption = 'Dto';
             DecimalPlaces = 0 : 2;
         }
+        field(91101; Tpv; Boolean)
+        {
+            Caption = 'Tpv';
+        }
     }
 }
