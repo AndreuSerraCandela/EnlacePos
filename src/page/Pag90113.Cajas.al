@@ -92,6 +92,14 @@ page 75214 "Caja Card"
                 {
                     ApplicationArea = All;
                 }
+                field("Numerador remisiones"; Rec."No. Series NFC Remision")
+                {
+                    ApplicationArea = All;
+                }
+                field("Numerador facturas NFC"; Rec."No. Series NFC Facturas")
+                {
+                    ApplicationArea = All;
+                }
             }
         }
     }

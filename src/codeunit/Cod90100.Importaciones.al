@@ -605,6 +605,16 @@ codeunit 75200 Importaciones
     [ServiceEnabled]
     procedure insertaFacturasVenta(Data: Text): Text
     var
+        "No.": Text;
+    begin
+        if TryinsertaFacturasVenta(Data, "No.") then
+            exit("No.");
+
+    end;
+
+    [TryFunction]
+    procedure TryinsertaFacturasVenta(Data: Text; var "No.": Text)
+    var
         JPedidoToken: JsonToken;
         JPedidoObj: JsonObject;
         JFacturas: JsonArray;
@@ -633,7 +643,10 @@ codeunit 75200 Importaciones
         InvoiceType: Text;
         IdSpecial: Text;
         Caja: Record "Configuracion TPV";
+        Tienda: Record Tiendas;
+        Turnos: Record "Turnos TPV";
         TipoDetalle: Text;
+        Customer: Record Customer;
     begin
         JPedidoToken.ReadFrom(Data);
         JPedidoObj := JPedidoToken.AsObject();
@@ -651,18 +664,31 @@ codeunit 75200 Importaciones
                     SalesHeaderT."Document Type" := SalesHeaderT."Document Type"::"Credit Memo";
             end;
             SalesHeaderT."Sell-to Customer No." := GetValueAsText(JToken, 'Sell_to_Customer_No_');
+            if Customer.Get(SalesHeaderT."Sell-to Customer No.") then begin
+                //provisional
+                if Customer.Blocked <> Customer.Blocked::" " then
+                    Customer.Blocked := Customer.Blocked::" ";
+                Customer.Modify();
+            end;
             SalesHeaderT."No." := GetValueAsText(JToken, 'No_');
             SalesHeaderT.Colegio := GetValueAsText(JToken, 'Colegio');
+            SalesHeaderT."Cod. Colegio" := SalesHeaderT.Colegio;
             SalesHeaderT.TPV := GetValueAsText(JToken, 'Caja');
             if SalesHeaderT.TPV <> '' Then begin
                 Caja.SetRange("Id TPV", SalesHeaderT.TPV);
                 if Caja.FindFirst() then begin
-                    SalesHeaderT.TPV := Caja."Tienda";
+                    SalesHeaderT.Tienda := Caja."Tienda";
                     SalesHeaderT."Venta TPV" := true;
+                    SalesHeaderT.Tpv := Caja."Id TPV";
+                    SalesHeaderT."No. Serie NCF Facturas" := Caja."No. Series NFC Facturas";
+                    SalesHeaderT."No. Serie NCF Remision" := Caja."No. Series NFC Remision";
                 end;
+                If Tienda.Get(SalesHeaderT.TPV) then
+                    SalesHeaderT."Location Code" := Tienda."Cod. Almacen";
             end;
-
-            If not Evaluate(SalesHeaderT.Turno, GetValueAsText(JToken, 'Turno')) Then SalesHeaderT.Turno := 1;
+            if Turnos.FindFirst then
+                SalesHeaderT.Turno := Turnos."No. turno";
+            //If not Evaluate(SalesHeaderT.Turno, GetValueAsText(JToken, 'Turno')) Then SalesHeaderT.Turno := 0;
             SalesHeaderT."Bill-to Customer No." := GetValueAsText(JToken, 'Bill_to_Customer_No_');
             SalesHeaderT."Bill-to Name" := GetValueAsText(JToken, 'Bill_to_Name');
             SalesHeaderT."Bill-to Name 2" := GetValueAsText(JToken, 'Bill_to_Name_2');
@@ -686,6 +712,7 @@ codeunit 75200 Importaciones
             SalesHeaderT."Ship-to City" := GetValueAsText(JToken, 'Ship_to_City');
             SalesHeaderT."Ship-to Contact" := GetValueAsText(JToken, 'Ship_to_Contact');
             SalesHeaderT."Cupon de descuento" := GetValueAsText(JToken, 'Cupon');
+            SalesHeaderT."Campaign No." := GetValueAsText(JToken, 'Campaign_No_');
             TipoDetalle := GetValueAsText(JToken, 'Tipo_Detalle');
             Case TipoDetalle of
                 'TPV':
@@ -719,7 +746,7 @@ codeunit 75200 Importaciones
             SalesHeaderT."Payment Discount %" := GetValueAsDecimal(JToken, 'Payment_Discount__');
             //SalesHeaderT."Pmt. Discount Date":=GetValueAsText(JToken, 'Pmt__Discount_Date');
             SalesHeaderT."Shipment Method Code" := GetValueAsText(JToken, 'Shipment_Method_Code');
-            SalesHeaderT."Location Code" := GetValueAsText(JToken, 'Location_Code');
+            //SalesHeaderT."Location Code" := GetValueAsText(JToken, 'Location_Code');
             SalesHeaderT."Shortcut Dimension 1 Code" := GetValueAsText(JToken, 'Shortcut_Dimension_1_Code');
             SalesHeaderT."Shortcut Dimension 2 Code" := GetValueAsText(JToken, 'Shortcut_Dimension_2_Code');
             SalesHeaderT."Customer Posting Group" := GetValueAsText(JToken, 'Customer_Posting_Group');
@@ -865,8 +892,16 @@ codeunit 75200 Importaciones
             Pedido.Validate("Sell-to Customer No.");
             If SalesHeaderT.Colegio <> '' then
                 Pedido.Colegio := SalesHeaderT.Colegio;
+            if SalesHeaderT."Cod. Colegio" <> '' then
+                Pedido."Cod. Colegio" := SalesHeaderT."Cod. Colegio";
             If SalesHeaderT.Tpv <> '' then
                 Pedido.TPV := SalesHeaderT.TPv;
+            if SalesHeaderT."No. Serie NCF Facturas" <> '' then
+                Pedido."No. Serie NCF Facturas" := SalesHeaderT."No. Serie NCF Facturas";
+            if SalesHeaderT."No. Serie NCF Remision" <> '' then
+                Pedido."No. Serie NCF Remision" := SalesHeaderT."No. Serie NCF Remision";
+            if SalesHeaderT."Location Code" <> '' then
+                Pedido."Location Code" := SalesHeaderT."Location Code";
             if SalesHeaderT.Tienda <> '' then
                 Pedido.Tienda := SalesHeaderT.Tienda;
             SalesHeaderT."Venta TPV" := true;
@@ -969,11 +1004,14 @@ codeunit 75200 Importaciones
             Pedido."Tipo Detalle" := SalesHeaderT."Tipo Detalle";
             if SalesHeaderT."No. Detalle" <> '' then
                 Pedido."No. Detalle" := SalesHeaderT."No. Detalle";
+            if SalesHeaderT."Campaign No." <> '' then
+                Pedido."Campaign No." := SalesHeaderT."Campaign No.";
             Pedido.Modify();
             SalesHeaderT."No." := Pedido."No.";
 
         end;
-        Exit(SalesHeaderT."No.")
+        "No." := (SalesHeaderT."No.");
+
     end;
     /// <summary>
     /// insertaLineasFacturasVenta.
@@ -2384,10 +2422,10 @@ codeunit 75200 Importaciones
         JColegioObj: JsonObject;
         JColegios: JsonArray;
         JColegio: JsonObject;
-        ColegioT: Record Colegios temporary;
+        ColegioT: Record Contact temporary;
         JToken: JsonToken;
         Texto: Text;
-        Colegio: Record Colegios;
+        Colegio: Record Contact;
         RecRef2: RecordRef;
         ColegioRecRef: RecordRef;
         ColegioFldRef: FieldRef;
@@ -2409,40 +2447,42 @@ codeunit 75200 Importaciones
         JColegios.WriteTo(Data);
 
         foreach JToken in JColegios do begin
-            ColegioT."No" := GetValueAsText(JToken, 'No');
+            ColegioT."No." := GetValueAsText(JToken, 'No');
             Deleted := GetValueAsBoolean(JToken, 'Deleted');
-            ColegioT."Nombre" := GetValueAsText(JToken, 'Nombre');
-            ColegioT."Dirección" := GetValueAsText(JToken, 'Direccion');
-            ColegioT."Dirección 2" := GetValueAsText(JToken, 'Direccion_2');
-            ColegioT."Ciudad" := GetValueAsText(JToken, 'Ciudad');
-            ColegioT."Código Postal" := GetValueAsText(JToken, 'Codigo_Postal');
-            ColegioT."Provincia" := GetValueAsText(JToken, 'Provincia');
-            ColegioT."País" := GetValueAsText(JToken, 'Pais');
-            ColegioT."Teléfono" := GetValueAsText(JToken, 'Telefono');
-            ColegioT."Móvil" := GetValueAsText(JToken, 'Movil');
-            ColegioT."Email" := GetValueAsText(JToken, 'Email');
-            ColegioT."Sitio Web" := GetValueAsText(JToken, 'Sitio_Web');
-            ColegioT."NIF/CIF" := GetValueAsText(JToken, 'NIF_CIF');
-            ColegioT."Contacto" := GetValueAsText(JToken, 'Contacto');
-            ColegioT."Notas" := GetValueAsText(JToken, 'Notas');
-            if Evaluate(ColegioT."Fecha Alta", GetValueAsText(JToken, 'Fecha_Alta')) Then;
-
-            If (ColegioT."No" = '') or (ColegioT."No" = 'TEMP') Then begin
+            ColegioT."Name" := GetValueAsText(JToken, 'Nombre');
+            ColegioT."Address" := GetValueAsText(JToken, 'Direccion');
+            ColegioT."Address 2" := GetValueAsText(JToken, 'Direccion_2');
+            ColegioT."City" := GetValueAsText(JToken, 'Ciudad');
+            ColegioT."Post Code" := GetValueAsText(JToken, 'Codigo_Postal');
+            ColegioT."County" := GetValueAsText(JToken, 'Provincia');
+            ColegioT."Country/Region Code" := GetValueAsText(JToken, 'Pais');
+            ColegioT."Phone No." := GetValueAsText(JToken, 'Telefono');
+            ColegioT."Mobile Phone No." := GetValueAsText(JToken, 'Movil');
+            ColegioT."E-Mail" := GetValueAsText(JToken, 'Email');
+            ColegioT."Home Page" := GetValueAsText(JToken, 'Sitio_Web');
+            ColegioT."VAT Registration No." := GetValueAsText(JToken, 'NIF_CIF');
+            ColegioT.Cargo := GetValueAsText(JToken, 'Contacto');
+            //ColegioT.Comment := GetValueAsText(JToken, 'Notas');
+            ColegioT."Colegio Activo" := ColegioT."Colegio Activo"::Yes;
+            ColegioT.Type := ColegioT.Type::Company;
+            if Evaluate(ColegioT."Last Date Modified", GetValueAsText(JToken, 'Fecha_Alta')) Then;
+            ColegioT.Insert();
+            If (ColegioT."No." = '') or (ColegioT."No." = 'TEMP') Then begin
                 // Generate a new code for the college
                 SalesSetup.Get();
                 Colegio.Reset();
                 Colegio.Init();
-                ColegioT."No" := NoSeriesMgt.GetNextNo(SalesSetup."Nums. Colegio", 0D, true);
+                ColegioT."No." := NoSeriesMgt.GetNextNo(SalesSetup."Nums. Colegio", 0D, true);
 
                 Colegio := ColegioT;
                 Colegio.Insert();
-                ColegioT."No" := Colegio."No";
+                ColegioT."No." := Colegio."No.";
             end else begin
                 if not Deleted then begin
                     ColegioRecRef.Gettable(ColegioT);
-                    EmptyColegioRecRef.Open(Database::Colegios);
+                    EmptyColegioRecRef.Open(Database::Contact);
                     EmptyColegioRecRef.Init();
-                    If Colegio.Get(ColegioT."No") Then begin
+                    If Colegio.Get(ColegioT."No.") Then begin
                         ColRecRef.GetTable(Colegio);
                         for i := 1 to ColegioRecRef.FieldCount do begin
                             ColegioFldRef := ColegioRecRef.FieldIndex(i);
@@ -2456,14 +2496,14 @@ codeunit 75200 Importaciones
                         ColRecRef.Modify();
                     end;
                     ColegioRecRef.Close();
-                    ColegioT."No" := Colegio."No";
+                    ColegioT."No." := Colegio."No.";
                 end else begin
-                    If Colegio.Get(ColegioT."No") Then Colegio.Delete();
-                    ColegioT."No" := '';
+                    If Colegio.Get(ColegioT."No.") Then Colegio.Delete();
+                    ColegioT."No." := '';
                 end;
             end;
         end;
-        exit(ColegioT."No");
+        exit(ColegioT."No.");
     end;
 
     [ServiceEnabled]

@@ -10,7 +10,7 @@ tableextension 75209 SalesHeaderExtension extends "Sales Header"
         field(50102; Colegio; Code[20])
         {
             DataClassification = ToBeClassified;
-            TableRelation = Colegios;
+            TableRelation = Contact;
         }
         // field(50103; Tienda; Code[20])
         // {
@@ -48,7 +48,7 @@ tableextension 75209 SalesHeaderExtension extends "Sales Header"
             TableRelation = if ("Tipo Detalle" = const(TPV)) Tiendas else
             if ("Tipo Detalle" = const(Cliente)) Customer else
             if ("Tipo Detalle" = const(GrupoCliente)) "Customer Price Group" else
-            if ("Tipo Detalle" = const(Colegio)) "Colegios";
+            if ("Tipo Detalle" = const(Colegio)) Contact;
         }
     }
 }
@@ -64,7 +64,7 @@ tableextension 75212 SalesInvoiceLineExtension extends "Sales Invoice header"
         field(50102; Colegio; Code[20])
         {
             DataClassification = ToBeClassified;
-            TableRelation = Colegios;
+            TableRelation = Contact;
         }
         // field(50103; Caja; Code[20])
         // {
@@ -109,7 +109,7 @@ tableextension 75212 SalesInvoiceLineExtension extends "Sales Invoice header"
             TableRelation = if ("Tipo Detalle" = const(TPV)) Tiendas else
             if ("Tipo Detalle" = const(Cliente)) Customer else
             if ("Tipo Detalle" = const(GrupoCliente)) "Customer Price Group" else
-            if ("Tipo Detalle" = const(Colegio)) "Colegios";
+            if ("Tipo Detalle" = const(Colegio)) Contact;
         }
     }
 }
@@ -126,7 +126,7 @@ tableextension 75213 SalesCrHdExtension extends "Sales Cr.Memo Header"
         field(50102; Colegio; Code[20])
         {
             DataClassification = ToBeClassified;
-            TableRelation = Colegios;
+            TableRelation = Contact;
         }
         // field(50103; Caja; Code[20])
         // {
@@ -171,7 +171,7 @@ tableextension 75213 SalesCrHdExtension extends "Sales Cr.Memo Header"
             TableRelation = if ("Tipo Detalle" = const(TPV)) Tiendas else
             if ("Tipo Detalle" = const(Cliente)) Customer else
             if ("Tipo Detalle" = const(GrupoCliente)) "Customer Price Group" else
-            if ("Tipo Detalle" = const(Colegio)) "Colegios";
+            if ("Tipo Detalle" = const(Colegio)) Contact;
         }
     }
 

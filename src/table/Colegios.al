@@ -3,6 +3,7 @@ table 75208 Colegios
     Caption = 'Colegios';
     DataClassification = CustomerContent;
     LookupPageId = "Colegios";
+    ObsoleteState = Removed;
 
     fields
     {
