@@ -2984,7 +2984,7 @@ codeunit 75200 Importaciones
         Campaign.SetRange("Cupon", false);
         Campaign.SetFilter("Starting Date", '%1|..%2', 0D, TodayDate);
         Campaign.SetFilter("Ending Date", '%1|>=%2', 0D, TodayDate);
-        Campaign.SetRange(Activated, true);
+        //Campaign.SetRange(Activated, true);
         if Campaign.FindSet() then begin
             repeat
                 Clear(JCoupon);
@@ -3051,8 +3051,7 @@ codeunit 75200 Importaciones
             until Campaign.Next() = 0;
         end;
 
-        JObject.Add('Active_Coupons', JArray);
-        JObject.Add('Total_Count', JArray.Count);
+        JObject.Add('Active_Campaings', JArray);
         JObject.Add('Query_Date', Format(TodayDate));
         JObject.WriteTo(JsonText);
 
