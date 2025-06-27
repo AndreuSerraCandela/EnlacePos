@@ -2842,8 +2842,11 @@ codeunit 75200 Importaciones
                 JPrice.Add('Allow_Invoice_Disc', SalesPrice."Allow Invoice Disc.");
                 JPrice.Add('VAT_Bus_Posting_Gr_Price', SalesPrice."VAT Bus. Posting Gr. (Price)");
                 JPrice.Add('Source_Counter', SalesPrice."Source Counter");
+                If SalesPrice."Sales Type" = SalesPrice."Sales Type"::"Customer Price Group" then begin
+                    if SalesPrice."Sales Code" = 'TIENDA' then JArray.Add(JPrice);
+                end else
+                    JArray.Add(JPrice);
 
-                JArray.Add(JPrice);
             until SalesPrice.Next() = 0;
         end;
 
