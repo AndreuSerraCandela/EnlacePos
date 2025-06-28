@@ -2842,8 +2842,11 @@ codeunit 75200 Importaciones
                 JPrice.Add('Allow_Invoice_Disc', SalesPrice."Allow Invoice Disc.");
                 JPrice.Add('VAT_Bus_Posting_Gr_Price', SalesPrice."VAT Bus. Posting Gr. (Price)");
                 JPrice.Add('Source_Counter', SalesPrice."Source Counter");
+                If SalesPrice."Sales Type" = SalesPrice."Sales Type"::"Customer Price Group" then begin
+                    if SalesPrice."Sales Code" = 'TIENDA' then JArray.Add(JPrice);
+                end else
+                    JArray.Add(JPrice);
 
-                JArray.Add(JPrice);
             until SalesPrice.Next() = 0;
         end;
 
@@ -3024,7 +3027,7 @@ codeunit 75200 Importaciones
         Campaign.SetRange("Cupon", false);
         Campaign.SetFilter("Starting Date", '%1|..%2', 0D, TodayDate);
         Campaign.SetFilter("Ending Date", '%1|>=%2', 0D, TodayDate);
-        Campaign.SetRange(Activated, true);
+        //Campaign.SetRange(Activated, true);
         if Campaign.FindSet() then begin
             repeat
                 Clear(JCoupon);
@@ -3091,8 +3094,7 @@ codeunit 75200 Importaciones
             until Campaign.Next() = 0;
         end;
 
-        JObject.Add('Active_Coupons', JArray);
-        JObject.Add('Total_Count', JArray.Count);
+        JObject.Add('Active_Campaings', JArray);
         JObject.Add('Query_Date', Format(TodayDate));
         JObject.WriteTo(JsonText);
 

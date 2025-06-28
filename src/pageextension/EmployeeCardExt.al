@@ -35,6 +35,7 @@ page 75216 EmployeeList
     SourceTable = Employee;
     UsageCategory = Lists;
     ApplicationArea = All;
+    SourceTableView = where("Usuario TPV" = const(true));
     layout
     {
         area(content)
@@ -126,6 +127,10 @@ page 75216 EmployeeList
                     ApplicationArea = All;
                     ToolTip = 'Specifies the password for TPV access.';
                 }
+                field(Admin; Rec.Supervisor)
+                {
+                    ApplicationArea = All;
+                }
                 field("Company_E_Mail"; Rec."Company E-Mail")
                 {
                     Caption = 'Company E-Mail';
@@ -188,6 +193,7 @@ page 75216 EmployeeList
             }
         }
     }
+
 }
 pageextension 75211 EmployeeListExt extends "Employee List"
 {
@@ -204,6 +210,10 @@ pageextension 75211 EmployeeListExt extends "Employee List"
             {
                 ApplicationArea = All;
                 ToolTip = 'Specifies the password for TPV access.';
+            }
+            field(Admin; Rec.Supervisor)
+            {
+                ApplicationArea = All;
             }
             field("Company_E_Mail"; Rec."Company E-Mail")
             {
