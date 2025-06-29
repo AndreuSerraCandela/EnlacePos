@@ -110,6 +110,11 @@ page 75272 "TPV Web Service"
                     Caption = 'noSeries';
                     ApplicationArea = All;
                 }
+                field(margenCierre; Rec."Margen Cierre")
+                {
+                    Caption = 'margenCierre';
+                    ApplicationArea = All;
+                }
             }
         }
     }

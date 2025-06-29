@@ -22,6 +22,11 @@ tableextension 75205 TiendaExt extends Tiendas
         {
             Caption = '% Descuento General';
         }
+        field(90106; "Margen Cierre"; Decimal)
+        {
+            Caption = 'Margen Cierre';
+        }
+
     }
     trigger OnInsert()
     var

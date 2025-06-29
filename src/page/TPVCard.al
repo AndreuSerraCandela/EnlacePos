@@ -3,7 +3,7 @@
 /// </summary>
 page 75271 "TPV Card"
 {
-    Caption = 'Ficha de TPV';
+    Caption = 'Ficha de TPV/Tienda';
     PageType = Card;
     SourceTable = Tiendas;
     UsageCategory = None;
@@ -113,6 +113,11 @@ page 75271 "TPV Card"
                     ApplicationArea = All;
                     Caption = '★ % Descuento General';
                     ToolTip = 'Especifica el porcentaje de descuento general del TPV.';
+                }
+                field("Margen Cierre"; Rec."Margen Cierre")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Especifica el número de fuente del TPV.';
                 }
                 field("Contacto"; Rec."Contacto")
                 {

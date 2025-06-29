@@ -34,6 +34,34 @@ table 75250 "Detalle Pago Factura"
             DataClassification = CustomerContent;
             AutoFormatType = 1;
         }
+        field(50002; "Descuento"; Decimal)
+        {
+            Caption = 'Descuento';
+            DataClassification = CustomerContent;
+            AutoFormatType = 1;
+            trigger OnValidate()
+            var
+                PaymentMethod: Record "Payment Method";
+                SalesLine: Record "Sales Line";
+                SalesLine2: Record "Sales Line";
+                LineNo: Integer;
+            begin
+                // PaymentMethod.Get("Forma de Pago");
+                // SalesLine.SetRange("Document No.", "Document No.");
+                // If SalesLine.FindLast() then begin
+                //     LineNo := SalesLine."Line No." + 1;
+                //     SalesLine2 := SalesLine;
+                //     SalesLine2."Line No." := LineNo;
+                //     SalesLine2.Validate("Quantity", -1);
+                //     SalesLine2.Type := SalesLine2.Type::"G/L Account";
+                //     SalesLine2.Validate("No.", PaymentMethod."Cuenta descuento");
+                //     SalesLine2.Validate("Unit Price", "Descuento");
+                //     SalesLine2.Validate("Line Discount %", 0);
+                //     SalesLine2.Insert();
+                // end;
+
+            end;
+        }
     }
 
     keys

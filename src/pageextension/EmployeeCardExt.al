@@ -1,7 +1,11 @@
-pageextension 75210 EmployeeCardExt extends "Employee Card"
+pageextension 75210 EmployeeCardExt extends "Ficha Cajero"
 {
     layout
     {
+        modify(Contrasena)
+        {
+            Visible = false;
+        }
         addafter(General)
         {
             group(TPV)
@@ -18,10 +22,11 @@ pageextension 75210 EmployeeCardExt extends "Employee Card"
                     ApplicationArea = All;
                     ToolTip = 'Specifies if this employee is a TPV user.';
                 }
-                field(Password; Rec.Password)
+                field(Password; Rec.Contrasena)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the password for TPV access.';
+
                 }
 
             }
@@ -32,24 +37,36 @@ page 75216 EmployeeList
 {
     PageType = List;
     Caption = 'Usuarios TPV';
-    SourceTable = Employee;
+    SourceTable = "Cajeros";
     UsageCategory = Lists;
     ApplicationArea = All;
-    SourceTableView = where("Usuario TPV" = const(true));
+    //SourceTableView = where("Usuario TPV" = const(true));
     layout
     {
         area(content)
         {
             repeater(Control1)
             {
-                ShowCaption = false;
-                field("No."; Rec."No.")
+                field(Tienda; Rec.Tienda)
+                {
+                    Caption = 'Tienda';
+                    ApplicationArea = BasicHR;
+                    ToolTip = 'Specifies the store of the employee.';
+                }
+                field("Grupo"; Rec."Grupo Cajero")
+                {
+                    Caption = 'Grupo';
+                    ApplicationArea = BasicHR;
+                    ToolTip = 'Specifies the group of the employee.';
+                }
+
+                field("No."; Rec.Id)
                 {
                     Caption = 'No.';
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field(FullName; Rec.FullName())
+                field(FullName; Rec.Descripcion)
                 {
                     ApplicationArea = BasicHR;
                     Caption = 'Nombre Completo';
@@ -60,7 +77,6 @@ page 75216 EmployeeList
                 {
                     Caption = 'Nombre';
                     ApplicationArea = BasicHR;
-                    NotBlank = true;
                     ToolTip = 'Specifies the employee''s first name.';
                 }
                 field("Second Family Name"; Rec."Middle Name")
@@ -122,7 +138,7 @@ page 75216 EmployeeList
                     ApplicationArea = All;
                     ToolTip = 'Specifies if this employee is a TPV user.';
                 }
-                field(Password; Rec.Password)
+                field(Password; Rec.Contrasena)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the password for TPV access.';
@@ -195,18 +211,18 @@ page 75216 EmployeeList
     }
 
 }
-pageextension 75211 EmployeeListExt extends "Employee List"
+pageextension 75211 EmployeeListExt extends "Lista Cajeros"
 {
     layout
     {
-        addafter(Extension)
+        addafter(Tienda)
         {
             field("Usuario TPV"; Rec."Usuario TPV")
             {
                 ApplicationArea = All;
                 ToolTip = 'Specifies if this employee is a TPV user.';
             }
-            field(Password; Rec.Password)
+            field(Password; Rec.Contrasena)
             {
                 ApplicationArea = All;
                 ToolTip = 'Specifies the password for TPV access.';
