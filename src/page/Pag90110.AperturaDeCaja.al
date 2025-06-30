@@ -15,7 +15,7 @@ page 75210 "AperturaDeCaja"
         {
             repeater(General)
             {
-                field(No; Rec."Id Replicacion")
+                field(No; Rec."Id Replicacion2")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Especifica el ID de la apertura de caja';

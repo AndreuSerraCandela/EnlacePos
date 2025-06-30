@@ -16,12 +16,12 @@ table 75204 CierreDeCajaDetalle
         field(2; idCierre; Code[20])
         {
             Caption = 'ID Cierre';
-            TableRelation = "Control de TPV"."Id Replicacion";
+            TableRelation = "Control de TPV"."Id Replicacion2";
         }
         field(3; idApertura; Code[20])
         {
             Caption = 'ID Apertura';
-            TableRelation = "Control de TPV"."Id Replicacion";
+            TableRelation = "Control de TPV"."Id Replicacion2";
         }
         field(4; idFormaPago; Code[20])
         {

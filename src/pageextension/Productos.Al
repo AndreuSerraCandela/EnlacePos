@@ -10,9 +10,25 @@ pageextension 75216 Productos extends "Item List"
                 Editable = false;
                 ApplicationArea = All;
             }
+            field("barcode"; ItemCrossReference(Rec."No."))
+            {
+                Caption = 'barcode';
+                Editable = false;
+                ApplicationArea = All;
+            }
             field(PorIva; ReturnPorIva(Rec."VAT Prod. Posting Group")) { ApplicationArea = All; }
         }
     }
+    local procedure ItemCrossReference(ItemNo: Code[20]): Text
+    var
+        ItemCrossReference: Record "Item Reference";
+    begin
+        ItemCrossReference.SetRange("Item No.", ItemNo);
+        ItemCrossReference.SetRange("Reference Type", ItemCrossReference."Reference Type"::"Bar Code");
+        if ItemCrossReference.FindFirst() then
+            exit(ItemCrossReference."Reference No.");
+    end;
+
     local procedure ReturnPorIva(VatPostingGroup: Code[20]): Decimal
     var
         VatSetup: Record "VAT Posting Setup";

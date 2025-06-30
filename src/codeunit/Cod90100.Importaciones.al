@@ -411,6 +411,7 @@ codeunit 75200 Importaciones
         EmptyCustomerFldRef: FieldRef;
         i: Integer;
         Deleted: Boolean;
+        PostCode: Record "Post Code";
         TipoSrl: Text;
     begin
 
@@ -430,11 +431,47 @@ codeunit 75200 Importaciones
             CustT."Name" := GetValueAsText(JToken, 'Name');
             CustT."Search Name" := GetValueAsText(JToken, 'Search_Name');
             CustT."Name 2" := GetValueAsText(JToken, 'Name_2');
-            CustT."Address" := GetValueAsText(JToken, 'Address');
-            CustT."Address 2" := GetValueAsText(JToken, 'Address_2');
-            CustT."City" := GetValueAsText(JToken, 'City');
+            CustT."Prices Including VAT" := GetValueAsBoolean(JToken, 'Prices_Including_VAT');
+            CustT."POS Discount" := GetValueAsDecimal(JToken, 'POS_Discount');
+            CustT.Address := GetValueAsText(JToken, 'Direccion');
+            CustT."Address 2" := GetValueAsText(JToken, 'Direccion_2');
+            CustT."City" := GetValueAsText(JToken, 'Poblacion');
+            CustT."Post Code" := GetValueAsText(JToken, 'Cod_Postal');
+            CustT."Country/Region Code" := GetValueAsText(JToken, 'Pais');
+            CustT."Phone No." := GetValueAsText(JToken, 'Telefono');
+            CustT."Mobile Phone No." := GetValueAsText(JToken, 'Mobil');
+            CustT."E-Mail" := GetValueAsText(JToken, 'E_Mail');
+            CustT."Contact" := GetValueAsText(JToken, 'Contacto');
+            CustT."VAT Registration No." := GetValueAsText(JToken, 'Numero_Identificacion_fiscal');
+            CustT."Location Code" := GetValueAsText(JToken, 'Location_Code');
+            CustT."Fax No." := GetValueAsText(JToken, 'Fax_No_');
+            CustT."Telex Answer Back" := GetValueAsText(JToken, 'Telex_Answer_Back');
+            //CustT."VAT Registration No." := GetValueAsText(JToken, 'VAT_Registration_No_');
+            CustT."Combine Shipments" := GetValueAsBoolean(JToken, 'Combine_Shipments');
+            CustT."Gen. Bus. Posting Group" := GetValueAsText(JToken, 'Gen__Bus__Posting_Group');
+            CustT."GLN" := GetValueAsText(JToken, 'GLN');
+            //CustT."Post Code" := GetValueAsText(JToken, 'Post_Code');
+            CustT."Territory Code" := GetValueAsText(JToken, 'Territory_Code');
+            if CustT."Territory Code" = '' then CustT."Territory Code" := '217';
+            CustT."EORI Number" := GetValueAsText(JToken, 'EORI_Number');
+            CustT."Use GLN in Electronic Document" := GetValueAsBoolean(JToken, 'Use_GLN_in_Electronic_Document');
+            CustT."E-Mail" := GetValueAsText(JToken, 'E_Mail');
+            //CustT."Home Page" := GetValueAsText(JToken, 'Home_Page');
+            CustT."Reminder Terms Code" := GetValueAsText(JToken, 'Reminder_Terms_Code');
+            //CustT."No. Series":=GetValueAsText(JToken, 'No__Series');
+            //CustT."Tax Area Code":=GetValueAsText(JToken, 'Tax_Area_Code');
+            //CustT."Tax Liable":=GetValueAsText(JToken, 'Tax_Liable');
+            CustT."VAT Bus. Posting Group" := GetValueAsText(JToken, 'VAT_Bus__Posting_Group');
+            //CustT."Reserve":=GetValueAsText(JToken, 'Reserve');
+            //CustT."Block_Payment_Tolerance":=GetValueAsText(JToken, 'Block_Payment_Tolerance');
+            CustT."IC Partner Code" := GetValueAsText(JToken, 'IC_Partner_Code');
+            CustT."Prepayment %" := GetValueAsDecimal(JToken, 'Prepayment__');
+            CustT."City" := GetValueAsText(JToken, 'Poblacion');
+            CustT."Country/Region Code" := GetValueAsText(JToken, 'Pais');
             CustT."Contact" := GetValueAsText(JToken, 'Contact');
-            CustT."Phone No." := GetValueAsText(JToken, 'Phone_No_');
+            CustT."Phone No." := GetValueAsText(JToken, 'Telefono');
+            CustT."Mobile Phone No." := GetValueAsText(JToken, 'Mobil');
+            CustT."E-Mail" := GetValueAsText(JToken, 'E_Mail');
             CustT."Telex No." := GetValueAsText(JToken, 'Telex_No_');
             CustT."Document Sending Profile" := GetValueAsText(JToken, 'Document_Sending_Profile');
             CustT."Ship-to Code" := GetValueAsText(JToken, 'Ship_to_Code');
@@ -496,40 +533,7 @@ codeunit 75200 Importaciones
             // CustT."Last_Modified_Date_Time":=GetValueAsText(JToken, 'Last_Modified_Date_Time');
             // CustT."Last_Date_Modified":=GetValueAsText(JToken, 'Last_Date_Modified');
             // CustT."Application_Method":=GetValueAsText(JToken, 'Application_Method');
-            CustT."Prices Including VAT" := GetValueAsBoolean(JToken, 'Prices_Including_VAT');
-            CustT."POS Discount" := GetValueAsDecimal(JToken, 'POS_Discount');
-            CustT.Address := GetValueAsText(JToken, 'Direcccion');
-            CustT."Address 2" := GetValueAsText(JToken, 'Direccion_2');
-            CustT."City" := GetValueAsText(JToken, 'Poblacion');
-            CustT."Post Code" := GetValueAsText(JToken, 'Cod_Postal');
-            CustT."Country/Region Code" := GetValueAsText(JToken, 'Pais');
-            CustT."Phone No." := GetValueAsText(JToken, 'Telefono');
-            CustT."Mobile Phone No." := GetValueAsText(JToken, 'Mobil');
-            CustT."E-Mail" := GetValueAsText(JToken, 'E_Mail');
-            CustT."Contact" := GetValueAsText(JToken, 'Contacto');
-            CustT."VAT Registration No." := GetValueAsText(JToken, 'Numero_Identificacion_fiscal');
-            CustT."Location Code" := GetValueAsText(JToken, 'Location_Code');
-            CustT."Fax No." := GetValueAsText(JToken, 'Fax_No_');
-            CustT."Telex Answer Back" := GetValueAsText(JToken, 'Telex_Answer_Back');
-            //CustT."VAT Registration No." := GetValueAsText(JToken, 'VAT_Registration_No_');
-            CustT."Combine Shipments" := GetValueAsBoolean(JToken, 'Combine_Shipments');
-            CustT."Gen. Bus. Posting Group" := GetValueAsText(JToken, 'Gen__Bus__Posting_Group');
-            CustT."GLN" := GetValueAsText(JToken, 'GLN');
-            //CustT."Post Code" := GetValueAsText(JToken, 'Post_Code');
-            CustT."County" := GetValueAsText(JToken, 'County');
-            CustT."EORI Number" := GetValueAsText(JToken, 'EORI_Number');
-            CustT."Use GLN in Electronic Document" := GetValueAsBoolean(JToken, 'Use_GLN_in_Electronic_Document');
-            CustT."E-Mail" := GetValueAsText(JToken, 'E_Mail');
-            //CustT."Home Page" := GetValueAsText(JToken, 'Home_Page');
-            CustT."Reminder Terms Code" := GetValueAsText(JToken, 'Reminder_Terms_Code');
-            //CustT."No. Series":=GetValueAsText(JToken, 'No__Series');
-            //CustT."Tax Area Code":=GetValueAsText(JToken, 'Tax_Area_Code');
-            //CustT."Tax Liable":=GetValueAsText(JToken, 'Tax_Liable');
-            CustT."VAT Bus. Posting Group" := GetValueAsText(JToken, 'VAT_Bus__Posting_Group');
-            //CustT."Reserve":=GetValueAsText(JToken, 'Reserve');
-            //CustT."Block_Payment_Tolerance":=GetValueAsText(JToken, 'Block_Payment_Tolerance');
-            CustT."IC Partner Code" := GetValueAsText(JToken, 'IC_Partner_Code');
-            CustT."Prepayment %" := GetValueAsDecimal(JToken, 'Prepayment__');
+
             Texto := GetValueAsText(JToken, 'Partner_Type');
             Case Texto Of
                 ' ':
@@ -578,8 +582,10 @@ codeunit 75200 Importaciones
                 Cust := CustT;
                 Cust."No. Series" := SalesSetup."Customer Nos.";
                 Cust."No." := NoSeriesMgt.GetNextNo(SalesSetup."Customer Nos.", Today, true);
+                Cust."Bill-to Customer No." := Cust."No.";
                 Cust.Insert();
                 CustT."No." := Cust."No.";
+
                 SalesSetup.TestField(CustomerTemplate);
                 CustomerTempl.Get(SalesSetup.CustomerTemplate);
                 CustomerTemplMgt.ApplyCustomerTemplate(Cust, CustomerTempl);
@@ -620,7 +626,7 @@ codeunit 75200 Importaciones
     begin
         if TryinsertaFacturasVenta(Data, "No.") then
             exit("No.");
-        exit(GetLastErrorText());
+        exit('error: ' + GetLastErrorText());
     end;
 
     [TryFunction]
@@ -714,6 +720,7 @@ codeunit 75200 Importaciones
             if Turnos.FindFirst then
                 SalesHeaderT.Turno := Turnos."No. turno";
             //If not Evaluate(SalesHeaderT.Turno, GetValueAsText(JToken, 'Turno')) Then SalesHeaderT.Turno := 0;
+
             SalesHeaderT."Bill-to Customer No." := GetValueAsText(JToken, 'Bill_to_Customer_No_');
             SalesHeaderT."Bill-to Name" := GetValueAsText(JToken, 'Bill_to_Name');
             SalesHeaderT."Bill-to Name 2" := GetValueAsText(JToken, 'Bill_to_Name_2');
@@ -1946,6 +1953,16 @@ codeunit 75200 Importaciones
     [ServiceEnabled]
     procedure insertaAperturaCaja(Data: Text): Text
     var
+        "No.": Text;
+    begin
+        If tryinsertaAperturaCaja(Data, "No.") then
+            exit("No.");
+        exit('error: ' + GetLastErrorText());
+    end;
+
+    [TryFunction]
+    procedure tryinsertaAperturaCaja(Data: Text; var "No.": Text)
+    var
         JAperturaToken: JsonToken;
         JAperturaObj: JsonObject;
         JAperturas: JsonArray;
@@ -1962,18 +1979,18 @@ codeunit 75200 Importaciones
     begin
         // Verificar que hay datos para importar
         if Data = '' then
-            exit('No se proporcionaron datos para importar.');
+            error('No se proporcionaron datos para importar.');
 
         // Intentar leer el JSON
         if not JAperturaToken.ReadFrom(Data) then
-            exit('Error al leer el formato JSON.');
+            error('Error al leer el formato JSON.');
 
         // Convertir a objeto JSON
         JAperturaObj := JAperturaToken.AsObject();
 
         // Obtener el array de aperturas
         if not JAperturaObj.Get('Aperturas', JAperturaToken) then
-            exit('No se encontró el array "Aperturas" en el JSON.');
+            error('No se encontró el array "Aperturas" en el JSON.');
 
         JAperturas := JAperturaToken.AsArray();
 
@@ -2017,13 +2034,13 @@ codeunit 75200 Importaciones
 
             // Verificar si existe un ID específico
             if GetValueAsText(JToken, 'No') = 'TEMP' then
-                RecAperturaTmp."Id Replicacion" := '';
+                RecAperturaTmp."Id Replicacion2" := '';
 
 
             if Deleted then begin
                 // Buscar por ID si se especifica
-                if RecAperturaTmp."Id Replicacion" <> '' then begin
-                    RecApertura.SetRange("Id Replicacion", RecAperturaTmp."Id Replicacion");
+                if RecAperturaTmp."Id Replicacion2" <> '' then begin
+                    RecApertura.SetRange("Id Replicacion2", RecAperturaTmp."Id Replicacion2");
                     if RecApertura.FindFirst() then begin
                         RecApertura.Delete();
                         AperturaCount += 1;
@@ -2042,19 +2059,28 @@ codeunit 75200 Importaciones
                         RecApertura."No. TPV" := RecAperturaTmp."No. TPV";
                         RecApertura."No. Tienda" := RecAperturaTmp."No. Tienda";
                         RecApertura.Turno := RecAperturaTmp.Turno;
-                        RecApertura."Id Replicacion" := RecApertura."No. tienda" + ';' + RecApertura."No. TPV" + ';' + Format(RecApertura.Fecha);
-
+                        RecApertura."Id Replicacion2" := RecApertura."No. tienda" + ';' + RecApertura."No. TPV" + ';' + Format(RecApertura.Fecha);
+                        if RecApertura."Id Replicacion2" = '' then Error('No se puede insertar una apertura con un ID Replicacion vacío');
                         if RecApertura.Modify() then
                             AperturaCount += 1
                         else
                             ErrorCount += 1;
-                    end else
-                        ErrorCount += 1;
+                    end else begin
+                        RecApertura.Init();
+                        RecApertura.TransferFields(RecAperturaTmp);
+                        RecApertura."Id Replicacion2" := RecApertura."No. tienda" + ';' + RecApertura."No. TPV" + ';' + Format(RecApertura.Fecha);
+                        if RecApertura."Id Replicacion2" = '' then Error('No se puede insertar una apertura con un ID Replicacion vacío');
+                        if NOT RecApertura.Insert() then
+                            RecApertura.Modify();
+                    end;
+                    ErrorCount += 1;
+
                 end else begin
                     // Insertar nueva apertura
                     RecApertura.Init();
                     RecApertura.TransferFields(RecAperturaTmp);
-                    RecApertura."Id Replicacion" := RecApertura."No. tienda" + ';' + RecApertura."No. TPV" + ';' + Format(RecApertura.Fecha);
+                    RecApertura."Id Replicacion2" := RecApertura."No. tienda" + ';' + RecApertura."No. TPV" + ';' + Format(RecApertura.Fecha);
+                    if RecApertura."Id Replicacion2" = '' then Error('No se puede insertar una apertura con un ID Replicacion vacío');
                     if NOT RecApertura.Insert() then
                         RecApertura.Modify();
                 end;
@@ -2062,8 +2088,8 @@ codeunit 75200 Importaciones
         end;
 
         // Preparar mensaje de resultado
-        ResultadoText := StrSubstNo('%1', RecApertura."Id Replicacion");
-        exit(ResultadoText);
+        ResultadoText := StrSubstNo('%1', RecApertura."Id Replicacion2");
+        "No." := RecApertura."Id Replicacion2";
     end;
 
     /// <summary>
@@ -2130,10 +2156,10 @@ codeunit 75200 Importaciones
             RecCierreTmp.ArqueoUS := GetValueAsDecimal(JToken, 'ArqueoUS');
             RecCierreTmp.ArqueoEUR := GetValueAsDecimal(JToken, 'ArqueoEUR');
             RecCierreTmp.FechaDeCierre := GetValueAsDateTime(JToken, 'FechaDeCierre');
-            RecCierreTmp."Id Replicacion" := GetValueAsText(JToken, 'idApertura');
-            If RecCierreTmp."Id Replicacion" <> '' then begin
+            RecCierreTmp."Id Replicacion2" := GetValueAsText(JToken, 'idApertura');
+            If RecCierreTmp."Id Replicacion2" <> '' then begin
                 //Tienda;TPV
-                AperturaDeCaja.SetRange("Id Replicacion", RecCierreTmp."Id Replicacion");
+                AperturaDeCaja.SetRange("Id Replicacion2", RecCierreTmp."Id Replicacion2");
                 if AperturaDeCaja.FindFirst() then begin
                     RecCierreTmp."No. Tienda" := AperturaDeCaja."No. Tienda";
                     RecCierreTmp."No. TPV" := AperturaDeCaja."No. TPV";
@@ -2150,15 +2176,15 @@ codeunit 75200 Importaciones
             // Verificar si existe un ID específico
             // Verificar si existe un ID específico
             if GetValueAsText(JToken, 'No') = 'TEMP' then
-                RecCierreTmp."Id Replicacion" := ''
+                RecCierreTmp."Id Replicacion2" := ''
             else if GetValueAsInteger(JToken, 'No') > 0 then
-                RecCierreTmp."Id Replicacion" := GetValueAsText(JToken, 'No');
+                RecCierreTmp."Id Replicacion2" := GetValueAsText(JToken, 'No');
 
 
             if Deleted then begin
                 // Buscar por ID si se especifica
-                if RecCierreTmp."Id Replicacion" <> '' then begin
-                    RecCierre.SetRange("Id Replicacion", RecCierreTmp."Id Replicacion");
+                if RecCierreTmp."Id Replicacion2" <> '' then begin
+                    RecCierre.SetRange("Id Replicacion2", RecCierreTmp."Id Replicacion2");
                     if RecCierre.FindFirst() then begin
                         RecCierre.Delete();
                         CierreCount += 1;
@@ -2167,7 +2193,7 @@ codeunit 75200 Importaciones
                 end;
             end else begin
                 // Si se especifica un ID, intentar actualizar
-                if RecCierreTmp."Id Replicacion" <> '' then begin
+                if RecCierreTmp."Id Replicacion2" <> '' then begin
                     if RecCierre.Get(RecCierreTmp."No. Tienda", RecCierreTmp."No. TPV", RecCierreTmp.Fecha) then begin
                         RecCierre."Usuario cierre" := RecCierreTmp."Usuario cierre";
                         RecCierre.ImporteDeApertura := RecCierreTmp.ImporteDeApertura;
@@ -2180,7 +2206,7 @@ codeunit 75200 Importaciones
                         RecCierre.ArqueoEUR := RecCierreTmp.ArqueoEUR;
                         RecCierre.FechaDeCierre := RecCierreTmp.FechaDeCierre;
                         RecCierre.Estado := RecCierreTmp.Estado;
-                        RecCierre."Id Replicacion" := RecCierreTmp."Id Replicacion";
+                        RecCierre."Id Replicacion2" := RecCierreTmp."Id Replicacion2";
 
                         if RecCierre.Modify() then
                             CierreCount += 1
@@ -2193,7 +2219,7 @@ codeunit 75200 Importaciones
                     RecCierre.Reset();
                     RecCierre.Init();
                     RecCierre.TransferFields(RecCierreTmp);
-                    RecCierre."Id Replicacion" := RecCierreTmp."Id Replicacion";
+                    RecCierre."Id Replicacion2" := RecCierreTmp."Id Replicacion2";
                     if RecCierre.Insert() then
                         CierreCount += 1
                     else
@@ -2203,8 +2229,8 @@ codeunit 75200 Importaciones
         end;
 
         // Preparar mensaje de resultado
-        ResultadoText := StrSubstNo('%1', RecCierre."Id Replicacion");
-        exit(ResultadoText);
+        ResultadoText := StrSubstNo('%1', RecCierre."Id Replicacion2");
+        exit(RecCierre."Id Replicacion2");
     end;
 
     /// <summary>
