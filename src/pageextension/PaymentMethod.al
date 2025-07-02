@@ -33,6 +33,11 @@ pageextension 75215 PaymentMethodListExt extends "Payment Methods"
                 TableRelation = "G/L Account";
                 ApplicationArea = All;
             }
+            field("Tipo Pago"; Rec."Tipo Pago")
+            {
+                Caption = 'Tipo Pago';
+                ApplicationArea = All;
+            }
         }
     }
     actions

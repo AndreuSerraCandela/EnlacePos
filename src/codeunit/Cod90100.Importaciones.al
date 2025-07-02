@@ -1097,6 +1097,7 @@ codeunit 75200 Importaciones
         ConfIva: Record "VAT Posting Setup";
         base: Decimal;
         rConf: Record "Config. Empresa";
+        Tienda: Record Tiendas;
     begin
         If not rConf.Get then begin
             rConf.Init();
@@ -1146,6 +1147,8 @@ codeunit 75200 Importaciones
             SalesLineT."Description 2" := GetValueAsText(JToken, 'Description_2');
             SalesLineT."Unit of Measure" := GetValueAsText(JToken, 'Unit_of_Measure');
             SalesLineT."Quantity" := GetValueAsDecimal(JToken, 'Quantity');
+            if SalesLineT."Document Type" = SalesLineT."Document Type"::"Credit Memo" then
+                SalesLineT."Quantity" := -SalesLineT."Quantity";
             SalesLineT."VAT Prod. Posting Group" := GetValueAsText(JToken, 'VAT_Prod__Posting_Group');
             //SalesLineT."Outstanding Quantity":=GetValueAsText(JToken, 'Outstanding_Quantity');
             // SalesLineT."Qty. to Invoice":=GetValueAsText(JToken, 'Qty__to_Invoice');
@@ -1323,6 +1326,9 @@ codeunit 75200 Importaciones
                 FacturasL.Validate(Quantity, SalesLineT.Quantity);
                 FacturasL.Validate("Unit Price", SalesLineT."Unit Price");
                 FacturasL.Validate("Line Discount %", SalesLineT."Line Discount %");
+                SalesHeader.Get(SalesLineT."Document Type", SalesLineT."Document No.");
+                If Tienda.Get(SalesHeader.TPV) then
+                    FacturasL."Location Code" := Tienda."Cod. Almacen";
                 FacturasL.Modify();
 
             end

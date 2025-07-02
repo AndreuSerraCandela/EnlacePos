@@ -50,6 +50,11 @@ tableextension 75214 PaymentMethodExtension extends "Payment Method"
 
             end;
         }
+        field(91105; "Tipo Pago"; enum "TipoPago")
+        {
+            Caption = 'Tipo Pago';
+
+        }
 
     }
 }

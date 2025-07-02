@@ -19,6 +19,7 @@ pageextension 75216 Productos extends "Item List"
             field(PorIva; ReturnPorIva(Rec."VAT Prod. Posting Group")) { ApplicationArea = All; }
         }
     }
+
     local procedure ItemCrossReference(ItemNo: Code[20]): Text
     var
         ItemCrossReference: Record "Item Reference";
@@ -27,6 +28,11 @@ pageextension 75216 Productos extends "Item List"
         ItemCrossReference.SetRange("Reference Type", ItemCrossReference."Reference Type"::"Bar Code");
         if ItemCrossReference.FindFirst() then
             exit(ItemCrossReference."Reference No.");
+    end;
+
+    trigger OnOpenPage()
+    begin
+        Rec.SetRange(Blocked, false);
     end;
 
     local procedure ReturnPorIva(VatPostingGroup: Code[20]): Decimal
