@@ -1,6 +1,16 @@
 // /// <summary>
 // /// Table AperturaDeCaja (ID 90102).
 // /// </summary>
+tableextension 75226 AperturaDeCaja extends "Control de TPV"
+{
+    fields
+    {
+        field(99000; "Id Replicacion2"; Text[250])
+        {
+            Caption = 'Id Replicacion2';
+        }
+    }
+}
 // table 91102 AperturaDeCaja
 // {
 //     DataClassification = CustomerContent;

@@ -55,8 +55,16 @@ page 75208 "Colegios"
                     ApplicationArea = All;
                     ToolTip = 'Especifica la fecha en que se dio de alta el colegio en el sistema.';
                 }
+                field("Source Counter"; Rec."Source Counter")
+                {
+                    ApplicationArea = All;
+
+                }
+
 
             }
         }
     }
+
+
 }

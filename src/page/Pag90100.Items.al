@@ -150,10 +150,33 @@ Page 75200 Items
                 field(Order_Tracking_Policy; Rec."Order Tracking Policy") { ApplicationArea = All; }
                 field(Critical; Rec."Critical") { ApplicationArea = All; }
                 field(Common_Item_No_; Rec."Common Item No.") { ApplicationArea = All; }
-
+                field(PorIva; ReturnPorIva(Rec."VAT Prod. Posting Group")) { ApplicationArea = All; }
             }
 
         }
     }
+    trigger OnOpenPage()
+    var
+        Setup: Record "Inventory Setup";
+        ItemTemplate: Record "Item Templ.";
 
+    begin
+        Setup.Get();
+        Setup.TestField("ItemTemplate");
+        ItemTemplate.Get(Setup."ItemTemplate");
+        ItemTemplate.TestField("VAT Bus. Posting Gr. (Price)");
+        GrupoNegocio := ItemTemplate."VAT Bus. Posting Gr. (Price)";
+    end;
+
+    var
+        GrupoNegocio: Code[20];
+
+    local procedure ReturnPorIva(VatPostingGroup: Code[20]): Decimal
+    var
+        VatSetup: Record "VAT Posting Setup";
+    begin
+        if VatSetup.Get(GrupoNegocio, VatPostingGroup) then
+            exit(VatSetup."VAT %");
+        exit(0);
+    end;
 }

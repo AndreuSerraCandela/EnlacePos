@@ -79,6 +79,11 @@ page 75218 "Clientes Web Service"
                     ApplicationArea = All;
                     ToolTip = 'Especifica el código de descuento POS del cliente.';
                 }
+                field("Tipo Documento SrI"; Rec."Tipo documento")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Especifica el tipo de documento SrI del cliente.';
+                }
                 field("Source Counter"; Rec."Source Counter") { ApplicationArea = All; }
             }
         }

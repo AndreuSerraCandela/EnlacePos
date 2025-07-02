@@ -91,6 +91,12 @@ pageextension 75213 CustomerListExt extends "Customer List"
                 ToolTip = 'Specifies the discount percentage to be applied at point of sale (POS)';
                 Visible = true;
             }
+            field("Tipo Documento SrI"; Rec."Tipo Documento")
+            {
+                Caption = 'Tipo Documento SrI';
+                ApplicationArea = All;
+                ToolTip = 'Specifies the type of document SrI';
+            }
         }
     }
 }

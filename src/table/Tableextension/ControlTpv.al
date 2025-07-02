@@ -44,15 +44,15 @@ tableextension 75207 ControlTpvExt extends "Control de TPV"
         }
         modify("Usuario apertura")
         {
-            TableRelation = Employee."No." where("Usuario TPV" = const(true));
+            TableRelation = Cajeros."Id";
         }
         modify("Usuario cierre")
         {
-            TableRelation = Employee."No." where("Usuario TPV" = const(true));
+            TableRelation = Cajeros."Id";
         }
         modify("Usuario reapertura")
         {
-            TableRelation = Employee."No." where("Usuario TPV" = const(true));
+            TableRelation = Cajeros."Id";
         }
     }
 }

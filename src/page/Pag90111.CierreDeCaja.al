@@ -15,7 +15,7 @@ page 75211 "CierreDeCaja"
         {
             repeater(General)
             {
-                field(No; Rec."Id Replicacion")
+                field(No; Rec."Id Replicacion2")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Especifica el ID del cierre de caja';
@@ -76,7 +76,7 @@ page 75211 "CierreDeCaja"
                     ApplicationArea = All;
                     ToolTip = 'Especifica el estado actual del cierre de caja';
                 }
-                field(idApertura; Rec."Id Replicacion")
+                field(idApertura; Rec."Id Replicacion2")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Especifica el ID de la apertura relacionada';
@@ -102,7 +102,7 @@ page 75211 "CierreDeCaja"
                     CierreDetalle: Record CierreDeCajaDetalle;
                     CierreDetallePage: Page CierreDeCajaDetalle;
                 begin
-                    CierreDetalle.SetRange(idCierre, Rec."Id Replicacion");
+                    CierreDetalle.SetRange(idCierre, Rec."Id Replicacion2");
                     CierreDetallePage.SetTableView(CierreDetalle);
                     CierreDetallePage.Run();
                 end;
