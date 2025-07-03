@@ -3,11 +3,11 @@
     "configurations": [
         
              {
-            "name": "Santillana_Ecuador_Dev",
+            "name": "Santillana_Ecuador_Test",
             "request": "launch",
             "type": "al",
             "environmentType": "Sandbox",
-            "environmentName": "Santillana_Ecuador_Dev",
+            "environmentName": "Santillana_Ecuador_Test",
             "server": "https://businesscentral.dynamics.com",
             "authentication": "AAD",
             "startupObjectId": 22,
