@@ -100,6 +100,10 @@ page 75214 "Caja Card"
                 {
                     ApplicationArea = All;
                 }
+                field("Numerador abonos NFC"; Rec."No. Serie NCF Abonos")
+                {
+                    ApplicationArea = All;
+                }
             }
         }
     }

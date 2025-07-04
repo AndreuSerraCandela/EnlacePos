@@ -413,6 +413,7 @@ codeunit 75200 Importaciones
         Deleted: Boolean;
         PostCode: Record "Post Code";
         TipoSrl: Text;
+        Direccion: Record "Ship-to Address";
     begin
 
         JCustToken.ReadFrom(Data);
@@ -583,9 +584,24 @@ codeunit 75200 Importaciones
                 Cust."No. Series" := SalesSetup."Customer Nos.";
                 Cust."No." := NoSeriesMgt.GetNextNo(SalesSetup."Customer Nos.", Today, true);
                 Cust."Bill-to Customer No." := Cust."No.";
-                Cust.Insert();
-                CustT."No." := Cust."No.";
 
+                CustT."No." := Cust."No.";
+                Direccion.Init();
+                Direccion."Customer No." := Cust."No.";
+                Direccion.Code := '01';
+                Direccion.Address := Cust.Address;
+                Direccion."Address 2" := Cust."Address 2";
+                Direccion.City := Cust.City;
+                Direccion.Contact := Cust.Contact;
+                Direccion.Name := Cust.Name;
+                Direccion."Name 2" := Cust."Name 2";
+                Direccion.City := Cust.City;
+                Direccion.County := Cust.County;
+                Direccion."Country/Region Code" := Cust."Country/Region Code";
+                Direccion."Post Code" := Cust."Post Code";
+                Direccion.Insert();
+                CustT."Ship-to Code" := Direccion."Code";
+                Cust.Insert();
                 SalesSetup.TestField(CustomerTemplate);
                 CustomerTempl.Get(SalesSetup.CustomerTemplate);
                 CustomerTemplMgt.ApplyCustomerTemplate(Cust, CustomerTempl);
@@ -665,6 +681,11 @@ codeunit 75200 Importaciones
         TipoDetalle: Text;
         Customer: Record Customer;
         NoSeriesLine: Record "No. Series Line";
+        NoSereiReg: Text;
+        Factura: Record "Sales Header";
+        FacturaR: Record "Sales Invoice Header";
+        Num: Code[20];
+        Direccion: Record "Ship-to Address";
     begin
         JPedidoToken.ReadFrom(Data);
         JPedidoObj := JPedidoToken.AsObject();
@@ -679,7 +700,10 @@ codeunit 75200 Importaciones
                 'Invoice', 'Factura':
                     SalesHeaderT."Document Type" := SalesHeaderT."Document Type"::Invoice;
                 'Credit Memo', 'Nota de Crédito', 'Abono', 'Credit Note':
-                    SalesHeaderT."Document Type" := SalesHeaderT."Document Type"::"Credit Memo";
+                    begin
+                        SalesHeaderT."Document Type" := SalesHeaderT."Document Type"::"Credit Memo";
+                        NoSereiReg := GetValueAsText(JToken, 'Applies_to_Doc_No');
+                    end;
             end;
             SalesHeaderT."Sell-to Customer No." := GetValueAsText(JToken, 'Sell_to_Customer_No_');
             if Customer.Get(SalesHeaderT."Sell-to Customer No.") then begin
@@ -698,7 +722,15 @@ codeunit 75200 Importaciones
                     SalesHeaderT.Tienda := Caja."Tienda";
                     SalesHeaderT."Venta TPV" := true;
                     SalesHeaderT.Tpv := Caja."Id TPV";
+                    SalesHeaderT."No. Series" := CAJA."No. serie Facturas";
+                    SalesHeaderT."Posting No. Series" := Caja."No. serie facturas Reg.";
                     SalesHeaderT."No. Serie NCF Facturas" := Caja."No. Series NFC Facturas";
+                    IF SalesHeaderT."Document Type" = SalesHeaderT."Document Type"::"Credit Memo" then begin
+                        SalesHeaderT."No. Series" := Caja."No. serie notas credito";
+                        SalesHeaderT."Posting No. Series" := Caja."No. serie notas credito Reg.";
+                        SalesHeaderT."No. Serie NCF Abonos" := Caja."No. Serie NCF Abonos";
+                    end;
+
                     NoSeriesLine.Reset;
                     NoSeriesLine.SetRange("Series Code", SalesHeaderT."No. Serie NCF Facturas");
                     NoSeriesLine.SetRange(Open, true);
@@ -714,7 +746,7 @@ codeunit 75200 Importaciones
                     if SalesHeaderT."Document Type" = SalesHeaderT."Document Type"::"Credit Memo" then
                         SalesHeaderT."No. Serie NCF Abonos" := Caja."No. Serie NCF Abonos";
                 end;
-                If Tienda.Get(SalesHeaderT.TPV) then
+                If Tienda.Get(SalesHeaderT.Tienda) then
                     SalesHeaderT."Location Code" := Tienda."Cod. Almacen";
             end;
             if Turnos.FindFirst then
@@ -794,7 +826,7 @@ codeunit 75200 Importaciones
             //SalesHeaderT."No. Printed":=GetValueAsText(JToken, 'No__Printed');
             SalesHeaderT."On Hold" := GetValueAsText(JToken, 'On_Hold');
             //SalesHeaderT."Applies-to Doc. Type":=GetValueAsText(JToken, 'Applies_to_Doc__Type');
-            SalesHeaderT."Applies-to Doc. No." := GetValueAsText(JToken, 'Applies_to_Doc__No_');
+            SalesHeaderT."Applies-to Doc. No." := GetValueAsText(JToken, 'Applies_to_Doc_No');
             SalesHeaderT."Bal. Account No." := GetValueAsText(JToken, 'Bal__Account_No_');
             // SalesHeaderT."Ship":=GetValueAsText(JToken, 'Ship');
             // SalesHeaderT."Invoice":=GetValueAsText(JToken, 'Invoice');
@@ -840,8 +872,6 @@ codeunit 75200 Importaciones
             SalesHeaderT."Payment Method Code" := GetValueAsText(JToken, 'Payment_Method_Code');
             SalesHeaderT."Shipping Agent Code" := GetValueAsText(JToken, 'Shipping_Agent_Code');
             //SalesHeaderT."Package Tracking No." := GetValueAsText(JToken, 'Package_Tracking_No_');
-            SalesHeaderT."No. Series" := GetValueAsText(JToken, 'No__Series');
-            SalesHeaderT."Posting No. Series" := GetValueAsText(JToken, 'Posting_No__Series');
             SalesHeaderT."Shipping No. Series" := GetValueAsText(JToken, 'Shipping_No__Series');
             SalesHeaderT."Tax Area Code" := GetValueAsText(JToken, 'Tax_Area_Code');
             // SalesHeaderT."Tax Liable":=GetValueAsText(JToken, 'Tax_Liable');
@@ -918,9 +948,59 @@ codeunit 75200 Importaciones
             SalesHeaderT."Invoice Discount Value" := GetValueAsDecimal(JToken, 'Dto');
             SalesHeaderT."Invoice Discount Amount" := GetValueAsDecimal(JToken, 'importeDto');
             If SalesHeaderT."No." <> '' Then Error('Falta implementar la mod. de un pedido');
+
+            Caja.SetRange("Id TPV", SalesHeaderT.TPV);
+            if Caja.FindFirst() then begin
+                SalesHeaderT.Tienda := Caja."Tienda";
+                SalesHeaderT."Venta TPV" := true;
+                SalesHeaderT.Tpv := Caja."Id TPV";
+                SalesHeaderT."No. Series" := CAJA."No. serie Facturas";
+                SalesHeaderT."Posting No. Series" := Caja."No. serie facturas Reg.";
+                SalesHeaderT."No. Serie NCF Facturas" := Caja."No. Series NFC Facturas";
+                IF SalesHeaderT."Document Type" = SalesHeaderT."Document Type"::"Credit Memo" then begin
+                    SalesHeaderT."No. Series" := Caja."No. serie notas credito";
+                    SalesHeaderT."Posting No. Series" := Caja."No. serie notas credito Reg.";
+                    SalesHeaderT."No. Serie NCF Abonos" := Caja."No. Serie NCF Abonos";
+                end;
+
+                NoSeriesLine.Reset;
+                NoSeriesLine.SetRange("Series Code", SalesHeaderT."No. Serie NCF Facturas");
+                NoSeriesLine.SetRange(Open, true);
+                NoSeriesLine.FindLast;
+                if not NoSeriesLine."Facturacion electronica" then  //$021
+                    NoSeriesLine.TestField("No. Autorizacion");
+                NoSeriesLine.TestField(Establecimiento);
+                NoSeriesLine.TestField("Punto de Emision");
+                SalesHeaderT."Establecimiento Factura" := NoSeriesLine.Establecimiento;
+                SalesHeaderT."Punto de Emision Factura" := NoSeriesLine."Punto de Emision";
+                SalesHeaderT."No. Autorizacion Comprobante" := NoSeriesLine."No. Autorizacion";
+                SalesHeaderT."No. Serie NCF Remision" := Caja."No. Series NFC Remision";
+                if SalesHeaderT."Document Type" = SalesHeaderT."Document Type"::"Credit Memo" then
+                    SalesHeaderT."No. Serie NCF Abonos" := Caja."No. Serie NCF Abonos";
+            end;
             Pedido := SalesHeaderT;
-            Pedido."No." := '';
-            Pedido.Insert(true);
+            Pedido."No. Series" := Caja."No. serie Facturas";
+            If Pedido."Document Type" = Pedido."Document Type"::"Credit Memo" Then
+                Pedido."No. Series" := Caja."No. serie notas credito";
+            If Pedido."Ship-to Code" = '' Then begin
+                Pedido."Ship-to Code" := '01';
+                Direccion.Code := '01';
+                Direccion."Customer No." := Pedido."Bill-to Customer No.";
+                Direccion.Address := Pedido."Bill-to Address";
+                Direccion."Name 2" := Pedido."Bill-to Name 2";
+                Direccion."Address 2" := Pedido."Bill-to Address 2";
+                Direccion.City := Pedido."Bill-to City";
+                Direccion.Contact := Pedido."Bill-to Contact";
+                Direccion."Post Code" := Pedido."Bill-to Post Code";
+                Direccion.County := Pedido."Bill-to County";
+                Direccion."Country/Region Code" := Pedido."Bill-to Country/Region Code";
+                If Direccion.Insert() Then;
+
+            end;
+            Num := NoSeriesMgt.GetNextNo(Pedido."No. Series", 0D, true);
+            Pedido."No." := Num;
+            If StrLen(Pedido."No.") <> 9 then Error('El número de factura %3 no es válido, revise la serie %1 de la caja %2', Pedido."No. Series", Pedido.TPV, Pedido."No.");
+            Pedido.Insert;
             Pedido.Validate("Sell-to Customer No.");
             If SalesHeaderT.Colegio <> '' then
                 Pedido.Colegio := SalesHeaderT.Colegio;
@@ -1047,6 +1127,28 @@ codeunit 75200 Importaciones
                 Pedido."No. Detalle" := SalesHeaderT."No. Detalle";
             if SalesHeaderT."Campaign No." <> '' then
                 Pedido."Campaign No." := SalesHeaderT."Campaign No.";
+            Pedido := SalesHeaderT;
+
+            Pedido.Validate("No. Comprobante Fiscal", Num);
+            if Pedido."Document Type" = Pedido."Document Type"::"Credit Memo" then begin
+                Pedido.Validate("No. Comprobante Fiscal Rel.", NoSereiReg);
+                If Factura.Get(Factura."Document Type"::Invoice, NoSereiReg) then begin
+                    Pedido."Establecimiento Fact. Rel" := Factura."Establecimiento Factura";
+                    Pedido."Punto de Emision Fact. Rel." := Factura."Punto de Emision Factura";
+                    Pedido."No. Comprobante Fiscal Rel." := Factura."No. Comprobante Fiscal";
+                end else begin
+                    FacturaR.SetRange("Pre-Assigned No.", NoSereiReg);
+                    if FacturaR.FindFirst() then begin
+                        Pedido."Establecimiento Fact. Rel" := FacturaR."Establecimiento Factura";
+                        Pedido."Punto de Emision Fact. Rel." := FacturaR."Punto de Emision Factura";
+                        Pedido."No. Comprobante Fiscal Rel." := FacturaR."No. Comprobante Fiscal";
+                    end;
+                end;
+            end;
+            Pedido."No. Series" := Caja."No. serie Facturas";
+            If Pedido."Document Type" = Pedido."Document Type"::"Credit Memo" Then
+                Pedido."No. Series" := Caja."No. serie notas credito";
+            Pedido."No." := Num;
             Pedido.Modify();
             SalesHeaderT."No." := Pedido."No.";
 
@@ -1327,7 +1429,7 @@ codeunit 75200 Importaciones
                 FacturasL.Validate("Unit Price", SalesLineT."Unit Price");
                 FacturasL.Validate("Line Discount %", SalesLineT."Line Discount %");
                 SalesHeader.Get(SalesLineT."Document Type", SalesLineT."Document No.");
-                If Tienda.Get(SalesHeader.TPV) then
+                If Tienda.Get(SalesHeader.Tienda) then
                     FacturasL."Location Code" := Tienda."Cod. Almacen";
                 FacturasL.Modify();
 
