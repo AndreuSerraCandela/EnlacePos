@@ -3,11 +3,11 @@
     "configurations": [
         
              {
-            "name": "Santillana_Ecuador_Backup",
+            "name": "Santillana_Ecuador_Test",
             "request": "launch",
             "type": "al",
             "environmentType": "Sandbox",
-            "environmentName": "Santillana_Ecuador_Backup",
+            "environmentName": "Santillana_Ecuador_Test",
             "server": "https://businesscentral.dynamics.com",
             "authentication": "AAD",
             "startupObjectId": 22,
@@ -19,11 +19,11 @@
             "schemaUpdateMode": "ForceSync"
         },
         {
-            "name": "Santillana_Ecuador",
+            "name": "Santillana_Ecuador_Backup",
             "request": "launch",
             "type": "al",
             "environmentType": "Sandbox",
-            "environmentName": "Santillana_Ecuador",
+            "environmentName": "Santillana_Ecuador_Backup",
             "server": "https://businesscentral.dynamics.com",
             "authentication": "AAD",
             "startupObjectId": 22,

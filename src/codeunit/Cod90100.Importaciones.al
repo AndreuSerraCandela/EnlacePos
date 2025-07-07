@@ -17,7 +17,8 @@ codeunit 75200 Importaciones
     tabledata 75207 = rimd,
     tabledata 75250 = rimd,
     tabledata 75200 = rimd,
-    tabledata 76029 = rimd;
+    tabledata 76029 = rimd,
+    tabledata 75209 = rimd;
     /// <summary>
     /// Ping.
     /// Función de verificación de disponibilidad del servicio web.
@@ -681,11 +682,14 @@ codeunit 75200 Importaciones
         TipoDetalle: Text;
         Customer: Record Customer;
         NoSeriesLine: Record "No. Series Line";
+        NoSeries: Record "No. Series";
         NoSereiReg: Text;
         Factura: Record "Sales Header";
         FacturaR: Record "Sales Invoice Header";
         Num: Code[20];
+        NumComprobante: Code[20];
         Direccion: Record "Ship-to Address";
+        BorrarAbono: Boolean;
     begin
         JPedidoToken.ReadFrom(Data);
         JPedidoObj := JPedidoToken.AsObject();
@@ -735,7 +739,8 @@ codeunit 75200 Importaciones
                     NoSeriesLine.SetRange("Series Code", SalesHeaderT."No. Serie NCF Facturas");
                     NoSeriesLine.SetRange(Open, true);
                     NoSeriesLine.FindLast;
-                    if not NoSeriesLine."Facturacion electronica" then  //$021
+                    NoSeries.Get(NoSeriesLine."Series Code");
+                    if not NoSeries."Facturacion electronica" then  //$021
                         NoSeriesLine.TestField("No. Autorizacion");
                     NoSeriesLine.TestField(Establecimiento);
                     NoSeriesLine.TestField("Punto de Emision");
@@ -761,12 +766,26 @@ codeunit 75200 Importaciones
             SalesHeaderT."Bill-to City" := GetValueAsText(JToken, 'Bill_to_City');
             SalesHeaderT."Bill-to Contact" := GetValueAsText(JToken, 'Bill_to_Contact');
             SalesHeaderT."Sell-to Customer No." := GetValueAsText(JToken, 'Sell_to_Customer_No_');
+            if SalesHeaderT."Sell-to Customer No." = '' then
+                SalesHeaderT."Sell-to Customer No." := SalesHeaderT."Bill-to Customer No.";
             SalesHeaderT."Sell-to Customer Name" := GetValueAsText(JToken, 'Sell_to_Customer_Name');
+            if SalesHeaderT."Sell-to Customer Name" = '' then
+                SalesHeaderT."Sell-to Customer Name" := SalesHeaderT."Bill-to Name";
             SalesHeaderT."Sell-to Customer Name 2" := GetValueAsText(JToken, 'Sell_to_Customer_Name_2');
+            if SalesHeaderT."Sell-to Customer Name 2" = '' then
+                SalesHeaderT."Sell-to Customer Name 2" := SalesHeaderT."Bill-to Name 2";
             SalesHeaderT."Sell-to Address" := GetValueAsText(JToken, 'Sell_to_Address');
+            if SalesHeaderT."Sell-to Address" = '' then
+                SalesHeaderT."Sell-to Address" := SalesHeaderT."Bill-to Address";
             SalesHeaderT."Sell-to Address 2" := GetValueAsText(JToken, 'Sell_to_Address_2');
+            if SalesHeaderT."Sell-to Address 2" = '' then
+                SalesHeaderT."Sell-to Address 2" := SalesHeaderT."Bill-to Address 2";
             SalesHeaderT."Sell-to City" := GetValueAsText(JToken, 'Sell_to_City');
+            if SalesHeaderT."Sell-to City" = '' then
+                SalesHeaderT."Sell-to City" := SalesHeaderT."Bill-to City";
             SalesHeaderT."Sell-to Contact" := GetValueAsText(JToken, 'Sell_to_Contact');
+            if SalesHeaderT."Sell-to Contact" = '' then
+                SalesHeaderT."Sell-to Contact" := SalesHeaderT."Bill-to Contact";
             SalesHeaderT."Your Reference" := GetValueAsText(JToken, 'Your_Reference');
             SalesHeaderT."Ship-to Code" := GetValueAsText(JToken, 'Ship_to_Code');
             SalesHeaderT."Ship-to Name" := GetValueAsText(JToken, 'Ship_to_Name');
@@ -793,8 +812,6 @@ codeunit 75200 Importaciones
             If Evaluate(SalesHeaderT."Posting Date", GetValueAsText(JToken, 'Posting_Date')) Then;
             If Evaluate(SalesHeaderT."Shipment Date", GetValueAsText(JToken, 'Shipment_Date')) Then;
             //Todas las fechas
-            if Evaluate(SalesHeaderT."Due Date", GetValueAsText(JToken, 'Due_Date')) Then;
-            if Evaluate(SalesHeaderT."Document Date", GetValueAsText(JToken, 'Document_Date')) Then;
             If Evaluate(SalesHeaderT."VAT Reporting Date", GetValueAsText(JToken, 'Posting_Date')) Then;
 
             // If Evaluate(SalesHeaderT."Quote Accepted Date",GetValueAsText(JToken,'Quote Accepted Date')) Then;
@@ -806,7 +823,6 @@ codeunit 75200 Importaciones
             if SalesHeaderT."Payment Method Code" = '' then
                 SalesHeaderT."Payment Terms Code" := GetValueAsText(JToken, 'Payment_Terms_Id');
 
-            If Evaluate(SalesHeaderT."Due Date", GetValueAsText(JToken, 'Due_Date')) Then;
             SalesHeaderT."Payment Discount %" := GetValueAsDecimal(JToken, 'Payment_Discount__');
             //SalesHeaderT."Pmt. Discount Date":=GetValueAsText(JToken, 'Pmt__Discount_Date');
             SalesHeaderT."Shipment Method Code" := GetValueAsText(JToken, 'Shipment_Method_Code');
@@ -847,12 +863,6 @@ codeunit 75200 Importaciones
             SalesHeaderT."Transaction Type" := GetValueAsText(JToken, 'Transaction_Type');
             SalesHeaderT."Transport Method" := GetValueAsText(JToken, 'Transport_Method');
             SalesHeaderT."VAT Country/Region Code" := GetValueAsText(JToken, 'VAT_Country_Region_Code');
-            SalesHeaderT."Sell-to Customer Name" := GetValueAsText(JToken, 'Sell_to_Customer_Name');
-            SalesHeaderT."Sell-to Customer Name 2" := GetValueAsText(JToken, 'Sell_to_Customer_Name_2');
-            SalesHeaderT."Sell-to Address" := GetValueAsText(JToken, 'Sell_to_Address');
-            SalesHeaderT."Sell-to Address 2" := GetValueAsText(JToken, 'Sell_to_Address_2');
-            SalesHeaderT."Sell-to City" := GetValueAsText(JToken, 'Sell_to_City');
-            SalesHeaderT."Sell-to Contact" := GetValueAsText(JToken, 'Sell_to_Contact');
             SalesHeaderT."Bill-to Post Code" := GetValueAsText(JToken, 'Bill_to_Post_Code');
             SalesHeaderT."Bill-to County" := GetValueAsText(JToken, 'Bill_to_County');
             SalesHeaderT."Bill-to Country/Region Code" := GetValueAsText(JToken, 'Bill_to_Country_Region_Code');
@@ -918,8 +928,6 @@ codeunit 75200 Importaciones
             SalesHeaderT."Sell-to Contact No." := GetValueAsText(JToken, 'Sell_to_Contact_No_');
             SalesHeaderT."Bill-to Contact No." := GetValueAsText(JToken, 'Bill_to_Contact_No_');
             SalesHeaderT."Opportunity No." := GetValueAsText(JToken, 'Opportunity_No_');
-            SalesHeaderT."Sell-to Customer Templ. Code" := GetValueAsText(JToken, 'Sell_to_Customer_Templ__Code');
-            SalesHeaderT."Bill-to Customer Templ. Code" := GetValueAsText(JToken, 'Bill_to_Customer_Templ__Code');
             SalesHeaderT."Responsibility Center" := GetValueAsText(JToken, 'Responsibility_Center');
             // SalesHeaderT."Shipping Advice":=GetValueAsText(JToken, 'Shipping_Advice');
             // SalesHeaderT."Posting from Whse. Ref.":=GetValueAsText(JToken, 'Posting_from_Whse__Ref_');
@@ -967,8 +975,10 @@ codeunit 75200 Importaciones
                 NoSeriesLine.SetRange("Series Code", SalesHeaderT."No. Serie NCF Facturas");
                 NoSeriesLine.SetRange(Open, true);
                 NoSeriesLine.FindLast;
-                if not NoSeriesLine."Facturacion electronica" then  //$021
-                    NoSeriesLine.TestField("No. Autorizacion");
+                NoSeries.Get(NoSeriesLine."Series Code");
+                if not NoSeries."Facturacion electronica" then  //$021
+                    If NoSeriesLine."No. Autorizacion" = '' then
+                        Error('No se puede importar la factura  no tiene autorizacion para la serie %1', NoSeriesLine."Series Code");
                 NoSeriesLine.TestField(Establecimiento);
                 NoSeriesLine.TestField("Punto de Emision");
                 SalesHeaderT."Establecimiento Factura" := NoSeriesLine.Establecimiento;
@@ -999,7 +1009,7 @@ codeunit 75200 Importaciones
             end;
             Num := NoSeriesMgt.GetNextNo(Pedido."No. Series", 0D, true);
             Pedido."No." := Num;
-            If StrLen(Pedido."No.") <> 9 then Error('El número de factura %3 no es válido, revise la serie %1 de la caja %2', Pedido."No. Series", Pedido.TPV, Pedido."No.");
+            //If StrLen(Pedido."No.") <> 9 then Error('El número de factura %3 no es válido, revise la serie %1 de la caja %2', Pedido."No. Series", Pedido.TPV, Pedido."No.");
             Pedido.Insert;
             Pedido.Validate("Sell-to Customer No.");
             If SalesHeaderT.Colegio <> '' then
@@ -1052,6 +1062,7 @@ codeunit 75200 Importaciones
                 Pedido.Validate("Payment Method Code", SalesHeaderT."Payment Method Code");
             if SalesHeaderT."Posting Date" <> 0D Then
                 Pedido.Validate("Posting Date", SalesHeaderT."Posting Date");
+            Pedido."Due Date" := Pedido."Posting Date";
             If SalesHeadert."Order Date" <> 0D Then
                 Pedido."Order Date" := SalesHeaderT."Order Date";
             if SalesHeaderT."Document Date" <> 0D Then
@@ -1128,14 +1139,29 @@ codeunit 75200 Importaciones
             if SalesHeaderT."Campaign No." <> '' then
                 Pedido."Campaign No." := SalesHeaderT."Campaign No.";
             Pedido := SalesHeaderT;
-
-            Pedido.Validate("No. Comprobante Fiscal", Num);
+            if not NoSeries."Facturacion electronica" then begin//$021
+                NumComprobante := NoSeriesMgt.GetNextNo(NoSeries.Code, 0D, true);
+                NoSeriesLine.Reset;
+                NoSeriesLine.SetRange("Series Code", NoSeries.Code);
+                NoSeriesLine.SetRange(Open, true);
+                NoSeriesLine.FindLast;
+                If NoSeriesLine."No. Autorizacion" = '' then
+                    Error('No se puede importar la factura  no tiene autorizacion para la serie %1 en la validacion 2', NoSeries."Code");
+                Pedido.Validate("No. Comprobante Fiscal", NumComprobante);
+            end;
             if Pedido."Document Type" = Pedido."Document Type"::"Credit Memo" then begin
-                Pedido.Validate("No. Comprobante Fiscal Rel.", NoSereiReg);
+                if NoSereiReg <> '' Then
+                    Pedido.Validate("No. Comprobante Fiscal Rel.", NoSereiReg);
                 If Factura.Get(Factura."Document Type"::Invoice, NoSereiReg) then begin
-                    Pedido."Establecimiento Fact. Rel" := Factura."Establecimiento Factura";
-                    Pedido."Punto de Emision Fact. Rel." := Factura."Punto de Emision Factura";
-                    Pedido."No. Comprobante Fiscal Rel." := Factura."No. Comprobante Fiscal";
+                    If Factura."No. Comprobante Fiscal" <> '' Then begin
+                        Pedido."Establecimiento Fact. Rel" := Factura."Establecimiento Factura";
+                        Pedido."Punto de Emision Fact. Rel." := Factura."Punto de Emision Factura";
+                        Pedido."No. Comprobante Fiscal Rel." := Factura."No. Comprobante Fiscal";
+                        if NoSeries."Facturacion electronica" then begin
+                            Factura.Delete();
+                            BorrarAbono := True
+                        end;
+                    end;
                 end else begin
                     FacturaR.SetRange("Pre-Assigned No.", NoSereiReg);
                     if FacturaR.FindFirst() then begin
@@ -1149,11 +1175,38 @@ codeunit 75200 Importaciones
             If Pedido."Document Type" = Pedido."Document Type"::"Credit Memo" Then
                 Pedido."No. Series" := Caja."No. serie notas credito";
             Pedido."No." := Num;
+            Customer.Get(Pedido."Sell-to Customer No.");
+            Pedido.Validate("Sell-to Customer No.", Customer."No.");
+            Pedido."Sell-to Customer Name" := Customer."Name";
+            Pedido."Sell-to Customer Name 2" := Customer."Name 2";
+            Pedido."Sell-to Address" := SalesHeaderT."Sell-to Address";
+            Pedido."Sell-to Address 2" := SalesHeaderT."Sell-to Address 2";
+            Pedido."Sell-to City" := SalesHeaderT."Sell-to City";
+            Pedido."Sell-to Contact" := SalesHeaderT."Sell-to Contact";
+            Pedido."Sell-to Phone No." := SalesHeaderT."Sell-to Phone No.";
+            Pedido."Sell-to E-Mail" := SalesHeaderT."Sell-to E-Mail";
+            Pedido."Sell-to Post Code" := SalesHeaderT."Sell-to Post Code";
+            Pedido."Sell-to County" := SalesHeaderT."Sell-to County";
+            Pedido."Sell-to Country/Region Code" := Customer."Country/Region Code";
+            Pedido."Bill-to Name" := Customer."Name";
+            Pedido."Bill-to Name 2" := Customer."Name 2";
+            Pedido."E-Mail" := SalesHeaderT."E-Mail";
+            Pedido."Bill-to Address" := SalesHeaderT."Bill-to Address";
+            Pedido."Bill-to Address 2" := SalesHeaderT."Bill-to Address 2";
+            Pedido."Bill-to City" := SalesHeaderT."Bill-to City";
+            Pedido."Bill-to Contact" := SalesHeaderT."Bill-to Contact";
+            Pedido."Bill-to Post Code" := SalesHeaderT."Bill-to Post Code";
+            Pedido."Bill-to County" := SalesHeaderT."Bill-to County";
+            Pedido."Bill-to Country/Region Code" := Customer."Country/Region Code";
+            Pedido."Customer Posting Group" := Customer."Customer Posting Group";
             Pedido.Modify();
             SalesHeaderT."No." := Pedido."No.";
 
         end;
         "No." := (SalesHeaderT."No.");
+        if BorrarAbono then begin
+            Pedido.Delete()
+        end;
 
     end;
     /// <summary>
@@ -3430,11 +3483,12 @@ codeunit 75200 Importaciones
     var
         RegistroBorrado: Record "Registro Borrado";
     begin
+        if Rec.IsTemporary() then exit;
         RegistroBorrado.RecordId := Rec.RecordId;
         RegistroBorrado."Table No." := Database::"BOM Component";
         RegistroBorrado."Table Caption" := 'BOM Component';
         RegistroBorrado.FechaHora := CurrentDateTime;
-        RegistroBorrado.Insert();
+        if RegistroBorrado.Insert() then;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"BOM Component", OnAfterInsertEvent, '', true, true)]
@@ -3468,11 +3522,12 @@ codeunit 75200 Importaciones
     var
         RegistroBorrado: Record "Registro Borrado";
     begin
+        if Rec.IsTemporary() then exit;
         RegistroBorrado.RecordId := Rec.RecordId;
         RegistroBorrado."Table No." := Database::"Item";
         RegistroBorrado."Table Caption" := 'Item';
         RegistroBorrado.FechaHora := CurrentDateTime;
-        RegistroBorrado.Insert();
+        if RegistroBorrado.Insert() then;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Item", OnAfterInsertEvent, '', true, true)]
@@ -3506,11 +3561,12 @@ codeunit 75200 Importaciones
     var
         RegistroBorrado: Record "Registro Borrado";
     begin
+        if Rec.IsTemporary() then exit;
         RegistroBorrado.RecordId := Rec.RecordId;
         RegistroBorrado."Table No." := Database::"Sales Price";
         RegistroBorrado."Table Caption" := 'Sales Price';
         RegistroBorrado.FechaHora := CurrentDateTime;
-        RegistroBorrado.Insert();
+        if RegistroBorrado.Insert() then;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Sales Price", OnAfterInsertEvent, '', true, true)]
@@ -3544,11 +3600,12 @@ codeunit 75200 Importaciones
     var
         RegistroBorrado: Record "Registro Borrado";
     begin
+        if Rec.IsTemporary() then exit;
         RegistroBorrado.RecordId := Rec.RecordId;
         RegistroBorrado."Table No." := Database::Customer;
         RegistroBorrado."Table Caption" := 'Customer';
         RegistroBorrado.FechaHora := CurrentDateTime;
-        RegistroBorrado.Insert();
+        if RegistroBorrado.Insert() then;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::Customer, OnAfterInsertEvent, '', true, true)]
@@ -3580,11 +3637,12 @@ codeunit 75200 Importaciones
     var
         RegistroBorrado: Record "Registro Borrado";
     begin
+        if Rec.IsTemporary() then exit;
         RegistroBorrado.RecordId := Rec.RecordId;
         RegistroBorrado."Table No." := Database::Contact;
         RegistroBorrado."Table Caption" := 'Contact';
         RegistroBorrado.FechaHora := CurrentDateTime;
-        RegistroBorrado.Insert();
+        if RegistroBorrado.Insert() then;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::Contact, OnAfterInsertEvent, '', true, true)]
@@ -3650,6 +3708,9 @@ codeunit 75200 Importaciones
                         ImportePagado := ImportePagado + Detallepago."Importe";
                         GenJnlLine."Bal. Account Type" := PaymentMethod."Tipo Cuenta pago";
                         GenJnlLine."Bal. Account No." := PaymentMethod."Cuenta pago";
+                        GenJnlLine."Shortcut Dimension 1 Code" := SalesInvoiceHeader."Shortcut Dimension 1 Code";
+                        GenJnlLine."Shortcut Dimension 2 Code" := SalesInvoiceHeader."Shortcut Dimension 2 Code";
+                        GenJnlline."Dimension Set ID" := SalesInvoiceHeader."Dimension Set ID";
                         GenJnlPostLine.Run(GenJnlLine);
                     Until Detallepago.Next() = 0;
 
@@ -3680,6 +3741,9 @@ codeunit 75200 Importaciones
                     GenJnlLine.Amount := Detallepago."Importe";
                     GenJnlLine."Bal. Account Type" := PaymentMethod."Tipo Cuenta pago";
                     GenJnlLine."Bal. Account No." := PaymentMethod."Cuenta pago";
+                    GenJnlLine."Shortcut Dimension 1 Code" := SalesInvoiceHeader."Shortcut Dimension 1 Code";
+                    GenJnlLine."Shortcut Dimension 2 Code" := SalesInvoiceHeader."Shortcut Dimension 2 Code";
+                    GenJnlLine."Dimension Set ID" := SalesInvoiceHeader."Dimension Set ID";
                     GenJnlPostLine.Run(GenJnlLine);
                 Until Detallepago.Next() = 0;
             end;

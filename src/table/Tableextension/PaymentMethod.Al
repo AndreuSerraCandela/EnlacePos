@@ -9,7 +9,7 @@ tableextension 75214 PaymentMethodExtension extends "Payment Method"
             DecimalPlaces = 0 : 2;
             trigger OnValidate()
             begin
-                TestField("Cuenta descuento");
+                // TestField("Cuenta descuento");
             end;
         }
         field(91101; Tpv; Boolean)
