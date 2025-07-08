@@ -714,6 +714,7 @@ codeunit 75200 Importaciones
         NumComprobante: Code[20];
         Direccion: Record "Ship-to Address";
         BorrarAbono: Boolean;
+        Colegio: Record Contact;
     begin
         JPedidoToken.ReadFrom(Data);
         JPedidoObj := JPedidoToken.AsObject();
@@ -1039,7 +1040,9 @@ codeunit 75200 Importaciones
             If SalesHeaderT.Colegio <> '' then
                 Pedido.Colegio := SalesHeaderT.Colegio;
             if SalesHeaderT."Cod. Colegio" <> '' then
-                Pedido."Cod. Colegio" := SalesHeaderT."Cod. Colegio";
+                Pedido.Validate("Cod. Colegio", SalesHeaderT."Cod. Colegio");
+            If Colegio.Get(SalesHeaderT.Colegio) then
+                Pedido."Nombre Colegio" := Colegio.Name;
             If SalesHeaderT.Tpv <> '' then
                 Pedido.TPV := SalesHeaderT.TPv;
             if SalesHeaderT."No. Serie NCF Abonos" <> '' then
@@ -1199,10 +1202,16 @@ codeunit 75200 Importaciones
             If Pedido."Document Type" = Pedido."Document Type"::"Credit Memo" Then
                 Pedido."No. Series" := Caja."No. serie notas credito";
             Pedido."No." := Num;
-            Customer.Get(Pedido."Sell-to Customer No.");
+            Customer.Get(Pedido."Bill-to Customer No.");
             Pedido.Validate("Sell-to Customer No.", Customer."No.");
-            Pedido."Sell-to Customer Name" := Customer."Name";
-            Pedido."Sell-to Customer Name 2" := Customer."Name 2";
+            if SalesHeaderT."Sell-to Customer Name" = '' then
+                Pedido."Sell-to Customer Name" := Customer."Name"
+            else
+                Pedido."Sell-to Customer Name" := SalesHeaderT."Sell-to Customer Name";
+            if SalesHeaderT."Sell-to Customer Name 2" = '' then
+                Pedido."Sell-to Customer Name 2" := Customer."Name 2"
+            else
+                Pedido."Sell-to Customer Name 2" := SalesHeaderT."Sell-to Customer Name 2";
             if SalesHeaderT."Sell-to Address" = '' then
                 Pedido."Sell-to Address" := Customer."Address"
             else
@@ -1239,20 +1248,49 @@ codeunit 75200 Importaciones
                 Pedido."Sell-to Country/Region Code" := Customer."Country/Region Code"
             else
                 Pedido."Sell-to Country/Region Code" := SalesHeaderT."Sell-to Country/Region Code";
-            Pedido."Bill-to Name" := Customer."Name";
-            Pedido."Bill-to Name 2" := Customer."Name 2";
+            if SalesHeaderT."Bill-to Name" = '' then
+                Pedido."Bill-to Name" := Customer."Name"
+            else
+                Pedido."Bill-to Name" := SalesHeaderT."Bill-to Name";
+            if SalesHeaderT."Bill-to Name 2" = '' then
+                Pedido."Bill-to Name 2" := Customer."Name 2"
+            else
+                Pedido."Bill-to Name 2" := SalesHeaderT."Bill-to Name 2";
             if SalesHeaderT."E-Mail" = '' then
                 Pedido."E-Mail" := Customer."E-Mail"
             else
                 Pedido."E-Mail" := SalesHeaderT."E-Mail";
-            Pedido."Bill-to Address" := SalesHeaderT."Bill-to Address";
-            Pedido."Bill-to Address 2" := SalesHeaderT."Bill-to Address 2";
-            Pedido."Bill-to City" := SalesHeaderT."Bill-to City";
-            Pedido."Bill-to Contact" := SalesHeaderT."Bill-to Contact";
-            Pedido."Bill-to Post Code" := SalesHeaderT."Bill-to Post Code";
-            Pedido."Bill-to County" := SalesHeaderT."Bill-to County";
-            Pedido."Bill-to Country/Region Code" := Customer."Country/Region Code";
+            if SalesHeaderT."Bill-to Address" = '' then
+                Pedido."Bill-to Address" := Customer."Address"
+            else
+                Pedido."Bill-to Address" := SalesHeaderT."Bill-to Address";
+            if SalesHeaderT."Bill-to Address 2" = '' then
+                Pedido."Bill-to Address 2" := Customer."Address 2"
+            else
+                Pedido."Bill-to Address 2" := SalesHeaderT."Bill-to Address 2";
+            if SalesHeaderT."Bill-to City" = '' then
+                Pedido."Bill-to City" := Customer."City"
+            else
+                Pedido."Bill-to City" := SalesHeaderT."Bill-to City";
+            if SalesHeaderT."Bill-to Contact" = '' then
+                Pedido."Bill-to Contact" := Customer."Contact"
+            else
+                Pedido."Bill-to Contact" := SalesHeaderT."Bill-to Contact";
+            if SalesHeaderT."Bill-to Post Code" = '' then
+                Pedido."Bill-to Post Code" := Customer."Post Code"
+            else
+                Pedido."Bill-to Post Code" := SalesHeaderT."Bill-to Post Code";
+            if SalesHeaderT."Bill-to County" = '' then
+                Pedido."Bill-to County" := Customer."County"
+            else
+                Pedido."Bill-to County" := SalesHeaderT."Bill-to County";
+            if SalesHeaderT."Bill-to Country/Region Code" = '' then
+                Pedido."Bill-to Country/Region Code" := Customer."Country/Region Code"
+            else
+                Pedido."Bill-to Country/Region Code" := SalesHeaderT."Bill-to Country/Region Code";
             Pedido."Customer Posting Group" := Customer."Customer Posting Group";
+            if Tienda.Get(Pedido.Tienda) then
+                Pedido."Location Code" := Tienda."Cod. Almacen";
             Pedido.Modify();
             SalesHeaderT."No." := Pedido."No.";
 

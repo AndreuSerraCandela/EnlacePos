@@ -19,6 +19,23 @@
             "schemaUpdateMode": "ForceSync"
         },
         {
+            "name": "Santillana_Ecuador_Dev",
+            "request": "launch",
+            "type": "al",
+            "environmentType": "Sandbox",
+            "environmentName": "Santillana_Ecuador_Dev",
+            "server": "https://businesscentral.dynamics.com",
+            "authentication": "AAD",
+            "startupObjectId": 22,
+            "startupObjectType": "Page",
+            "launchBrowser": true,
+            "enableLongRunningSqlStatements": true,
+            "enableSqlInformationDebugger": true,
+            "tenant": "7516bb18-282c-4e63-b1ec-795805f1e8fd",
+            "schemaUpdateMode": "ForceSync"
+        }
+        ,
+        {
             "name": "Santillana_Ecuador_Backup",
             "request": "launch",
             "type": "al",
