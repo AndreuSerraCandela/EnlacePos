@@ -13,6 +13,8 @@ codeunit 75200 Importaciones
     tabledata 37 = rimd,
     tabledata 38 = rimd,
     tabledata 39 = rimd,
+    tabledata 112 = rimd,
+    tabledata 114 = rimd,
     tabledata 75208 = rimd,
     tabledata 75207 = rimd,
     tabledata 75250 = rimd,
@@ -65,6 +67,19 @@ codeunit 75200 Importaciones
         // Para evitar problemas de permisos, llamamos a nuestro método especial
         UpdateTPVCueRecord(Rec, AverageTransactionValue, CurrentDateTime);
     end;
+
+    procedure UpdateEmailInvoice(var Customer: Record Customer; var SalesInvoiceHeader: Record "Sales Invoice Header")
+    begin
+        SalesInvoiceHeader."E-Mail" := Customer."E-Mail";
+        SalesInvoiceHeader.Modify();
+    end;
+
+    procedure UpdateEmailCrMemo(var Customer: Record Customer; var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
+    begin
+        SalesCrMemoHeader."E-Mail" := Customer."E-Mail";
+        SalesCrMemoHeader.Modify();
+    end;
+
 
     /// <summary>
     /// insertaProductos.
@@ -485,11 +500,20 @@ codeunit 75200 Importaciones
             TipoSrl := GetValueAsText(JToken, 'Tipo_Documento_SrI');
             Case TipoSRl Of
                 'Cedula':
-                    CustT."Tipo Documento" := CustT."Tipo Documento"::Cedula;
+                    begin
+                        CustT."Tipo Documento" := CustT."Tipo Documento"::Cedula;
+                        CustT."Type of Customer ID" := '05';
+                    end;
                 'Pasaporte':
-                    CustT."Tipo Documento" := CustT."Tipo Documento"::Pasaporte;
+                    begin
+                        CustT."Tipo Documento" := CustT."Tipo Documento"::Pasaporte;
+                        CustT."Type of Customer ID" := '06';
+                    end;
                 'RUC':
-                    CustT."Tipo Documento" := CustT."Tipo Documento"::RUC;
+                    begin
+                        CustT."Tipo Documento" := CustT."Tipo Documento"::RUC;
+                        CustT."Type of Customer ID" := '04';
+                    end;
             End;
             //Cust."Type of Customer ID" := GetValueAsText(JToken, 'Type_of_Contact');
             //CustT."Budgeted Amount":=GetValueAsText(JToken, 'Budgeted_Amount');
@@ -842,7 +866,7 @@ codeunit 75200 Importaciones
             //SalesHeaderT."No. Printed":=GetValueAsText(JToken, 'No__Printed');
             SalesHeaderT."On Hold" := GetValueAsText(JToken, 'On_Hold');
             //SalesHeaderT."Applies-to Doc. Type":=GetValueAsText(JToken, 'Applies_to_Doc__Type');
-            SalesHeaderT."Applies-to Doc. No." := GetValueAsText(JToken, 'Applies_to_Doc_No');
+            //SalesHeaderT."Applies-to Doc. No." := GetValueAsText(JToken, 'Applies_to_Doc_No');
             SalesHeaderT."Bal. Account No." := GetValueAsText(JToken, 'Bal__Account_No_');
             // SalesHeaderT."Ship":=GetValueAsText(JToken, 'Ship');
             // SalesHeaderT."Invoice":=GetValueAsText(JToken, 'Invoice');
@@ -1179,18 +1203,48 @@ codeunit 75200 Importaciones
             Pedido.Validate("Sell-to Customer No.", Customer."No.");
             Pedido."Sell-to Customer Name" := Customer."Name";
             Pedido."Sell-to Customer Name 2" := Customer."Name 2";
-            Pedido."Sell-to Address" := SalesHeaderT."Sell-to Address";
-            Pedido."Sell-to Address 2" := SalesHeaderT."Sell-to Address 2";
-            Pedido."Sell-to City" := SalesHeaderT."Sell-to City";
-            Pedido."Sell-to Contact" := SalesHeaderT."Sell-to Contact";
-            Pedido."Sell-to Phone No." := SalesHeaderT."Sell-to Phone No.";
-            Pedido."Sell-to E-Mail" := SalesHeaderT."Sell-to E-Mail";
-            Pedido."Sell-to Post Code" := SalesHeaderT."Sell-to Post Code";
-            Pedido."Sell-to County" := SalesHeaderT."Sell-to County";
-            Pedido."Sell-to Country/Region Code" := Customer."Country/Region Code";
+            if SalesHeaderT."Sell-to Address" = '' then
+                Pedido."Sell-to Address" := Customer."Address"
+            else
+                Pedido."Sell-to Address" := SalesHeaderT."Sell-to Address";
+            if SalesHeaderT."Sell-to Address 2" = '' then
+                Pedido."Sell-to Address 2" := Customer."Address 2"
+            else
+                Pedido."Sell-to Address 2" := SalesHeaderT."Sell-to Address 2";
+            if SalesHeaderT."Sell-to City" = '' then
+                Pedido."Sell-to City" := Customer."City"
+            else
+                Pedido."Sell-to City" := SalesHeaderT."Sell-to City";
+            if SalesHeaderT."Sell-to Contact" = '' then
+                Pedido."Sell-to Contact" := Customer."Contact"
+            else
+                Pedido."Sell-to Contact" := SalesHeaderT."Sell-to Contact";
+            if SalesHeaderT."Sell-to Phone No." = '' then
+                Pedido."Sell-to Phone No." := Customer."Phone No."
+            else
+                Pedido."Sell-to Phone No." := SalesHeaderT."Sell-to Phone No.";
+            if SalesHeaderT."Sell-to E-Mail" = '' then
+                Pedido."Sell-to E-Mail" := Customer."E-Mail"
+            else
+                Pedido."Sell-to E-Mail" := SalesHeaderT."Sell-to E-Mail";
+            if SalesHeaderT."Sell-to Post Code" = '' then
+                Pedido."Sell-to Post Code" := Customer."Post Code"
+            else
+                Pedido."Sell-to Post Code" := SalesHeaderT."Sell-to Post Code";
+            if SalesHeaderT."Sell-to County" = '' then
+                Pedido."Sell-to County" := Customer."County"
+            else
+                Pedido."Sell-to County" := SalesHeaderT."Sell-to County";
+            if SalesHeaderT."Sell-to Country/Region Code" = '' then
+                Pedido."Sell-to Country/Region Code" := Customer."Country/Region Code"
+            else
+                Pedido."Sell-to Country/Region Code" := SalesHeaderT."Sell-to Country/Region Code";
             Pedido."Bill-to Name" := Customer."Name";
             Pedido."Bill-to Name 2" := Customer."Name 2";
-            Pedido."E-Mail" := SalesHeaderT."E-Mail";
+            if SalesHeaderT."E-Mail" = '' then
+                Pedido."E-Mail" := Customer."E-Mail"
+            else
+                Pedido."E-Mail" := SalesHeaderT."E-Mail";
             Pedido."Bill-to Address" := SalesHeaderT."Bill-to Address";
             Pedido."Bill-to Address 2" := SalesHeaderT."Bill-to Address 2";
             Pedido."Bill-to City" := SalesHeaderT."Bill-to City";
@@ -1253,6 +1307,7 @@ codeunit 75200 Importaciones
         base: Decimal;
         rConf: Record "Config. Empresa";
         Tienda: Record Tiendas;
+        Item: Record Item;
     begin
         If not rConf.Get then begin
             rConf.Init();
@@ -1474,8 +1529,8 @@ codeunit 75200 Importaciones
             If FacturasL.Insert() Then begin
 
                 FacturasL.Validate("No.", SalesLineT."No.");
-                If SalesLineT."VAT Prod. Posting Group" <> ' ' then
-                    FacturasL.Validate("VAT Prod. Posting Group", SalesLineT."VAT Prod. Posting Group");
+                If Item.Get(SalesLineT."No.") then
+                    FacturasL.Validate("VAT Prod. Posting Group", Item."VAT Prod. Posting Group");
                 FacturasL.Description := SalesLineT.Description;
                 FacturasL."Description 2" := SalesLineT."Description 2";
                 FacturasL.Validate(Quantity, SalesLineT.Quantity);
