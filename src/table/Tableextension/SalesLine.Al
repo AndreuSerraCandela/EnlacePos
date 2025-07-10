@@ -50,6 +50,10 @@ tableextension 75209 SalesHeaderExtension extends "Sales Header"
             if ("Tipo Detalle" = const(GrupoCliente)) "Customer Price Group" else
             if ("Tipo Detalle" = const(Colegio)) Contact;
         }
+        field(50109; "Dto"; Decimal)
+        {
+            DataClassification = ToBeClassified;
+        }
     }
 }
 tableextension 75212 SalesInvoiceLineExtension extends "Sales Invoice header"

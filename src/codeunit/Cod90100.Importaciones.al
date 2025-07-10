@@ -744,6 +744,7 @@ codeunit 75200 Importaciones
             SalesHeaderT."No." := GetValueAsText(JToken, 'No_');
             SalesHeaderT.Colegio := GetValueAsText(JToken, 'Colegio');
             SalesHeaderT."Cod. Colegio" := SalesHeaderT.Colegio;
+            SalesHeaderT."Dto" := GetValueAsDecimal(JToken, 'Dto');
             SalesHeaderT.TPV := GetValueAsText(JToken, 'Caja');
             if SalesHeaderT.TPV <> '' Then begin
                 Caja.SetRange("Id TPV", SalesHeaderT.TPV);
@@ -1041,7 +1042,7 @@ codeunit 75200 Importaciones
                 Pedido.Colegio := SalesHeaderT.Colegio;
             if SalesHeaderT."Cod. Colegio" <> '' then
                 Pedido.Validate("Cod. Colegio", SalesHeaderT."Cod. Colegio");
-            If Colegio.Get(SalesHeaderT.Colegio) then
+            If Colegio.Get(Pedido."Cod. Colegio") then
                 Pedido."Nombre Colegio" := Colegio.Name;
             If SalesHeaderT.Tpv <> '' then
                 Pedido.TPV := SalesHeaderT.TPv;
@@ -1291,8 +1292,14 @@ codeunit 75200 Importaciones
             Pedido."Customer Posting Group" := Customer."Customer Posting Group";
             if Tienda.Get(Pedido.Tienda) then
                 Pedido."Location Code" := Tienda."Cod. Almacen";
+            Pedido."Hora creacion" := Time;
+            if SalesHeaderT."Dto" <> 0 then
+                Pedido."Dto" := SalesHeaderT."Dto";
+            if Colegio.Get(Pedido."Cod. Colegio") then
+                Pedido."Nombre Colegio" := Colegio.Name;
             Pedido.Modify();
             SalesHeaderT."No." := Pedido."No.";
+
 
         end;
         "No." := (SalesHeaderT."No.");
@@ -1366,11 +1373,12 @@ codeunit 75200 Importaciones
                 'Credit Memo', 'Nota de Crédito', 'Abono', 'Credit Note':
                     SalesLineT."Document Type" := SalesLineT."Document Type"::"Credit Memo";
             end;
+            SalesLineT."Document No." := GetValueAsText(JToken, 'Document_No_');
             If SalesHeader.Get(SalesLineT."Document Type", SalesLineT."Document No.") Then
                 SalesLineT."Sell-to Customer No." := SalesHeader."Sell-to Customer No."
             else
                 SalesLineT."Sell-to Customer No." := GetValueAsText(JToken, 'Sell_to_Customer_No_');
-            SalesLineT."Document No." := GetValueAsText(JToken, 'Document_No_');
+
             //Linea += 10000;
             SalesLineT."Line No." := GetValueAsInteger(JToken, 'Line_No_');
             Texto := GetValueAsText(JToken, 'Type');
@@ -1405,7 +1413,8 @@ codeunit 75200 Importaciones
             // SalesLineT."Unit Cost (LCY)":=GetValueAsText(JToken, 'Unit_Cost_LCY');
             // SalesLineT."VAT %":=GetValueAsText(JToken, 'VAT__');
             SalesLineT."Line Discount %" := GetValueAsDecimal(JToken, 'Line_Discount_');
-            SalesLineT."Line Discount Amount" := GetValueAsDecimal(JToken, 'Line_Discount_Amount');
+            SalesLineT."Line Discount %" += SalesHeader."Dto";
+            //SalesLineT."Line Discount Amount" := GetValueAsDecimal(JToken, 'Line_Discount_Amount');
             // SalesLineT."Amount":=GetValueAsText(JToken, 'Amount');
             // SalesLineT."Amount Including VAT":=GetValueAsText(JToken, 'Amount_Including_VAT');
             // SalesLineT."Allow Invoice Disc.":=GetValueAsText(JToken, 'Allow_Invoice_Disc_');
