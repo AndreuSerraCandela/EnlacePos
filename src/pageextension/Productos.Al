@@ -57,7 +57,7 @@ pageextension 75219 Kits extends "Assembly BOM"
     {
         addlast(control1)
         {
-            field("Source Counter"; Rec."Source Counter")
+            field("Source Counter"; Rec."Source Counter2")
             {
                 Caption = 'Source Counter';
                 Editable = false;

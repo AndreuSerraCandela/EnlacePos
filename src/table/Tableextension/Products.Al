@@ -55,12 +55,21 @@ tableextension 75222 "Kits" extends "BOM Component"
     {
         field(50101; "Source Counter"; Integer)
         {
+            ObsoleteState = Pending;
             Caption = 'Source Counter';
+        }
+        field(75216; "Source Counter2"; Integer)
+        {
+            Caption = 'Source Counter2';
         }
     }
     keys
     {
         key(PS; "Source Counter")
+        {
+
+        }
+        key(PS2; "Source Counter2")
         {
 
         }

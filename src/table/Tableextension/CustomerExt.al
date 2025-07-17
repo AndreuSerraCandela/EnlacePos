@@ -13,7 +13,13 @@ tableextension 75211 CustomerExt extends Customer
         }
         field(75212; "Source Counter"; Integer)
         {
+            ObsoleteState = Pending;
             Caption = 'Source Counter';
+            DataClassification = CustomerContent;
+        }
+        field(75213; "Source Counter2"; Integer)
+        {
+            Caption = 'Source Counter2';
             DataClassification = CustomerContent;
         }
 
@@ -21,6 +27,10 @@ tableextension 75211 CustomerExt extends Customer
     keys
     {
         key(PS; "Source Counter")
+        {
+
+        }
+        key(PS2; "Source Counter2")
         {
 
         }

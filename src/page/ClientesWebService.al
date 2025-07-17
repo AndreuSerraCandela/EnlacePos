@@ -84,7 +84,7 @@ page 75218 "Clientes Web Service"
                     ApplicationArea = All;
                     ToolTip = 'Especifica el tipo de documento SrI del cliente.';
                 }
-                field("Source Counter"; Rec."Source Counter") { ApplicationArea = All; }
+                field("Source Counter"; Rec."Source Counter2") { ApplicationArea = All; }
             }
         }
     }

@@ -3085,14 +3085,24 @@ codeunit 75200 Importaciones
         Contact: Record Contact;
         BomComponent: Record "BOM Component";
     begin
-        SalesPrice.SetRange("Source Counter", 0);
+        SalesPrice.SetRange("Source Counter2", 0);
+        If SalesPrice.FindSet() then
+            repeat
+                SalesPrice."Source Counter2" := SalesPrice."Source Counter";
+                SalesPrice.Modify();
+            until SalesPrice.Next() = 0;
         If SalesPrice.FindSet() then begin
-            SalesPrice."Source Counter" := 1;
+            SalesPrice."Source Counter2" := 1;
             SalesPrice.Modify();
         end;
-        Customer.SetRange("Source Counter", 0);
+        Customer.SetRange("Source Counter2", 0);
+        If Customer.FindSet() then
+            repeat
+                Customer."Source Counter2" := Customer."Source Counter";
+                Customer.Modify();
+            until Customer.Next() = 0;
         If Customer.FindSet() then begin
-            Customer."Source Counter" := 1;
+            Customer."Source Counter2" := 1;
             Customer.Modify();
         end;
         Item.SetRange("Source Counter2", 0);
@@ -3100,14 +3110,24 @@ codeunit 75200 Importaciones
             Item."Source Counter2" := 1;
             Item.Modify();
         end;
-        BomComponent.SetRange("Source Counter", 0);
+        BomComponent.SetRange("Source Counter2", 0);
+        If BomComponent.FindSet() then
+            repeat
+                BomComponent."Source Counter2" := BomComponent."Source Counter";
+                BomComponent.Modify();
+            until BomComponent.Next() = 0;
         If BomComponent.FindSet() then begin
-            BomComponent."Source Counter" := 1;
+            BomComponent."Source Counter2" := 1;
             BomComponent.Modify();
         end;
-        Contact.SetRange("Source Counter", 0);
+        Contact.SetRange("Source Counter2", 0);
+        If Contact.FindSet() then
+            repeat
+                Contact."Source Counter2" := Contact."Source Counter";
+                Contact.Modify();
+            until Contact.Next() = 0;
         If Contact.FindSet() then begin
-            Contact."Source Counter" := 1;
+            Contact."Source Counter2" := 1;
             Contact.Modify();
         end;
 
@@ -3141,7 +3161,7 @@ codeunit 75200 Importaciones
             SourceCounter := JTPVToken.AsValue().AsInteger();
 
         if SourceCounter <> 0 then
-            SalesPrice.SetFilter("Source Counter", '>%1', SourceCounter);
+            SalesPrice.SetFilter("Source Counter2", '>%1', SourceCounter);
         // Filtrar precios de venta que estén vigentes hoy
         SalesPrice.SetFilter("Starting Date", '%1|..%2', 0D, TodayDate);
         SalesPrice.SetFilter("Ending Date", '%1|>=%2', 0D, TodayDate);
@@ -3164,7 +3184,7 @@ codeunit 75200 Importaciones
                 JPrice.Add('Allow_Line_Disc', SalesPrice."Allow Line Disc.");
                 JPrice.Add('Allow_Invoice_Disc', SalesPrice."Allow Invoice Disc.");
                 JPrice.Add('VAT_Bus_Posting_Gr_Price', SalesPrice."VAT Bus. Posting Gr. (Price)");
-                JPrice.Add('Source_Counter', SalesPrice."Source Counter");
+                JPrice.Add('Source_Counter', SalesPrice."Source Counter2");
                 If SalesPrice."Sales Type" = SalesPrice."Sales Type"::"Customer Price Group" then begin
                     if SalesPrice."Sales Code" = 'TIENDA' then JArray.Add(JPrice);
                 end else
@@ -3598,11 +3618,11 @@ codeunit 75200 Importaciones
     var
         BomComponent: Record "BOM Component";
     begin
-        BomComponent.SetCurrentKey("Source Counter");
+        BomComponent.SetCurrentKey("Source Counter2");
         if BomComponent.FindLast() then
-            Rec."Source Counter" := BomComponent."Source Counter" + 1
+            Rec."Source Counter2" := BomComponent."Source Counter2" + 1
         else
-            Rec."Source Counter" := 1;
+            Rec."Source Counter2" := 1;
 
     end;
 
@@ -3611,11 +3631,13 @@ codeunit 75200 Importaciones
     var
         BomComponent: Record "BOM Component";
     begin
-        BomComponent.SetCurrentKey("Source Counter");
+        if not RunTrigger then exit;
+        BomComponent.SetCurrentKey("Source Counter2");
         if BomComponent.FindLast() then
-            Rec."Source Counter" := BomComponent."Source Counter" + 1
+            Rec."Source Counter2" := BomComponent."Source Counter2" + 1
         else
-            Rec."Source Counter" := 1;
+            Rec."Source Counter2" := 1;
+        Rec.Modify(false);
 
     end;
 
@@ -3650,12 +3672,13 @@ codeunit 75200 Importaciones
     var
         Item: Record "Item";
     begin
+        if not RunTrigger then exit;
         Item.SetCurrentKey("Source Counter2");
         if Item.FindLast() then
             Rec."Source Counter2" := Item."Source Counter2" + 1
         else
             Rec."Source Counter2" := 1;
-
+        Rec.Modify(false);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Sales Price", OnAfterDeleteEvent, '', true, true)]
@@ -3676,11 +3699,11 @@ codeunit 75200 Importaciones
     var
         SalesPrice: Record "Sales Price";
     begin
-        SalesPrice.SetCurrentKey("Source Counter");
+        SalesPrice.SetCurrentKey("Source Counter2");
         if SalesPrice.FindLast() then
-            Rec."Source Counter" := SalesPrice."Source Counter" + 1
+            Rec."Source Counter2" := SalesPrice."Source Counter2" + 1
         else
-            Rec."Source Counter" := 1;
+            Rec."Source Counter2" := 1;
 
     end;
 
@@ -3689,12 +3712,11 @@ codeunit 75200 Importaciones
     var
         SalesPrice: Record "Sales Price";
     begin
-        SalesPrice.SetCurrentKey("Source Counter");
+        if not RunTrigger then exit;
+        SalesPrice.SetCurrentKey("Source Counter2");
         if SalesPrice.FindLast() then
-            Rec."Source Counter" := SalesPrice."Source Counter" + 1
-        else
-            Rec."Source Counter" := 1;
-
+            Rec."Source Counter2" := SalesPrice."Source Counter2" + 1;
+        Rec.Modify(false);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::Customer, OnAfterDeleteEvent, '', true, true)]
@@ -3715,11 +3737,11 @@ codeunit 75200 Importaciones
     var
         Customer: Record Customer;
     begin
-        Customer.SetCurrentKey("Source Counter");
+        Customer.SetCurrentKey("Source Counter2");
         if Customer.FindLast() then
-            Rec."Source Counter" := Customer."Source Counter" + 1
+            Rec."Source Counter2" := Customer."Source Counter2" + 1
         else
-            Rec."Source Counter" := 1;
+            Rec."Source Counter2" := 1;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::Customer, OnAfterModifyEvent, '', true, true)]
@@ -3727,11 +3749,13 @@ codeunit 75200 Importaciones
     var
         Customer: Record Customer;
     begin
-        Customer.SetCurrentKey("Source Counter");
+        if not RunTrigger then exit;
+        Customer.SetCurrentKey("Source Counter2");
         if Customer.FindLast() then
-            Rec."Source Counter" := Customer."Source Counter" + 1
+            Rec."Source Counter2" := Customer."Source Counter2" + 1
         else
-            Rec."Source Counter" := 1;
+            Rec."Source Counter2" := 1;
+        Rec.Modify(false);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::Contact, OnAfterDeleteEvent, '', true, true)]
@@ -3752,11 +3776,11 @@ codeunit 75200 Importaciones
     var
         Contact: Record Contact;
     begin
-        Contact.SetCurrentKey("Source Counter");
+        Contact.SetCurrentKey("Source Counter2");
         if Contact.FindLast() then
-            Rec."Source Counter" := Contact."Source Counter" + 1
+            Rec."Source Counter2" := Contact."Source Counter2" + 1
         else
-            Rec."Source Counter" := 1;
+            Rec."Source Counter2" := 1;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::Contact, OnAfterModifyEvent, '', true, true)]
@@ -3764,12 +3788,13 @@ codeunit 75200 Importaciones
     var
         Contact: Record Contact;
     begin
-        Contact.SetCurrentKey("Source Counter");
+        if not RunTrigger then exit;
+        Contact.SetCurrentKey("Source Counter2");
         if Contact.FindLast() then
-            Rec."Source Counter" := Contact."Source Counter" + 1
+            Rec."Source Counter2" := Contact."Source Counter2" + 1
         else
-            Rec."Source Counter" := 1;
-
+            Rec."Source Counter2" := 1;
+        Rec.Modify(false);
 
     end;
 

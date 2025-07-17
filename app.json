@@ -2,7 +2,7 @@
   "id": "cc6b81eb-d2ed-4a5f-9c3a-2fe4f6f9d362",
   "name": "Pos BC",
   "publisher": "Excelia",
-  "version": "1.0.2.9",
+  "version": "1.0.3.0",
   "brief": "",
   "description": "",
   "privacyStatement": "",
@@ -15,13 +15,13 @@
       "id": "a605cbfe-fbf4-49fb-a519-95ebb72530c2",
       "name": "ALMigracionEcuador",
       "publisher": "Excelia",
-      "version": "1.0.0.72"
+      "version": "1.0.0.80"
     },
     {
       "id": "8fd73425-8e0e-488e-adb5-3432e0bae290",
       "name": "CertificaE_Ecuador_BCW1",
       "publisher": "Excelia",
-      "version": "1.0.0.6"
+      "version": "1.0.0.12"
     }
       ],
   "screenshots": [],
