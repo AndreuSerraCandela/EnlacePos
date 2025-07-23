@@ -38,9 +38,9 @@ tableextension 75214 PaymentMethodExtension extends "Payment Method"
         field(91104; "Cuenta pago"; Code[20])
         {
             Caption = 'Cuenta pago';
-            TableRelation = if ("Bal. Account Type" = const("G/L Account")) "G/L Account"
+            TableRelation = if ("Tipo Cuenta pago" = const("G/L Account")) "G/L Account"
             else
-            if ("Bal. Account Type" = const("Bank Account")) "Bank Account";
+            if ("Tipo Cuenta pago" = const("Bank Account")) "Bank Account";
 
             trigger OnValidate()
             begin
