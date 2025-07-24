@@ -3849,6 +3849,7 @@ codeunit 75200 Importaciones
         Descuento: Decimal;
         GenJnlLine: Record "Gen. Journal Line";
         PaymentMethod: Record "Payment Method";
+        DetallePagoxTpv: Record "Payment Method Det TPV";
     begin
         //cONTABILIZAR LINEAS DE PAGO
         If SalesInvoiceHeader."No." <> '' then begin
@@ -3875,7 +3876,7 @@ codeunit 75200 Importaciones
                                 GenJnlLine."Account Type" := GenJnlLine."Account Type"::"G/L Account";
 
                         end;
-                        GenJnlLine.Validate("Account No.", PaymentMethod."Cuenta pago");
+                        GenJnlLine.Validate("Account No.", PaymentMethod.CuentaPago(PaymentMethod."Cuenta pago", SalesHeader.Tienda));
                         GenJnlLine.Description := 'Pago de factura ' + SalesInvoiceHeader."No.";
                         GenJnlLine.Validate(Amount, Detallepago."Importe");
                         GenJnlLine."Bal. Account Type" := GenJnlLine."Account Type"::Customer;
@@ -3918,7 +3919,7 @@ codeunit 75200 Importaciones
                             GenJnlLine."Account Type" := GenJnlLine."Account Type"::"G/L Account";
 
                     end;
-                    GenJnlLine.Validate("Account No.", PaymentMethod."Cuenta pago");
+                    GenJnlLine.Validate("Account No.", PaymentMethod.CuentaPago(PaymentMethod."Cuenta pago", SalesHeader.Tienda));
                     GenJnlLine."Bal. Account Type" := GenJnlLine."Account Type"::Customer;
                     GenJnlLine.Validate("Bal. Account No.", SalesCrMemoHeader."Bill-to Customer No.");
                     GenJnlLine."Applies-to Doc. Type" := GenJnlLine."Applies-to Doc. Type"::"Credit Memo";

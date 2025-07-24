@@ -25,6 +25,7 @@ tableextension 75214 PaymentMethodExtension extends "Payment Method"
         {
             Caption = 'Cuenta descuento';
             TableRelation = "G/L Account";
+
         }
         field(91103; "Tipo Cuenta pago"; enum "Payment Balance Account Type")
         {
@@ -57,4 +58,14 @@ tableextension 75214 PaymentMethodExtension extends "Payment Method"
         }
 
     }
+    procedure CuentaPago(pCode: Code[20]; Tienda: Code[20]): Code[20]
+    var
+        Dedtalle: Record "Payment Method Det TPV";
+    begin
+        Dedtalle.SetRange("Payment Method", "pCode");
+        Dedtalle.SetRange("Tienda", Tienda);
+        if Dedtalle.FindFirst() then
+            exit(Dedtalle."Cuenta pago");
+        Error('No se ha encontrado la cuenta de pago para la tienda %1 y el método de pago %2', Tienda, pCode);
+    end;
 }

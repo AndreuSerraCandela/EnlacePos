@@ -32,6 +32,13 @@ pageextension 75215 PaymentMethodListExt extends "Payment Methods"
                 Caption = 'Cuenta pago';
                 TableRelation = "G/L Account";
                 ApplicationArea = All;
+                trigger OnAssistEdit()
+                var
+                    Dedtalle: Record "Payment Method Det TPV";
+                begin
+                    Dedtalle.SetRange("Payment Method", Rec."Code");
+                    Page.Run(Page::"Detalle Forma Pago", Dedtalle);
+                end;
             }
             field("Tipo Pago"; Rec."Tipo Pago")
             {
