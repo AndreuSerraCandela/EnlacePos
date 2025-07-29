@@ -31,4 +31,11 @@ table 75214 "Payment Method Det TPV"
 
 
     }
+    keys
+    {
+        key(Key1; "Payment Method", Tienda)
+        {
+            Clustered = true;
+        }
+    }
 }
