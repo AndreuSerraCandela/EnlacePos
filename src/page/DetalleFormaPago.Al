@@ -1,6 +1,6 @@
 page 75217 "Detalle Forma Pago"
 {
-    Caption = 'Detaffe Forma Pago';
+    Caption = 'Forma de pago x tienda';
     PageType = List;
     SourceTable = "Payment Method Det TPV";
     UsageCategory = Lists;
