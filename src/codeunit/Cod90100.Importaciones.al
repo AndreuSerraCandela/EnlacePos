@@ -15,7 +15,6 @@ codeunit 75200 Importaciones
     tabledata 39 = rimd,
     tabledata 112 = rimd,
     tabledata 114 = rimd,
-    tabledata 75208 = rimd,
     tabledata 75207 = rimd,
     tabledata 75250 = rimd,
     tabledata 75200 = rimd,
@@ -624,12 +623,15 @@ codeunit 75200 Importaciones
                 Direccion.County := Cust.County;
                 Direccion."Country/Region Code" := Cust."Country/Region Code";
                 Direccion."Post Code" := Cust."Post Code";
-                Direccion.Insert();
+                if CustT.Name <> '' then
+                    Direccion.Insert();
                 CustT."Ship-to Code" := Direccion."Code";
-                Cust.Insert();
-                SalesSetup.TestField(CustomerTemplate);
-                CustomerTempl.Get(SalesSetup.CustomerTemplate);
-                CustomerTemplMgt.ApplyCustomerTemplate(Cust, CustomerTempl);
+                if CustT.Name <> '' then begin
+                    Cust.Insert();
+                    SalesSetup.TestField(CustomerTemplate);
+                    CustomerTempl.Get(SalesSetup.CustomerTemplate);
+                    CustomerTemplMgt.ApplyCustomerTemplate(Cust, CustomerTempl);
+                end;
             end else begin
                 if not Deleted then begin
                     CustomerRecRef.Gettable(CustT);
@@ -3850,9 +3852,17 @@ codeunit 75200 Importaciones
         GenJnlLine: Record "Gen. Journal Line";
         PaymentMethod: Record "Payment Method";
         DetallePagoxTpv: Record "Payment Method Det TPV";
+        Nc: record "Sales Header";
     begin
+
         //cONTABILIZAR LINEAS DE PAGO
         If SalesInvoiceHeader."No." <> '' then begin
+            NC.SetRange("No. Comprobante Fiscal Rel.", SalesHeader."No.");
+            if NC.FindFirst() then begin
+                NC."Establecimiento Fact. Rel" := SalesInvoiceHeader."Establecimiento Factura";
+                NC."Punto de Emision Fact. Rel." := SalesInvoiceHeader."Punto de Emision Factura";
+                NC."No. Comprobante Fiscal Rel." := SalesInvoiceHeader."No. Comprobante Fiscal";
+            end;
             SlesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
             If SlesInvoiceLine.FindSet() then begin
                 Repeat
@@ -3861,36 +3871,66 @@ codeunit 75200 Importaciones
             end;
             if (Importe > 0) and (SalesInvoiceHeader."No." <> '') then begin
                 Detallepago.SetRange("Document No.", SalesHeader."No.");
-                if Detallepago.FindSet() then begin
-                    Repeat
-                        GenJnlLine.Init();
-                        GenJnlLine."Document No." := SalesInvoiceHeader."No.";
-                        GenJnlLine."Document Type" := GenJnlLine."Document Type"::Payment;
-                        GenJnlLine."Line No." := Detallepago."Line No.";
-                        GenJnlLine."Posting Date" := SalesInvoiceHeader."Posting Date";
-                        PaymentMethod.Get(Detallepago."Forma de Pago");
-                        case PaymentMethod."Tipo Cuenta pago" of
-                            PaymentMethod."Tipo Cuenta pago"::"Bank Account":
-                                GenJnlLine."Account Type" := GenJnlLine."Account Type"::"Bank Account";
-                            PaymentMethod."Tipo Cuenta pago"::"G/L Account":
-                                GenJnlLine."Account Type" := GenJnlLine."Account Type"::"G/L Account";
+                if Detallepago.Count = 1 Then Begin
+                    Detallepago.FindFirst();
+                    GenJnlLine.Init();
+                    GenJnlLine."Document No." := SalesInvoiceHeader."No.";
+                    GenJnlLine."Document Type" := GenJnlLine."Document Type"::Payment;
+                    GenJnlLine."Line No." := Detallepago."Line No.";
+                    GenJnlLine."Posting Date" := SalesInvoiceHeader."Posting Date";
+                    PaymentMethod.Get(Detallepago."Forma de Pago");
+                    case PaymentMethod."Tipo Cuenta pago" of
+                        PaymentMethod."Tipo Cuenta pago"::"Bank Account":
+                            GenJnlLine."Account Type" := GenJnlLine."Account Type"::"Bank Account";
+                        PaymentMethod."Tipo Cuenta pago"::"G/L Account":
+                            GenJnlLine."Account Type" := GenJnlLine."Account Type"::"G/L Account";
 
-                        end;
-                        GenJnlLine.Validate("Account No.", PaymentMethod.CuentaPago(PaymentMethod.Code, SalesHeader.Tienda));
-                        GenJnlLine.Description := 'Pago de factura ' + SalesInvoiceHeader."No.";
-                        GenJnlLine.Validate(Amount, Detallepago."Importe");
-                        GenJnlLine."Bal. Account Type" := GenJnlLine."Account Type"::Customer;
-                        GenJnlLine.Validate("Bal. Account No.", SalesInvoiceHeader."Bill-to Customer No.");
-                        GenJnlLine."Applies-to Doc. Type" := GenJnlLine."Applies-to Doc. Type"::Invoice;
-                        GenJnlLine."Applies-to Doc. No." := SalesInvoiceHeader."No.";
-                        ImportePagado := ImportePagado + Detallepago."Importe";
-                        GenJnlLine."Shortcut Dimension 1 Code" := SalesInvoiceHeader."Shortcut Dimension 1 Code";
-                        GenJnlLine."Shortcut Dimension 2 Code" := SalesInvoiceHeader."Shortcut Dimension 2 Code";
-                        if GenJnlLine."Dimension Set ID" = 0 then
-                            GenJnlLine."Dimension Set ID" := SalesInvoiceHeader."Dimension Set ID";
-                        GenJnlPostLine.Run(GenJnlLine);
-                    Until Detallepago.Next() = 0;
+                    end;
+                    GenJnlLine.Validate("Account No.", PaymentMethod.CuentaPago(PaymentMethod.Code, SalesHeader.Tienda));
+                    GenJnlLine.Description := 'Pago de factura ' + SalesInvoiceHeader."No.";
+                    GenJnlLine.Validate(Amount, "Importe");
+                    GenJnlLine."Bal. Account Type" := GenJnlLine."Account Type"::Customer;
+                    GenJnlLine.Validate("Bal. Account No.", SalesInvoiceHeader."Bill-to Customer No.");
+                    GenJnlLine."Applies-to Doc. Type" := GenJnlLine."Applies-to Doc. Type"::Invoice;
+                    GenJnlLine."Applies-to Doc. No." := SalesInvoiceHeader."No.";
+                    ImportePagado := ImportePagado + Detallepago."Importe";
+                    GenJnlLine."Shortcut Dimension 1 Code" := SalesInvoiceHeader."Shortcut Dimension 1 Code";
+                    GenJnlLine."Shortcut Dimension 2 Code" := SalesInvoiceHeader."Shortcut Dimension 2 Code";
+                    if GenJnlLine."Dimension Set ID" = 0 then
+                        GenJnlLine."Dimension Set ID" := SalesInvoiceHeader."Dimension Set ID";
+                    GenJnlPostLine.Run(GenJnlLine);
+                End else begin
+                    if Detallepago.FindSet() then begin
+                        Repeat
+                            GenJnlLine.Init();
+                            GenJnlLine."Document No." := SalesInvoiceHeader."No.";
+                            GenJnlLine."Document Type" := GenJnlLine."Document Type"::Payment;
+                            GenJnlLine."Line No." := Detallepago."Line No.";
+                            GenJnlLine."Posting Date" := SalesInvoiceHeader."Posting Date";
+                            PaymentMethod.Get(Detallepago."Forma de Pago");
+                            case PaymentMethod."Tipo Cuenta pago" of
+                                PaymentMethod."Tipo Cuenta pago"::"Bank Account":
+                                    GenJnlLine."Account Type" := GenJnlLine."Account Type"::"Bank Account";
+                                PaymentMethod."Tipo Cuenta pago"::"G/L Account":
+                                    GenJnlLine."Account Type" := GenJnlLine."Account Type"::"G/L Account";
 
+                            end;
+                            GenJnlLine.Validate("Account No.", PaymentMethod.CuentaPago(PaymentMethod.Code, SalesHeader.Tienda));
+                            GenJnlLine.Description := 'Pago de factura ' + SalesInvoiceHeader."No.";
+                            GenJnlLine.Validate(Amount, Detallepago."Importe");
+                            GenJnlLine."Bal. Account Type" := GenJnlLine."Account Type"::Customer;
+                            GenJnlLine.Validate("Bal. Account No.", SalesInvoiceHeader."Bill-to Customer No.");
+                            GenJnlLine."Applies-to Doc. Type" := GenJnlLine."Applies-to Doc. Type"::Invoice;
+                            GenJnlLine."Applies-to Doc. No." := SalesInvoiceHeader."No.";
+                            ImportePagado := ImportePagado + Detallepago."Importe";
+                            GenJnlLine."Shortcut Dimension 1 Code" := SalesInvoiceHeader."Shortcut Dimension 1 Code";
+                            GenJnlLine."Shortcut Dimension 2 Code" := SalesInvoiceHeader."Shortcut Dimension 2 Code";
+                            if GenJnlLine."Dimension Set ID" = 0 then
+                                GenJnlLine."Dimension Set ID" := SalesInvoiceHeader."Dimension Set ID";
+                            GenJnlPostLine.Run(GenJnlLine);
+                        Until Detallepago.Next() = 0;
+
+                    end;
                 end;
             end;
         end;
@@ -3904,35 +3944,66 @@ codeunit 75200 Importaciones
         end;
         if (Importe <> 0) and (SalesCrMemoHeader."No." <> '') then begin
             Detallepago.SetRange("Document No.", SalesHeader."No.");
-            if Detallepago.FindSet() then begin
-                Repeat
-                    GenJnlLine.Init();
-                    GenJnlLine."Document No." := SalesCrMemoHeader."No.";
-                    GenJnlLine."Document Type" := GenJnlLine."Document Type"::Refund;
-                    GenJnlLine."Line No." := Detallepago."Line No.";
-                    GenJnlLine."Posting Date" := SalesCrMemoHeader."Posting Date";
-                    PaymentMethod.Get(Detallepago."Forma de Pago");
-                    case PaymentMethod."Tipo Cuenta pago" of
-                        PaymentMethod."Tipo Cuenta pago"::"Bank Account":
-                            GenJnlLine."Account Type" := GenJnlLine."Account Type"::"Bank Account";
-                        PaymentMethod."Tipo Cuenta pago"::"G/L Account":
-                            GenJnlLine."Account Type" := GenJnlLine."Account Type"::"G/L Account";
+            if Detallepago.Count = 1 then begin
+                Detallepago.FindFirst();
+                GenJnlLine.Init();
+                GenJnlLine."Document No." := SalesCrMemoHeader."No.";
+                GenJnlLine."Document Type" := GenJnlLine."Document Type"::Refund;
+                GenJnlLine."Line No." := Detallepago."Line No.";
+                GenJnlLine."Posting Date" := SalesCrMemoHeader."Posting Date";
+                PaymentMethod.Get(Detallepago."Forma de Pago");
+                case PaymentMethod."Tipo Cuenta pago" of
+                    PaymentMethod."Tipo Cuenta pago"::"Bank Account":
+                        GenJnlLine."Account Type" := GenJnlLine."Account Type"::"Bank Account";
+                    PaymentMethod."Tipo Cuenta pago"::"G/L Account":
+                        GenJnlLine."Account Type" := GenJnlLine."Account Type"::"G/L Account";
 
-                    end;
-                    GenJnlLine.Validate("Account No.", PaymentMethod.CuentaPago(PaymentMethod.Code, SalesHeader.Tienda));
-                    GenJnlLine."Bal. Account Type" := GenJnlLine."Account Type"::Customer;
-                    GenJnlLine.Validate("Bal. Account No.", SalesCrMemoHeader."Bill-to Customer No.");
-                    GenJnlLine."Applies-to Doc. Type" := GenJnlLine."Applies-to Doc. Type"::"Credit Memo";
-                    GenJnlLine."Applies-to Doc. No." := SalesCrMemoHeader."No.";
-                    GenJnlLine.Description := 'Liq.Nota crédito ' + SalesCrMemoHeader."No.";
-                    GenJnlLine.Validate(Amount, -Detallepago."Importe");
+                end;
+                GenJnlLine.Validate("Account No.", PaymentMethod.CuentaPago(PaymentMethod.Code, SalesHeader.Tienda));
+                GenJnlLine."Bal. Account Type" := GenJnlLine."Account Type"::Customer;
+                GenJnlLine.Validate("Bal. Account No.", SalesCrMemoHeader."Bill-to Customer No.");
+                GenJnlLine."Applies-to Doc. Type" := GenJnlLine."Applies-to Doc. Type"::"Credit Memo";
+                GenJnlLine."Applies-to Doc. No." := SalesCrMemoHeader."No.";
+                GenJnlLine.Description := 'Liq.Nota crédito ' + SalesCrMemoHeader."No.";
+                GenJnlLine.Validate(Amount, -"Importe");
 
-                    GenJnlLine."Shortcut Dimension 1 Code" := SalesCrMemoHeader."Shortcut Dimension 1 Code";
-                    GenJnlLine."Shortcut Dimension 2 Code" := SalesCrMemoHeader."Shortcut Dimension 2 Code";
-                    if GenJnlLine."Dimension Set ID" = 0 then
-                        GenJnlLine."Dimension Set ID" := SalesCrMemoHeader."Dimension Set ID";
-                    GenJnlPostLine.Run(GenJnlLine);
-                Until Detallepago.Next() = 0;
+                GenJnlLine."Shortcut Dimension 1 Code" := SalesCrMemoHeader."Shortcut Dimension 1 Code";
+                GenJnlLine."Shortcut Dimension 2 Code" := SalesCrMemoHeader."Shortcut Dimension 2 Code";
+                if GenJnlLine."Dimension Set ID" = 0 then
+                    GenJnlLine."Dimension Set ID" := SalesCrMemoHeader."Dimension Set ID";
+                GenJnlPostLine.Run(GenJnlLine);
+
+            end else begin
+                if Detallepago.FindSet() then begin
+                    Repeat
+                        GenJnlLine.Init();
+                        GenJnlLine."Document No." := SalesCrMemoHeader."No.";
+                        GenJnlLine."Document Type" := GenJnlLine."Document Type"::Refund;
+                        GenJnlLine."Line No." := Detallepago."Line No.";
+                        GenJnlLine."Posting Date" := SalesCrMemoHeader."Posting Date";
+                        PaymentMethod.Get(Detallepago."Forma de Pago");
+                        case PaymentMethod."Tipo Cuenta pago" of
+                            PaymentMethod."Tipo Cuenta pago"::"Bank Account":
+                                GenJnlLine."Account Type" := GenJnlLine."Account Type"::"Bank Account";
+                            PaymentMethod."Tipo Cuenta pago"::"G/L Account":
+                                GenJnlLine."Account Type" := GenJnlLine."Account Type"::"G/L Account";
+
+                        end;
+                        GenJnlLine.Validate("Account No.", PaymentMethod.CuentaPago(PaymentMethod.Code, SalesHeader.Tienda));
+                        GenJnlLine."Bal. Account Type" := GenJnlLine."Account Type"::Customer;
+                        GenJnlLine.Validate("Bal. Account No.", SalesCrMemoHeader."Bill-to Customer No.");
+                        GenJnlLine."Applies-to Doc. Type" := GenJnlLine."Applies-to Doc. Type"::"Credit Memo";
+                        GenJnlLine."Applies-to Doc. No." := SalesCrMemoHeader."No.";
+                        GenJnlLine.Description := 'Liq.Nota crédito ' + SalesCrMemoHeader."No.";
+                        GenJnlLine.Validate(Amount, -Detallepago."Importe");
+
+                        GenJnlLine."Shortcut Dimension 1 Code" := SalesCrMemoHeader."Shortcut Dimension 1 Code";
+                        GenJnlLine."Shortcut Dimension 2 Code" := SalesCrMemoHeader."Shortcut Dimension 2 Code";
+                        if GenJnlLine."Dimension Set ID" = 0 then
+                            GenJnlLine."Dimension Set ID" := SalesCrMemoHeader."Dimension Set ID";
+                        GenJnlPostLine.Run(GenJnlLine);
+                    Until Detallepago.Next() = 0;
+                end;
             end;
         end;
 
